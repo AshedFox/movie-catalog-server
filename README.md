@@ -1,6 +1,6 @@
 ## Description
 
-Web-application to discover and watch series/movies.
+Backend part of web-application for watching and discovering films and series using NestJS framework and GraphQL.
 
 ## Installation
 
