@@ -23,17 +23,21 @@ export class UserService {
     return { data, count, hasNext: count >= take + skip };
   }
 
-  async findOneById(id: string): Promise<UserModel> {
+  async readOneById(id: string): Promise<UserModel> {
     return UserModel.findOne(id);
   }
 
-  async findOneByEmail(email: string): Promise<UserModel> {
+  async readOneByEmail(email: string): Promise<UserModel> {
     return UserModel.findOne({ where: { email } });
   }
 
   async update(id: string, input: UpdateUserInput): Promise<UserModel> {
     await UserModel.update(id, input);
     return UserModel.findOne(id);
+  }
+
+  async setEmailConfirmed(id: string) {
+    await UserModel.update(id, { isEmailConfirmed: true });
   }
 
   async delete(id: string): Promise<boolean> {

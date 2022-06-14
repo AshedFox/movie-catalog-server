@@ -25,18 +25,18 @@ import { PersonModule } from './person/person.module';
 import { StudioModule } from './studio/studio.module';
 import { FilmPersonModule } from './film-person/film-person.module';
 import { SeriesPersonModule } from './series-person/series-person.module';
+import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
+import { EmailConfirmationModel } from './email/entities/email-confirmation.model';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      schema: 'public',
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: 'movies-catalog',
+      url: process.env.CONNECTION_STRING,
       entities: [
         EpisodeModel,
         FilmModel,
@@ -48,11 +48,13 @@ import { SeriesPersonModule } from './series-person/series-person.module';
         SeriesPersonModel,
         StudioModel,
         UserModel,
+        EmailConfirmationModel,
       ],
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      context: ({ req }) => ({ req }),
       autoSchemaFile: 'src/schema.graphql',
       installSubscriptionHandlers: true,
       buildSchemaOptions: {
@@ -66,6 +68,7 @@ import { SeriesPersonModule } from './series-person/series-person.module';
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
+    AuthModule,
     FilmModule,
     UserModule,
     EpisodeModule,
@@ -76,6 +79,7 @@ import { SeriesPersonModule } from './series-person/series-person.module';
     StudioModule,
     FilmPersonModule,
     SeriesPersonModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
