@@ -1,4 +1,12 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { SeasonService } from './season.service';
 import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
@@ -6,6 +14,8 @@ import { GetSeasonsArgs } from './dto/get-seasons.args';
 import { SeasonModel } from './entities/season.model';
 import { PaginatedSeasons } from './dto/paginated-seasons.result';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { SeriesModel } from '../series/entities/series.model';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
 @Resolver(SeasonModel)
 export class SeasonResolver {
@@ -37,5 +47,13 @@ export class SeasonResolver {
   @Mutation(() => Boolean)
   deleteSeason(@Args('id', ParseUUIDPipe) id: string) {
     return this.seasonService.delete(id);
+  }
+
+  @ResolveField(() => SeriesModel)
+  series(
+    @Parent() season: SeasonModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.seriesLoader.load(season.seriesId);
   }
 }

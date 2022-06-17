@@ -4,18 +4,21 @@ import { UpdateSeriesPersonInput } from './dto/update-series-person.input';
 import { SeriesPersonModel } from './entities/series-person.model';
 import { PersonTypeEnum } from '../shared/person-type.enum';
 import { PaginatedSeriesPersons } from './dto/paginated-series-persons.result';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NotFoundError } from '../shared/errors/not-found.error';
 
 @Injectable()
 export class SeriesPersonService {
-  async create(createSeriesPersonInput: CreateSeriesPersonInput) {
-    const seriesPerson = await SeriesPersonModel.create(
-      createSeriesPersonInput,
-    );
-    return seriesPerson.save();
-  }
+  constructor(
+    @InjectRepository(SeriesPersonModel)
+    private readonly seriesPersonRepository: Repository<SeriesPersonModel>,
+  ) {}
 
-  readOne(id: number): Promise<SeriesPersonModel> {
-    return SeriesPersonModel.findOne(id);
+  async create(
+    createSeriesPersonInput: CreateSeriesPersonInput,
+  ): Promise<SeriesPersonModel> {
+    return this.seriesPersonRepository.save(createSeriesPersonInput);
   }
 
   async readAll(
@@ -25,7 +28,7 @@ export class SeriesPersonService {
     personId?: number,
     type?: PersonTypeEnum,
   ): Promise<PaginatedSeriesPersons> {
-    const [data, count] = await SeriesPersonModel.findAndCount({
+    const [data, count] = await this.seriesPersonRepository.findAndCount({
       where: [
         seriesId ? { seriesId } : {},
         personId ? { personId } : {},
@@ -38,12 +41,38 @@ export class SeriesPersonService {
     return { data, count, hasNext: count >= take + skip };
   }
 
-  async update(id: number, updateSeriesPersonInput: UpdateSeriesPersonInput) {
-    await SeriesPersonModel.update(id, updateSeriesPersonInput);
-    return SeriesPersonModel.findOne(id);
+  async readAllByIds(ids: string[]): Promise<SeriesPersonModel[]> {
+    return await this.seriesPersonRepository.findByIds(ids);
   }
 
-  async delete(id: number) {
-    return !!(await SeriesPersonModel.delete(id));
+  async readOne(id: number): Promise<SeriesPersonModel> {
+    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    if (!seriesPerson) {
+      throw new NotFoundError();
+    }
+    return seriesPerson;
+  }
+
+  async update(
+    id: number,
+    updateSeriesPersonInput: UpdateSeriesPersonInput,
+  ): Promise<SeriesPersonModel> {
+    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    if (!seriesPerson) {
+      throw new NotFoundError();
+    }
+    return this.seriesPersonRepository.save({
+      ...seriesPerson,
+      ...updateSeriesPersonInput,
+    });
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    if (!seriesPerson) {
+      throw new NotFoundError();
+    }
+    await this.seriesPersonRepository.remove(seriesPerson);
+    return true;
   }
 }

@@ -1,6 +1,5 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -18,8 +17,8 @@ import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 
 @ObjectType()
 @Entity({ name: 'series' })
-export class SeriesModel extends BaseEntity {
-  @Field()
+export class SeriesModel {
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -44,24 +43,26 @@ export class SeriesModel extends BaseEntity {
   publicationDate!: Date;
 
   @Field(() => [GenreModel])
-  @ManyToMany(() => GenreModel)
+  @ManyToMany(() => GenreModel, { lazy: true })
   @JoinTable({ name: 'series_genres' })
-  genres!: GenreModel[];
+  genres!: Promise<GenreModel[]>;
 
   @Field(() => [StudioModel])
-  @ManyToMany(() => StudioModel)
+  @ManyToMany(() => StudioModel, { lazy: true })
   @JoinTable({ name: 'series_studios' })
-  studios!: StudioModel[];
+  studios!: Promise<StudioModel[]>;
 
   @Field(() => [SeriesPersonModel])
-  @OneToMany(() => SeriesPersonModel, (seriesPerson) => seriesPerson.series)
-  persons!: SeriesPersonModel[];
+  @OneToMany(() => SeriesPersonModel, (seriesPerson) => seriesPerson.series, {
+    lazy: true,
+  })
+  persons!: Promise<SeriesPersonModel[]>;
 
   @Field(() => [SeasonModel])
-  @OneToMany(() => SeasonModel, (season) => season.series)
-  seasons!: SeasonModel[];
+  @OneToMany(() => SeasonModel, (season) => season.series, { lazy: true })
+  seasons!: Promise<SeasonModel[]>;
 
   @Field(() => [EpisodeModel])
-  @OneToMany(() => EpisodeModel, (episode) => episode.series)
-  episodes!: EpisodeModel[];
+  @OneToMany(() => EpisodeModel, (episode) => episode.series, { lazy: true })
+  episodes!: Promise<EpisodeModel[]>;
 }

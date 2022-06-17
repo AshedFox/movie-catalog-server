@@ -1,6 +1,5 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -16,8 +15,8 @@ import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 
 @ObjectType()
 @Entity({ name: 'films' })
-export class FilmModel extends BaseEntity {
-  @Field()
+export class FilmModel {
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -60,6 +59,8 @@ export class FilmModel extends BaseEntity {
   studios!: Promise<StudioModel[]>;
 
   @Field(() => [FilmPersonModel])
-  @OneToMany(() => FilmPersonModel, (filmPerson) => filmPerson.film)
-  persons!: FilmPersonModel[];
+  @OneToMany(() => FilmPersonModel, (filmPerson) => filmPerson.film, {
+    lazy: true,
+  })
+  persons!: Promise<FilmPersonModel[]>;
 }

@@ -2,14 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { CreateFilmPersonInput } from './dto/create-film-person.input';
 import { UpdateFilmPersonInput } from './dto/update-film-person.input';
 import { PersonTypeEnum } from '../shared/person-type.enum';
-import { SeriesPersonModel } from '../series-person/entities/series-person.model';
 import { FilmPersonModel } from './entities/film-person.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NotFoundError } from '../shared/errors/not-found.error';
 
 @Injectable()
 export class FilmPersonService {
+  constructor(
+    @InjectRepository(FilmPersonModel)
+    private readonly filmPersonRepository: Repository<FilmPersonModel>,
+  ) {}
+
   async create(createFilmPersonInput: CreateFilmPersonInput) {
-    const filmPerson = await FilmPersonModel.create(createFilmPersonInput);
-    return filmPerson.save();
+    return this.filmPersonRepository.save(createFilmPersonInput);
   }
 
   async readAll(
@@ -19,7 +25,7 @@ export class FilmPersonService {
     personId?: number,
     type?: PersonTypeEnum,
   ) {
-    const [data, count] = await FilmPersonModel.findAndCount({
+    const [data, count] = await this.filmPersonRepository.findAndCount({
       where: [
         filmId ? { filmId } : {},
         personId ? { personId } : {},
@@ -32,16 +38,38 @@ export class FilmPersonService {
     return { data, count, hasNext: count >= take + skip };
   }
 
-  async readOne(id: number) {
-    return FilmPersonModel.findOne(id);
+  async readAllByIds(ids: number[]): Promise<FilmPersonModel[]> {
+    return await this.filmPersonRepository.findByIds(ids);
   }
 
-  async update(id: number, updateFilmPersonInput: UpdateFilmPersonInput) {
-    await FilmPersonModel.update(id, updateFilmPersonInput);
-    return FilmPersonModel.findOne(id);
+  async readOne(id: number): Promise<FilmPersonModel> {
+    const filmPerson = await this.filmPersonRepository.findOne(id);
+    if (!filmPerson) {
+      throw new NotFoundError();
+    }
+    return filmPerson;
   }
 
-  async delete(id: number) {
-    return !!(await FilmPersonModel.delete(id));
+  async update(
+    id: number,
+    updateFilmPersonInput: UpdateFilmPersonInput,
+  ): Promise<FilmPersonModel> {
+    const filmPerson = await this.filmPersonRepository.findOne(id);
+    if (!filmPerson) {
+      throw new NotFoundError();
+    }
+    return this.filmPersonRepository.save({
+      ...filmPerson,
+      ...updateFilmPersonInput,
+    });
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const filmPerson = await this.filmPersonRepository.findOne(id);
+    if (!filmPerson) {
+      throw new NotFoundError();
+    }
+    await this.filmPersonRepository.remove(filmPerson);
+    return true;
   }
 }

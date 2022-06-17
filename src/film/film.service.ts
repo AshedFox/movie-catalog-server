@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFilmInput } from './dto/create-film.input';
 import { FilmModel } from './entities/film.model';
-import { ILike } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { UpdateFilmInput } from './dto/update-film.input';
 import { PaginatedFilms } from './dto/paginated-films.result';
+import { InjectRepository } from '@nestjs/typeorm';
+import { NotFoundError } from '../shared/errors/not-found.error';
 
 @Injectable()
 export class FilmService {
+  constructor(
+    @InjectRepository(FilmModel)
+    private readonly filmRepository: Repository<FilmModel>,
+  ) {}
+
   async create(createFilmInput: CreateFilmInput): Promise<FilmModel> {
-    const film = await FilmModel.create(createFilmInput);
-    return film.save();
+    return this.filmRepository.save(createFilmInput);
   }
 
   async readAll(
@@ -17,7 +23,7 @@ export class FilmService {
     take: number,
     skip: number,
   ): Promise<PaginatedFilms> {
-    const [data, count] = await FilmModel.findAndCount({
+    const [data, count] = await this.filmRepository.findAndCount({
       where: [
         title
           ? {
@@ -36,19 +42,38 @@ export class FilmService {
     return { data, count, hasNext: count >= take + skip };
   }
 
+  async readAllByIds(ids: string[]): Promise<FilmModel[]> {
+    return await this.filmRepository.findByIds(ids);
+  }
+
   async readOne(id: string): Promise<FilmModel> {
-    return FilmModel.findOne(id);
+    const film = await this.filmRepository.findOne(id);
+    if (!film) {
+      throw new NotFoundError();
+    }
+    return film;
   }
 
   async update(
     id: string,
     updateFilmInput: UpdateFilmInput,
   ): Promise<FilmModel> {
-    await FilmModel.update(id, updateFilmInput);
-    return FilmModel.findOne(id);
+    const film = await this.filmRepository.findOne(id);
+    if (!film) {
+      throw new NotFoundError();
+    }
+    return this.filmRepository.save({
+      ...film,
+      ...updateFilmInput,
+    });
   }
 
   async delete(id: string): Promise<boolean> {
-    return !!(await FilmModel.delete(id));
+    const film = await this.filmRepository.findOne(id);
+    if (!film) {
+      throw new NotFoundError();
+    }
+    await this.filmRepository.remove(film);
+    return true;
   }
 }

@@ -1,16 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EpisodeModel } from './episode/entities/episode.model';
-import { FilmModel } from './film/entities/film.model';
-import { FilmPersonModel } from './film-person/entities/film-person.model';
-import { GenreModel } from './genre/entities/genre.model';
-import { PersonModel } from './person/entities/person.model';
-import { SeasonModel } from './season/entities/season.model';
-import { SeriesModel } from './series/entities/series.model';
-import { SeriesPersonModel } from './series-person/entities/series-person.model';
-import { StudioModel } from './studio/entities/studio.model';
-import { UserModel } from './user/entities/user.model';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { DirectiveLocation, GraphQLDirective } from 'graphql';
@@ -27,7 +17,8 @@ import { FilmPersonModule } from './film-person/film-person.module';
 import { SeriesPersonModule } from './series-person/series-person.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
-import { EmailConfirmationModel } from './email/entities/email-confirmation.model';
+import { DataLoaderModule } from './dataloader/data-loader.module';
+import { DataLoaderService } from './dataloader/data-loader.service';
 
 @Module({
   imports: [
@@ -37,36 +28,33 @@ import { EmailConfirmationModel } from './email/entities/email-confirmation.mode
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.CONNECTION_STRING,
-      entities: [
-        EpisodeModel,
-        FilmModel,
-        FilmPersonModel,
-        GenreModel,
-        PersonModel,
-        SeasonModel,
-        SeriesModel,
-        SeriesPersonModel,
-        StudioModel,
-        UserModel,
-        EmailConfirmationModel,
-      ],
       synchronize: true,
+      autoLoadEntities: true,
+      logging: true,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      context: ({ req }) => ({ req }),
-      autoSchemaFile: 'src/schema.graphql',
-      installSubscriptionHandlers: true,
-      buildSchemaOptions: {
-        directives: [
-          new GraphQLDirective({
-            name: 'upper',
-            locations: [DirectiveLocation.FIELD_DEFINITION],
-          }),
-        ],
-      },
-      playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      imports: [DataLoaderModule],
+      inject: [DataLoaderService],
+      useFactory: (dataLoaderService: DataLoaderService) => ({
+        context: ({ req }) => ({
+          req,
+          loaders: dataLoaderService.createLoaders(),
+        }),
+        introspection: true,
+        autoSchemaFile: 'src/schema.graphql',
+        installSubscriptionHandlers: true,
+        buildSchemaOptions: {
+          directives: [
+            new GraphQLDirective({
+              name: 'upper',
+              locations: [DirectiveLocation.FIELD_DEFINITION],
+            }),
+          ],
+        },
+        playground: false,
+        plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      }),
     }),
     AuthModule,
     FilmModule,
@@ -80,6 +68,7 @@ import { EmailConfirmationModel } from './email/entities/email-confirmation.mode
     FilmPersonModule,
     SeriesPersonModule,
     EmailModule,
+    DataLoaderModule,
   ],
 })
 export class AppModule {}

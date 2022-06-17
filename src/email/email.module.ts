@@ -6,10 +6,13 @@ import { EmailConfirmationService } from './email-confirmation.service';
 import { EmailResolver } from './email.resolver';
 import { UserModule } from '../user/user.module';
 import { EmailService } from './email.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EmailConfirmationModel } from './entities/email-confirmation.model';
 
 @Module({
   imports: [
     UserModule,
+    TypeOrmModule.forFeature([EmailConfirmationModel]),
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -32,6 +35,6 @@ import { EmailService } from './email.service';
     EmailResolver,
     EmailService,
   ],
-  exports: [MailingService, EmailConfirmationService, EmailResolver],
+  exports: [MailingService, EmailConfirmationService, EmailService],
 })
 export class EmailModule {}

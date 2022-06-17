@@ -1,11 +1,4 @@
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Info, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FilmModel } from './entities/film.model';
 import { CreateFilmInput } from './dto/create-film.input';
 import { GetFilmsArgs } from './dto/get-films.args';
@@ -13,18 +6,18 @@ import { FilmService } from './film.service';
 import { UpdateFilmInput } from './dto/update-film.input';
 import { PaginatedFilms } from './dto/paginated-films.result';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { FilmPersonModel } from '../film-person/entities/film-person.model';
-import { FilmPersonService } from '../film-person/film-person.service';
+import { GraphQLResolveInfo } from 'graphql';
 
 @Resolver(FilmModel)
 export class FilmResolver {
-  constructor(
-    private readonly filmService: FilmService,
-    private readonly filmPersonService: FilmPersonService,
-  ) {}
+  constructor(private readonly filmService: FilmService) {}
 
   @Query(() => PaginatedFilms)
-  async getFilms(@Args() { searchTitle, take, skip }: GetFilmsArgs) {
+  async getFilms(
+    @Args() { searchTitle, take, skip }: GetFilmsArgs,
+    @Info() info: GraphQLResolveInfo,
+  ) {
+    info.returnType;
     return this.filmService.readAll(searchTitle, take, skip);
   }
 
@@ -49,10 +42,5 @@ export class FilmResolver {
   @Mutation(() => Boolean)
   async deleteFilm(@Args('id', ParseUUIDPipe) id: string) {
     return this.filmService.delete(id);
-  }
-
-  @ResolveField(() => [FilmPersonModel])
-  async persons(@Parent() film: FilmModel) {
-    return (await this.filmPersonService.readAll(20, 0, film.id)).data;
   }
 }

@@ -1,5 +1,6 @@
 import {
   Args,
+  Context,
   Mutation,
   Parent,
   Query,
@@ -14,17 +15,12 @@ import { PaginatedEpisodes } from './dto/paginated-episodes.result';
 import { GetEpisodesArgs } from './dto/get-episodes.args';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { SeasonModel } from '../season/entities/season.model';
-import { SeasonService } from '../season/season.service';
-import { SeriesService } from '../series/series.service';
 import { SeriesModel } from '../series/entities/series.model';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
 @Resolver(EpisodeModel)
 export class EpisodeResolver {
-  constructor(
-    private readonly episodeService: EpisodeService,
-    private readonly seasonService: SeasonService,
-    private readonly seriesService: SeriesService,
-  ) {}
+  constructor(private readonly episodeService: EpisodeService) {}
 
   @Mutation(() => EpisodeModel)
   createEpisode(@Args('input') input: CreateEpisodeInput) {
@@ -55,12 +51,18 @@ export class EpisodeResolver {
   }
 
   @ResolveField(() => SeasonModel)
-  season(@Parent() episode: EpisodeModel) {
-    return this.seasonService.readOne(episode.seasonId);
+  season(
+    @Parent() episode: EpisodeModel,
+    @Context('loader') loaders: IDataLoaders,
+  ) {
+    return loaders.seasonLoader.load(episode.seasonId);
   }
 
   @ResolveField(() => SeriesModel)
-  series(@Parent() episode: EpisodeModel) {
-    return this.seriesService.readOne(episode.seriesId);
+  series(
+    @Parent() episode: EpisodeModel,
+    @Context('loader') loaders: IDataLoaders,
+  ) {
+    return loaders.seriesLoader.load(episode.seriesId);
   }
 }

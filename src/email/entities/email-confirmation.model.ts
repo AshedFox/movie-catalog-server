@@ -1,14 +1,8 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserModel } from '../../user/entities/user.model';
 
-@Entity()
-export class EmailConfirmationModel extends BaseEntity {
+@Entity({ name: 'emails_confirmations' })
+export class EmailConfirmationModel {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

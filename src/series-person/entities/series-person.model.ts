@@ -1,19 +1,13 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { PersonModel } from '../../person/entities/person.model';
 import { PersonTypeEnum } from '../../shared/person-type.enum';
 import { SeriesModel } from '../../series/entities/series.model';
 
 @ObjectType()
 @Entity({ name: 'series_persons' })
-export class SeriesPersonModel extends BaseEntity {
-  @Field()
+export class SeriesPersonModel {
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
 

@@ -3,13 +3,19 @@ import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
 import { SeasonModel } from './entities/season.model';
 import { PaginatedSeasons } from './dto/paginated-seasons.result';
-import { ILike } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { NotFoundError } from '../shared/errors/not-found.error';
 
 @Injectable()
 export class SeasonService {
+  constructor(
+    @InjectRepository(SeasonModel)
+    private readonly seasonRepository: Repository<SeasonModel>,
+  ) {}
+
   async create(createSeasonInput: CreateSeasonInput): Promise<SeasonModel> {
-    const season = await SeasonModel.create(createSeasonInput);
-    return season.save();
+    return this.seasonRepository.save(createSeasonInput);
   }
 
   async readAll(
@@ -18,7 +24,7 @@ export class SeasonService {
     take: number,
     skip: number,
   ): Promise<PaginatedSeasons> {
-    const [data, count] = await SeasonModel.findAndCount({
+    const [data, count] = await this.seasonRepository.findAndCount({
       where: [
         title
           ? {
@@ -38,19 +44,38 @@ export class SeasonService {
     return { data, count, hasNext: count >= take + skip };
   }
 
+  async readAllByIds(ids: string[]): Promise<SeasonModel[]> {
+    return await this.seasonRepository.findByIds(ids);
+  }
+
   async readOne(id: string): Promise<SeasonModel> {
-    return SeasonModel.findOne(id);
+    const season = await this.seasonRepository.findOne(id);
+    if (!season) {
+      throw new NotFoundError();
+    }
+    return season;
   }
 
   async update(
     id: string,
     updateSeasonInput: UpdateSeasonInput,
   ): Promise<SeasonModel> {
-    await SeasonModel.update(id, updateSeasonInput);
-    return SeasonModel.findOne(id);
+    const season = await this.seasonRepository.findOne(id);
+    if (!season) {
+      throw new NotFoundError();
+    }
+    return this.seasonRepository.save({
+      ...season,
+      ...updateSeasonInput,
+    });
   }
 
   async delete(id: string): Promise<boolean> {
-    return !!(await SeasonModel.delete(id));
+    const season = await this.seasonRepository.findOne(id);
+    if (!season) {
+      throw new NotFoundError();
+    }
+    await this.seasonRepository.remove(season);
+    return true;
   }
 }

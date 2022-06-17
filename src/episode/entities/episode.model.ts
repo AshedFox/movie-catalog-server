@@ -1,11 +1,11 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { SeasonModel } from '../../season/entities/season.model';
 import { SeriesModel } from '../../series/entities/series.model';
@@ -13,8 +13,9 @@ import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 
 @ObjectType()
 @Entity({ name: 'episodes' })
-export class EpisodeModel extends BaseEntity {
-  @Field()
+@Unique(['episodeNumber', 'seriesId', 'seasonId'])
+export class EpisodeModel {
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

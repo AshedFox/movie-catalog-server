@@ -1,10 +1,10 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
 @Entity({ name: 'studios' })
-export class StudioModel extends BaseEntity {
-  @Field()
+export class StudioModel {
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
 
