@@ -4,26 +4,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalAuthStrategy } from './strategies/local-auth.strategy';
-import { AuthController } from './auth.controller';
 import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
-import { EmailModule } from '../email/email.module';
+import { AuthResolver } from './auth.resolver';
+import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Module({
-  imports: [
-    UserModule,
-    EmailModule,
-    PassportModule,
-    JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: process.env.SECRET,
-        signOptions: {
-          expiresIn: '1h',
-        },
-      }),
-    }),
+  imports: [UserModule, RefreshTokenModule, PassportModule, JwtModule],
+  providers: [
+    AuthService,
+    LocalAuthStrategy,
+    JwtAuthStrategy,
+    RefreshTokenStrategy,
+    AuthResolver,
   ],
-  providers: [AuthService, LocalAuthStrategy, JwtAuthStrategy],
   exports: [AuthService],
-  controllers: [AuthController],
 })
 export class AuthModule {}

@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { RoleEnum } from '../../shared/role.enum';
 
 @ObjectType()
 @Entity({ name: 'users' })
@@ -32,4 +33,8 @@ export class UserModel {
   @Field()
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @Field(() => RoleEnum)
+  @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.User })
+  role!: RoleEnum;
 }

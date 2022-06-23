@@ -13,14 +13,20 @@ import { UpdateSeasonInput } from './dto/update-season.input';
 import { GetSeasonsArgs } from './dto/get-seasons.args';
 import { SeasonModel } from './entities/season.model';
 import { PaginatedSeasons } from './dto/paginated-seasons.result';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { SeriesModel } from '../series/entities/series.model';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '../shared/role.enum';
 
 @Resolver(SeasonModel)
 export class SeasonResolver {
   constructor(private readonly seasonService: SeasonService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => SeasonModel)
   createSeason(@Args('input') input: CreateSeasonInput) {
     return this.seasonService.create(input);
@@ -36,6 +42,8 @@ export class SeasonResolver {
     return this.seasonService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => SeasonModel)
   updateSeason(
     @Args('id', ParseUUIDPipe) id: string,
@@ -44,6 +52,8 @@ export class SeasonResolver {
     return this.seasonService.update(id, input);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteSeason(@Args('id', ParseUUIDPipe) id: string) {
     return this.seasonService.delete(id);

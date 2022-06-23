@@ -41,11 +41,11 @@ export class StudioService {
     return { data, count, hasNext: count >= take + skip };
   }
 
-  async readAllByIds(ids: string[]): Promise<StudioModel[]> {
+  async readAllByIds(ids: number[]): Promise<StudioModel[]> {
     return await this.studioRepository.findByIds(ids);
   }
 
-  async readOne(id: string): Promise<StudioModel> {
+  async readOne(id: number): Promise<StudioModel> {
     const studio = await this.studioRepository.findOne(id);
     if (!studio) {
       throw new NotFoundError();
@@ -54,7 +54,7 @@ export class StudioService {
   }
 
   async update(
-    id: string,
+    id: number,
     updateStudioInput: UpdateStudioInput,
   ): Promise<StudioModel> {
     const studio = await this.studioRepository.findOne(id);
@@ -67,7 +67,7 @@ export class StudioService {
     });
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     const studio = await this.studioRepository.findOne(id);
     if (!studio) {
       throw new NotFoundError();

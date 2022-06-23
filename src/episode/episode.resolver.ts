@@ -13,15 +13,21 @@ import { UpdateEpisodeInput } from './dto/update-episode.input';
 import { EpisodeModel } from './entities/episode.model';
 import { PaginatedEpisodes } from './dto/paginated-episodes.result';
 import { GetEpisodesArgs } from './dto/get-episodes.args';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { SeasonModel } from '../season/entities/season.model';
 import { SeriesModel } from '../series/entities/series.model';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '../shared/role.enum';
 
 @Resolver(EpisodeModel)
 export class EpisodeResolver {
   constructor(private readonly episodeService: EpisodeService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => EpisodeModel)
   createEpisode(@Args('input') input: CreateEpisodeInput) {
     return this.episodeService.create(input);
@@ -37,6 +43,8 @@ export class EpisodeResolver {
     return this.episodeService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => EpisodeModel)
   updateEpisode(
     @Args('id', ParseUUIDPipe) id: string,
@@ -45,6 +53,8 @@ export class EpisodeResolver {
     return this.episodeService.update(id, input);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteEpisode(@Args('id', ParseUUIDPipe) id: string) {
     return this.episodeService.delete(id);

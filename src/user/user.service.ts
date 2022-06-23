@@ -25,7 +25,7 @@ export class UserService {
     return this.userRepository.save(createUserInput);
   }
 
-  async findAll(take: number, skip: number): Promise<PaginatedUsers> {
+  async readAll(take: number, skip: number): Promise<PaginatedUsers> {
     const [data, count] = await this.userRepository.findAndCount({
       take,
       skip,

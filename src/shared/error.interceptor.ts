@@ -2,6 +2,7 @@ import {
   CallHandler,
   ConflictException,
   ExecutionContext,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
@@ -20,6 +21,8 @@ export class ErrorInterceptor implements NestInterceptor {
           return throwError(() => new NotFoundException());
         } else if (err instanceof AlreadyExistsError) {
           return throwError(() => new ConflictException());
+        } else if (err instanceof HttpException) {
+          return throwError(() => err);
         }
         return throwError(() => new InternalServerErrorException());
       }),

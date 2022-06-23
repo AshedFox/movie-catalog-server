@@ -31,4 +31,12 @@ export class CreateFilmInput implements Partial<FilmModel> {
   @MinLength(5)
   @IsOptional()
   videoUrl?: string;
+
+  @Field(() => [Int], { nullable: true, defaultValue: [] })
+  @IsOptional()
+  studiosIds?: number[];
+
+  @Field(() => [String], { nullable: true, defaultValue: [] })
+  @IsOptional()
+  genresIds?: string[];
 }

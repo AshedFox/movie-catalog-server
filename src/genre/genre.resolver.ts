@@ -5,12 +5,18 @@ import { UpdateGenreInput } from './dto/update-genre.input';
 import { GenreModel } from './entities/genre.model';
 import { PaginatedGenres } from './dto/paginated-genres.result';
 import { GetGenresArgs } from './dto/get-genres.args';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '../shared/role.enum';
 
 @Resolver(GenreModel)
 export class GenreResolver {
   constructor(private readonly genreService: GenreService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => GenreModel)
   createGenre(@Args('input') createGenreInput: CreateGenreInput) {
     return this.genreService.create(createGenreInput);
@@ -26,6 +32,8 @@ export class GenreResolver {
     return this.genreService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => GenreModel)
   updateGenre(
     @Args('id', ParseUUIDPipe) id: string,
@@ -34,6 +42,8 @@ export class GenreResolver {
     return this.genreService.update(id, updateGenreInput);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteGenre(@Args('id', ParseUUIDPipe) id: string) {
     return this.genreService.delete(id);

@@ -11,17 +11,23 @@ import { FilmPersonService } from './film-person.service';
 import { CreateFilmPersonInput } from './dto/create-film-person.input';
 import { UpdateFilmPersonInput } from './dto/update-film-person.input';
 import { FilmPersonModel } from './entities/film-person.model';
-import { ParseIntPipe } from '@nestjs/common';
+import { ParseIntPipe, UseGuards } from '@nestjs/common';
 import { GetFilmsPersonsArgs } from './dto/get-films-persons.args';
 import { PaginatedFilmsPersons } from './dto/paginated-films-persons.result';
 import { FilmModel } from '../film/entities/film.model';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { PersonModel } from '../person/entities/person.model';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '../shared/role.enum';
 
 @Resolver(FilmPersonModel)
 export class FilmPersonResolver {
   constructor(private readonly filmPersonService: FilmPersonService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => FilmPersonModel)
   createFilmPerson(
     @Args('input') createFilmPersonInput: CreateFilmPersonInput,
@@ -41,6 +47,8 @@ export class FilmPersonResolver {
     return this.filmPersonService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => FilmPersonModel)
   updateFilmPerson(
     @Args('id', ParseIntPipe) id: number,
@@ -49,6 +57,8 @@ export class FilmPersonResolver {
     return this.filmPersonService.update(id, updateFilmPersonInput);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteFilmPerson(@Args('id', ParseIntPipe) id: number) {
     return this.filmPersonService.delete(id);

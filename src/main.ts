@@ -1,14 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { ErrorInterceptor } from './shared/error.interceptor';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  //app.use(helmet());
-  app.useGlobalInterceptors(new ErrorInterceptor());
-  app.useGlobalPipes(new ValidationPipe());
+  app.use(helmet());
+  app.use(cookieParser(process.env.COOKIE_SECRET));
 
   await app.listen(3000);
 }

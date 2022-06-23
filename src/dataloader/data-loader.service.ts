@@ -14,6 +14,7 @@ import { SeasonService } from '../season/season.service';
 import { SeasonModel } from '../season/entities/season.model';
 import { UserModel } from '../user/entities/user.model';
 import { UserService } from '../user/user.service';
+import { FilmModel } from '../film/entities/film.model';
 
 @Injectable()
 export class DataLoaderService {
@@ -32,8 +33,8 @@ export class DataLoaderService {
       string,
       EmailConfirmationModel
     >(async (ids: string[]) => this.emailConfirmationService.readAllByIds(ids));
-    const filmLoader = new DataLoader(async (ids: string[]) =>
-      this.filmService.readAllByIds(ids),
+    const filmLoader = new DataLoader<string, FilmModel>(
+      async (ids: string[]) => this.filmService.readAllByIds(ids),
     );
     const filmPersonLoader = new DataLoader<number, FilmPersonModel>(
       async (ids: number[]) => this.filmPersonService.readAllByIds(ids),

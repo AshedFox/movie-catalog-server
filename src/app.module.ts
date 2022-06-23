@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -19,6 +19,11 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
 import { DataLoaderService } from './dataloader/data-loader.service';
+import { RefreshTokenModule } from './refresh-token/refresh-token.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { GqlThrottlerGuard } from './shared/gql-throttler.guard';
+import { ErrorInterceptor } from './shared/error.interceptor';
 
 @Module({
   imports: [
@@ -37,13 +42,18 @@ import { DataLoaderService } from './dataloader/data-loader.service';
       imports: [DataLoaderModule],
       inject: [DataLoaderService],
       useFactory: (dataLoaderService: DataLoaderService) => ({
-        context: ({ req }) => ({
+        context: ({ req, res }) => ({
           req,
+          res,
           loaders: dataLoaderService.createLoaders(),
         }),
         introspection: true,
         autoSchemaFile: 'src/schema.graphql',
         installSubscriptionHandlers: true,
+        cors: {
+          credentials: true,
+          origin: true,
+        },
         buildSchemaOptions: {
           directives: [
             new GraphQLDirective({
@@ -55,6 +65,10 @@ import { DataLoaderService } from './dataloader/data-loader.service';
         playground: false,
         plugins: [ApolloServerPluginLandingPageLocalDefault()],
       }),
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 30,
+      limit: 10,
     }),
     AuthModule,
     FilmModule,
@@ -69,6 +83,12 @@ import { DataLoaderService } from './dataloader/data-loader.service';
     SeriesPersonModule,
     EmailModule,
     DataLoaderModule,
+    RefreshTokenModule,
+  ],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
+    { provide: APP_GUARD, useClass: GqlThrottlerGuard },
+    { provide: APP_PIPE, useClass: ValidationPipe },
   ],
 })
 export class AppModule {}
