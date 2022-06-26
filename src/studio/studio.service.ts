@@ -6,16 +6,26 @@ import { ILike, Repository } from 'typeorm';
 import { PaginatedStudios } from './dto/paginated-studios.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
+import { StudioCountryService } from '../studio-country/studio-country.service';
 
 @Injectable()
 export class StudioService {
   constructor(
     @InjectRepository(StudioModel)
     private readonly studioRepository: Repository<StudioModel>,
+    private readonly studioCountryService: StudioCountryService,
   ) {}
 
   async create(createStudioInput: CreateStudioInput): Promise<StudioModel> {
-    return this.studioRepository.save(createStudioInput);
+    const studio = await this.studioRepository.save(createStudioInput);
+    const { countriesIds } = createStudioInput;
+    if (countriesIds && countriesIds.length > 0) {
+      await this.studioCountryService.createStudioCountries(
+        studio.id,
+        countriesIds,
+      );
+    }
+    return studio;
   }
 
   async readAll(
@@ -48,7 +58,7 @@ export class StudioService {
   async readOne(id: number): Promise<StudioModel> {
     const studio = await this.studioRepository.findOne(id);
     if (!studio) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Studio with id "${id}" not found`);
     }
     return studio;
   }

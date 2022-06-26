@@ -20,7 +20,8 @@ import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../shared/role.enum';
+import { RoleEnum } from '../user/entities/role.enum';
+import { VideoModel } from '../video/entities/video.model';
 
 @Resolver(EpisodeModel)
 export class EpisodeResolver {
@@ -74,5 +75,15 @@ export class EpisodeResolver {
     @Context('loader') loaders: IDataLoaders,
   ) {
     return loaders.seriesLoader.load(episode.seriesId);
+  }
+
+  @ResolveField(() => VideoModel)
+  video(
+    @Parent() episode: EpisodeModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return episode.videoId
+      ? loaders.videoLoader.load(episode.videoId)
+      : undefined;
   }
 }

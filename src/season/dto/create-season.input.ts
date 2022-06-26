@@ -16,7 +16,11 @@ export class CreateSeasonInput implements Partial<SeasonModel> {
 
   @Field({ nullable: true })
   @IsOptional()
-  premierDate?: Date;
+  startReleaseDate?: Date;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  endReleaseDate?: Date;
 
   @Field(() => Int, { nullable: true })
   @Min(0)

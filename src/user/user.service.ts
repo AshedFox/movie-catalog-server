@@ -68,6 +68,10 @@ export class UserService {
     return this.userRepository.save({
       ...user,
       ...updateUserInput,
+      isEmailConfirmed:
+        updateUserInput.email && user.email !== updateUserInput.email
+          ? false
+          : user.isEmailConfirmed,
     });
   }
 

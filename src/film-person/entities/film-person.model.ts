@@ -12,11 +12,11 @@ export class FilmPersonModel {
   id!: number;
 
   @Field(() => FilmModel)
-  @ManyToOne(() => FilmModel)
+  @ManyToOne(() => FilmModel, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   film!: FilmModel;
 
   @Field(() => PersonModel)
-  @ManyToOne(() => PersonModel)
+  @ManyToOne(() => PersonModel, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   person!: PersonModel;
 
   @Field()

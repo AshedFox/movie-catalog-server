@@ -19,7 +19,7 @@ import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../shared/role.enum';
+import { RoleEnum } from '../user/entities/role.enum';
 
 @Resolver(SeasonModel)
 export class SeasonResolver {

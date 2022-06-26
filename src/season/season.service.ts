@@ -3,7 +3,7 @@ import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
 import { SeasonModel } from './entities/season.model';
 import { PaginatedSeasons } from './dto/paginated-seasons.result';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 
@@ -45,7 +45,13 @@ export class SeasonService {
   }
 
   async readAllByIds(ids: string[]): Promise<SeasonModel[]> {
-    return await this.seasonRepository.findByIds(ids);
+    return this.seasonRepository.findByIds(ids);
+  }
+
+  async readSeasonsBySeries(seriesIds: string[]): Promise<SeasonModel[]> {
+    return this.seasonRepository.find({
+      seriesId: In(seriesIds),
+    });
   }
 
   async readOne(id: string): Promise<SeasonModel> {

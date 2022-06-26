@@ -4,12 +4,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { SeasonModel } from '../../season/entities/season.model';
 import { SeriesModel } from '../../series/entities/series.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
+import { VideoModel } from '../../video/entities/video.model';
 
 @ObjectType()
 @Entity({ name: 'episodes' })
@@ -33,7 +35,7 @@ export class EpisodeModel {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  premierDate?: Date;
+  releaseDate?: Date;
 
   @Field()
   @CreateDateColumn()
@@ -46,10 +48,6 @@ export class EpisodeModel {
   @Field(() => Int)
   @Column({ type: 'int' })
   episodeNumber!: number;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  videoUrl?: string;
 
   @Field()
   @Column()
@@ -66,4 +64,12 @@ export class EpisodeModel {
   @Field(() => SeriesModel)
   @ManyToOne(() => SeriesModel)
   series!: SeriesModel;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  videoId?: string;
+
+  @Field(() => VideoModel, { nullable: true })
+  @OneToOne(() => VideoModel, { nullable: true })
+  video?: VideoModel;
 }

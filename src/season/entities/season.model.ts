@@ -36,13 +36,20 @@ export class SeasonModel {
   @Column({ type: 'enum', enum: AgeRestrictionEnum })
   ageRestriction!: AgeRestrictionEnum;
 
-  @Field()
-  @Column()
-  premierDate!: Date;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  startReleaseDate?: Date;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  endReleaseDate?: Date;
 
   @Field()
   @CreateDateColumn()
   publicationDate!: Date;
+
+  @Field(() => Int)
+  episodesCount!: number;
 
   @Field()
   @Column()

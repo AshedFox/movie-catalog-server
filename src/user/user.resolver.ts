@@ -1,4 +1,12 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserModel } from './entities/user.model';
@@ -9,8 +17,10 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from './dto/current-user.dto';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../shared/role.enum';
+import { RoleEnum } from './entities/role.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { CountryModel } from '../country/entities/country.model';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
 @Resolver(UserModel)
 export class UserResolver {
@@ -55,5 +65,15 @@ export class UserResolver {
   @Mutation(() => Boolean)
   deleteUser(@Args('id') id: string) {
     return this.userService.delete(id);
+  }
+
+  @ResolveField(() => CountryModel)
+  country(
+    @Parent() parent: UserModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return parent.countryId
+      ? loaders.countryLoader.load(parent.countryId)
+      : undefined;
   }
 }

@@ -1,13 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { EpisodeModel } from '../entities/episode.model';
-import {
-  IsEnum,
-  IsOptional,
-  IsUUID,
-  Length,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 
 @InputType()
@@ -23,7 +16,7 @@ export class CreateEpisodeInput implements Partial<EpisodeModel> {
 
   @Field({ nullable: true })
   @IsOptional()
-  premierDate?: Date;
+  releaseDate?: Date;
 
   @Field(() => Int, { nullable: true })
   @Min(0)
@@ -38,11 +31,6 @@ export class CreateEpisodeInput implements Partial<EpisodeModel> {
   @IsEnum(AgeRestrictionEnum)
   ageRestriction!: AgeRestrictionEnum;
 
-  @Field({ nullable: true })
-  @MinLength(5)
-  @IsOptional()
-  videoUrl?: string;
-
   @Field()
   @IsUUID('4')
   seasonId!: string;
@@ -50,4 +38,9 @@ export class CreateEpisodeInput implements Partial<EpisodeModel> {
   @Field()
   @IsUUID('4')
   seriesId!: string;
+
+  @Field()
+  @IsUUID('4')
+  @IsOptional()
+  videoId?: string;
 }

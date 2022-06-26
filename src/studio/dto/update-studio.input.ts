@@ -1,5 +1,7 @@
 import { CreateStudioInput } from './create-studio.input';
-import { InputType, PartialType } from '@nestjs/graphql';
+import { InputType, OmitType, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateStudioInput extends PartialType(CreateStudioInput) {}
+export class UpdateStudioInput extends PartialType(
+  OmitType(CreateStudioInput, ['countriesIds']),
+) {}

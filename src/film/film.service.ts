@@ -6,34 +6,28 @@ import { UpdateFilmInput } from './dto/update-film.input';
 import { PaginatedFilms } from './dto/paginated-films.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
-import { GenreService } from '../genre/genre.service';
-import { StudioService } from '../studio/studio.service';
+import { FilmGenreService } from '../film-genre/film-genre.service';
+import { FilmStudioService } from '../film-studio/film-studio.service';
 
 @Injectable()
 export class FilmService {
   constructor(
     @InjectRepository(FilmModel)
     private readonly filmRepository: Repository<FilmModel>,
-    private readonly genreService: GenreService,
-    private readonly studioService: StudioService,
+    private readonly filmGenreService: FilmGenreService,
+    private readonly filmStudioService: FilmStudioService,
   ) {}
 
   async create(createFilmInput: CreateFilmInput): Promise<FilmModel> {
-    const film = await this.filmRepository.create(createFilmInput);
+    const film = await this.filmRepository.save(createFilmInput);
     const { genresIds, studiosIds } = createFilmInput;
-
     if (genresIds && genresIds.length > 0) {
-      film.genres = Promise.resolve(
-        await this.genreService.readAllByIds(genresIds),
-      );
+      await this.filmGenreService.createFilmGenres(film.id, genresIds);
     }
     if (studiosIds && studiosIds.length > 0) {
-      film.studios = Promise.resolve(
-        await this.studioService.readAllByIds(studiosIds),
-      );
+      await this.filmStudioService.createFilmStudios(film.id, studiosIds);
     }
-
-    return this.filmRepository.save(film);
+    return film;
   }
 
   async readAll(
@@ -84,66 +78,6 @@ export class FilmService {
       ...film,
       ...updateFilmInput,
     });
-  }
-
-  async addGenresToFilm(
-    filmId: string,
-    genresIds: string[],
-  ): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(filmId, {
-      relations: ['genres'],
-    });
-    const genres = await this.genreService.readAllByIds(genresIds);
-    const currentGenres = await film.genres;
-    for (const genre of genres) {
-      if (!currentGenres.find((g) => g.id === genre.id)) {
-        currentGenres.push(genre);
-      }
-    }
-    film.genres = Promise.resolve(currentGenres);
-    return this.filmRepository.save(film);
-  }
-
-  async deleteGenresFromFilm(
-    filmId: string,
-    genresIds: string[],
-  ): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(filmId);
-    const currentGenres = await film.genres;
-    film.genres = Promise.resolve(
-      currentGenres.filter((genre) => !genresIds.includes(genre.id)),
-    );
-    return this.filmRepository.save(film);
-  }
-
-  async addStudiosToFilm(
-    filmId: string,
-    studiosIds: number[],
-  ): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(filmId, {
-      relations: ['studios'],
-    });
-    const studios = await this.studioService.readAllByIds(studiosIds);
-    const currentStudios = await film.studios;
-    for (const studio of studios) {
-      if (!currentStudios.find((g) => g.id === studio.id)) {
-        currentStudios.push(studio);
-      }
-    }
-    film.studios = Promise.resolve(currentStudios);
-    return this.filmRepository.save(film);
-  }
-
-  async deleteStudiosFromFilm(
-    filmId: string,
-    studiosIds: number[],
-  ): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(filmId);
-    const currentStudios = await film.studios;
-    film.studios = Promise.resolve(
-      currentStudios.filter((studio) => !studiosIds.includes(studio.id)),
-    );
-    return this.filmRepository.save(film);
   }
 
   async delete(id: string): Promise<boolean> {

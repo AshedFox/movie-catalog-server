@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateEpisodeInput } from './dto/create-episode.input';
 import { UpdateEpisodeInput } from './dto/update-episode.input';
 import { EpisodeModel } from './entities/episode.model';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { PaginatedEpisodes } from './dto/paginated-episodes.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -49,7 +49,19 @@ export class EpisodeService {
   }
 
   async readAllByIds(ids: string[]): Promise<EpisodeModel[]> {
-    return await this.episodeRepository.findByIds(ids);
+    return this.episodeRepository.findByIds(ids);
+  }
+
+  async readManySeriesEpisodes(seriesIds: string[]): Promise<EpisodeModel[]> {
+    return this.episodeRepository.find({
+      seriesId: In(seriesIds),
+    });
+  }
+
+  async readSeasonsEpisodes(seasonsIds: string[]): Promise<EpisodeModel[]> {
+    return this.episodeRepository.find({
+      seasonId: In(seasonsIds),
+    });
   }
 
   async readOne(id: string): Promise<EpisodeModel> {

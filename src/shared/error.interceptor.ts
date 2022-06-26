@@ -18,9 +18,9 @@ export class ErrorInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((err) => {
         if (err instanceof NotFoundError) {
-          return throwError(() => new NotFoundException());
+          return throwError(() => new NotFoundException(err.message));
         } else if (err instanceof AlreadyExistsError) {
-          return throwError(() => new ConflictException());
+          return throwError(() => new ConflictException(err.message));
         } else if (err instanceof HttpException) {
           return throwError(() => err);
         }

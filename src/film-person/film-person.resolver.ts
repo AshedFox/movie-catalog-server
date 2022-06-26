@@ -1,6 +1,7 @@
 import {
   Args,
   Context,
+  Int,
   Mutation,
   Parent,
   Query,
@@ -11,7 +12,7 @@ import { FilmPersonService } from './film-person.service';
 import { CreateFilmPersonInput } from './dto/create-film-person.input';
 import { UpdateFilmPersonInput } from './dto/update-film-person.input';
 import { FilmPersonModel } from './entities/film-person.model';
-import { ParseIntPipe, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { GetFilmsPersonsArgs } from './dto/get-films-persons.args';
 import { PaginatedFilmsPersons } from './dto/paginated-films-persons.result';
 import { FilmModel } from '../film/entities/film.model';
@@ -20,7 +21,7 @@ import { PersonModel } from '../person/entities/person.model';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../shared/role.enum';
+import { RoleEnum } from '../user/entities/role.enum';
 
 @Resolver(FilmPersonModel)
 export class FilmPersonResolver {
@@ -43,7 +44,7 @@ export class FilmPersonResolver {
   }
 
   @Query(() => FilmPersonModel, { nullable: true })
-  getFilmPerson(@Args('id', ParseIntPipe) id: number) {
+  getFilmPerson(@Args('id', { type: () => Int }) id: number) {
     return this.filmPersonService.readOne(id);
   }
 
@@ -51,7 +52,7 @@ export class FilmPersonResolver {
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => FilmPersonModel)
   updateFilmPerson(
-    @Args('id', ParseIntPipe) id: number,
+    @Args('id', { type: () => Int }) id: number,
     @Args('input') updateFilmPersonInput: UpdateFilmPersonInput,
   ) {
     return this.filmPersonService.update(id, updateFilmPersonInput);
@@ -60,7 +61,7 @@ export class FilmPersonResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
-  deleteFilmPerson(@Args('id', ParseIntPipe) id: number) {
+  deleteFilmPerson(@Args('id', { type: () => Int }) id: number) {
     return this.filmPersonService.delete(id);
   }
 

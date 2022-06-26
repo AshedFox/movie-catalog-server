@@ -5,7 +5,7 @@ import { SeriesPersonModel } from './entities/series-person.model';
 import { PersonTypeEnum } from '../shared/person-type.enum';
 import { PaginatedSeriesPersons } from './dto/paginated-series-persons.result';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 
 @Injectable()
@@ -43,6 +43,12 @@ export class SeriesPersonService {
 
   async readAllByIds(ids: string[]): Promise<SeriesPersonModel[]> {
     return await this.seriesPersonRepository.findByIds(ids);
+  }
+
+  async readSeriesPersons(seriesIds: string[]): Promise<SeriesPersonModel[]> {
+    return this.seriesPersonRepository.find({
+      where: { seriesId: In(seriesIds) },
+    });
   }
 
   async readOne(id: number): Promise<SeriesPersonModel> {

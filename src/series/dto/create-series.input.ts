@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { SeriesModel } from '../entities/series.model';
-import { IsEnum, IsOptional, Length } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, Length } from 'class-validator';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 
 @InputType()
@@ -16,7 +16,11 @@ export class CreateSeriesInput implements Partial<SeriesModel> {
 
   @Field({ nullable: true })
   @IsOptional()
-  premierDate?: Date;
+  startReleaseDate?: Date;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  endReleaseDate?: Date;
 
   @Field(() => AgeRestrictionEnum)
   @IsEnum(AgeRestrictionEnum)
@@ -24,9 +28,11 @@ export class CreateSeriesInput implements Partial<SeriesModel> {
 
   @Field(() => [Int], { nullable: true, defaultValue: [] })
   @IsOptional()
+  @IsArray()
   studiosIds?: number[];
 
   @Field(() => [String], { nullable: true, defaultValue: [] })
   @IsOptional()
+  @IsArray()
   genresIds?: string[];
 }

@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { RoleEnum } from '../../shared/role.enum';
+import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
+import { RoleEnum } from './role.enum';
+import { CountryModel } from '../../country/entities/country.model';
 
 @ObjectType()
 @Entity({ name: 'users' })
@@ -23,6 +25,7 @@ export class UserModel {
   @Column({ default: false })
   isEmailConfirmed!: boolean;
 
+  @HideField()
   @Column()
   password!: string;
 
@@ -37,4 +40,12 @@ export class UserModel {
   @Field(() => RoleEnum)
   @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.User })
   role!: RoleEnum;
+
+  @Field(() => Int, { nullable: true })
+  @Column({ nullable: true })
+  countryId?: number;
+
+  @Field(() => CountryModel, { nullable: true })
+  @ManyToOne(() => CountryModel, { nullable: true })
+  country?: CountryModel;
 }

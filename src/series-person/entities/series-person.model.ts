@@ -12,11 +12,11 @@ export class SeriesPersonModel {
   id!: number;
 
   @Field(() => SeriesModel)
-  @ManyToOne(() => SeriesModel)
+  @ManyToOne(() => SeriesModel, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   series!: SeriesModel;
 
   @Field(() => PersonModel)
-  @ManyToOne(() => PersonModel)
+  @ManyToOne(() => PersonModel, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   person!: PersonModel;
 
   @Field()

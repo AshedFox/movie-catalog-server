@@ -1,17 +1,19 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { GenreModel } from '../../genre/entities/genre.model';
 import { StudioModel } from '../../studio/entities/studio.model';
 import { FilmPersonModel } from '../../film-person/entities/film-person.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
+import { VideoModel } from '../../video/entities/video.model';
+import { FilmGenreModel } from '../../film-genre/entities/film-genre.model';
+import { FilmStudioModel } from '../../film-studio/entities/film-studio.model';
 
 @ObjectType()
 @Entity({ name: 'films' })
@@ -34,7 +36,7 @@ export class FilmModel {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  premierDate?: Date;
+  releaseDate?: Date;
 
   @Field()
   @CreateDateColumn()
@@ -44,23 +46,29 @@ export class FilmModel {
   @Column({ type: 'int', nullable: true })
   duration?: number;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  videoUrl?: string;
-
   @Field(() => [GenreModel])
-  @ManyToMany(() => GenreModel, { lazy: true })
-  @JoinTable({ name: 'films_genres' })
-  genres!: Promise<GenreModel[]>;
+  genres!: GenreModel[];
+
+  @HideField()
+  @OneToMany(() => FilmGenreModel, (filmGenre) => filmGenre.film)
+  genresConnection!: FilmGenreModel[];
 
   @Field(() => [StudioModel])
-  @ManyToMany(() => StudioModel, { lazy: true })
-  @JoinTable({ name: 'films_studios' })
-  studios!: Promise<StudioModel[]>;
+  studios!: StudioModel[];
+
+  @HideField()
+  @OneToMany(() => FilmStudioModel, (filmStudio) => filmStudio.film)
+  studiosConnection!: FilmStudioModel[];
 
   @Field(() => [FilmPersonModel])
-  @OneToMany(() => FilmPersonModel, (filmPerson) => filmPerson.film, {
-    lazy: true,
-  })
-  persons!: Promise<FilmPersonModel[]>;
+  @OneToMany(() => FilmPersonModel, (filmPerson) => filmPerson.film)
+  filmPersons!: FilmPersonModel[];
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  videoId?: string;
+
+  @Field(() => VideoModel, { nullable: true })
+  @OneToOne(() => VideoModel, { nullable: true })
+  video?: VideoModel;
 }

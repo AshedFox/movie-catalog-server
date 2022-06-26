@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { FilmModel } from '../entities/film.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
-import { IsEnum, IsOptional, Length, Min, MinLength } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
 
 @InputType()
 export class CreateFilmInput implements Partial<FilmModel> {
@@ -16,7 +16,7 @@ export class CreateFilmInput implements Partial<FilmModel> {
 
   @Field({ nullable: true })
   @IsOptional()
-  premierDate?: Date;
+  releaseDate?: Date;
 
   @Field(() => Int, { nullable: true })
   @Min(0)
@@ -27,11 +27,6 @@ export class CreateFilmInput implements Partial<FilmModel> {
   @IsEnum(AgeRestrictionEnum)
   ageRestriction!: AgeRestrictionEnum;
 
-  @Field({ nullable: true })
-  @MinLength(5)
-  @IsOptional()
-  videoUrl?: string;
-
   @Field(() => [Int], { nullable: true, defaultValue: [] })
   @IsOptional()
   studiosIds?: number[];
@@ -39,4 +34,9 @@ export class CreateFilmInput implements Partial<FilmModel> {
   @Field(() => [String], { nullable: true, defaultValue: [] })
   @IsOptional()
   genresIds?: string[];
+
+  @Field()
+  @IsUUID('4')
+  @IsOptional()
+  videoId?: string;
 }

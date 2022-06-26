@@ -24,6 +24,16 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { GqlThrottlerGuard } from './shared/gql-throttler.guard';
 import { ErrorInterceptor } from './shared/error.interceptor';
+import { VideoModule } from './video/video.module';
+import { CountryModule } from './country/country.module';
+import { QualityModule } from './quality/quality.module';
+import { ImageModule } from './image/image.module';
+import { StudioCountryModule } from './studio-country/studio-country.module';
+import { FilmGenreModule } from './film-genre/film-genre.module';
+import { FilmStudioModule } from './film-studio/film-studio.module';
+import { SeriesStudioModule } from './series-studio/series-studio.module';
+import { SeriesGenreModule } from './series-genre/series-genre.module';
+import { VideoQualityModule } from './video-quality/video-quality.module';
 
 @Module({
   imports: [
@@ -84,6 +94,16 @@ import { ErrorInterceptor } from './shared/error.interceptor';
     EmailModule,
     DataLoaderModule,
     RefreshTokenModule,
+    VideoModule,
+    CountryModule,
+    QualityModule,
+    ImageModule,
+    StudioCountryModule,
+    FilmGenreModule,
+    FilmStudioModule,
+    SeriesStudioModule,
+    SeriesGenreModule,
+    VideoQualityModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
