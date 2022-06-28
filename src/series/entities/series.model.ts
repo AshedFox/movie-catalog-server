@@ -68,7 +68,7 @@ export class SeriesModel {
 
   @Field(() => [SeriesPersonModel])
   @OneToMany(() => SeriesPersonModel, (seriesPerson) => seriesPerson.series)
-  persons!: SeriesPersonModel[];
+  seriesPersons!: SeriesPersonModel[];
 
   @Field(() => [SeasonModel])
   @OneToMany(() => SeasonModel, (season) => season.series)

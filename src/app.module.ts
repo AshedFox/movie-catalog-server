@@ -34,6 +34,8 @@ import { FilmStudioModule } from './film-studio/film-studio.module';
 import { SeriesStudioModule } from './series-studio/series-studio.module';
 import { SeriesGenreModule } from './series-genre/series-genre.module';
 import { VideoQualityModule } from './video-quality/video-quality.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { v2 } from 'cloudinary';
 
 @Module({
   imports: [
@@ -104,11 +106,21 @@ import { VideoQualityModule } from './video-quality/video-quality.module';
     SeriesStudioModule,
     SeriesGenreModule,
     VideoQualityModule,
+    CloudinaryModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
     { provide: APP_GUARD, useClass: GqlThrottlerGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
+    {
+      provide: 'CLOUDINARY',
+      useFactory: () =>
+        v2.config({
+          api_key: process.env.CLOUD_API_KEY,
+          api_secret: process.env.CLOUD_API_SECRET,
+          cloud_name: process.env.CLOUD_NAME,
+        }),
+    },
   ],
 })
 export class AppModule {}

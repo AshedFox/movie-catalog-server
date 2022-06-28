@@ -60,6 +60,6 @@ export class SeasonModel {
   series!: SeriesModel;
 
   @Field(() => [EpisodeModel])
-  @OneToMany(() => EpisodeModel, (episode) => episode.season, { lazy: true })
-  episodes!: Promise<EpisodeModel[]>;
+  @OneToMany(() => EpisodeModel, (episode) => episode.season)
+  episodes!: EpisodeModel[];
 }

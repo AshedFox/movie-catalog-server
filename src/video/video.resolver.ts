@@ -8,26 +8,35 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { VideoService } from './video.service';
-import { CreateVideoInput } from './dto/create-video.input';
 import { VideoModel } from './entities/video.model';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '../user/entities/role.enum';
-import { UpdateVideoInput } from './dto/update-video.input';
 import { QualityModel } from '../quality/entities/quality.model';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { FileUpload } from 'graphql-upload';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 
 @Resolver(() => VideoModel)
 export class VideoResolver {
-  constructor(private readonly videoService: VideoService) {}
+  constructor(
+    private readonly videoService: VideoService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => VideoModel)
-  createVideo(@Args('input') input: CreateVideoInput) {
-    return this.videoService.create(input);
+  async createVideo(
+    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
+  ) {
+    const { url, height, width } = await this.cloudinaryService.uploadVideo(
+      file,
+    );
+    return this.videoService.create({ baseUrl: url, height, width });
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
@@ -42,16 +51,6 @@ export class VideoResolver {
   @Query(() => VideoModel)
   getVideo(@Args('id', ParseUUIDPipe) id: string) {
     return this.videoService.readOne(id);
-  }
-
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => VideoModel)
-  updateVideo(
-    @Args('id', ParseUUIDPipe) id: string,
-    @Args('input') input: UpdateVideoInput,
-  ) {
-    return this.videoService.update(id, input);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)

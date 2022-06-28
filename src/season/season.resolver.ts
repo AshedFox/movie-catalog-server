@@ -66,4 +66,12 @@ export class SeasonResolver {
   ) {
     return loaders.seriesLoader.load(season.seriesId);
   }
+
+  @ResolveField(() => SeriesModel)
+  episodes(
+    @Parent() season: SeasonModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.episodesBySeasonLoader.load(season.seriesId);
+  }
 }
