@@ -6,16 +6,26 @@ import { ILike, In, Repository } from 'typeorm';
 import { PaginatedEpisodes } from './dto/paginated-episodes.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
+import { EpisodePosterService } from '../episode-poster/episode-poster.service';
 
 @Injectable()
 export class EpisodeService {
   constructor(
     @InjectRepository(EpisodeModel)
     private readonly episodeRepository: Repository<EpisodeModel>,
+    private readonly episodePosterService: EpisodePosterService,
   ) {}
 
   async create(createEpisodeInput: CreateEpisodeInput): Promise<EpisodeModel> {
-    return this.episodeRepository.save(createEpisodeInput);
+    const episode = await this.episodeRepository.save(createEpisodeInput);
+    const { postersIds } = createEpisodeInput;
+    if (postersIds) {
+      await this.episodePosterService.createEpisodePosters(
+        episode.id,
+        postersIds,
+      );
+    }
+    return episode;
   }
 
   async readAll(

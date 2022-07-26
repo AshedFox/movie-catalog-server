@@ -15,8 +15,6 @@ import { SeasonModel } from '../season/entities/season.model';
 import { UserModel } from '../user/entities/user.model';
 import { UserService } from '../user/user.service';
 import { FilmModel } from '../film/entities/film.model';
-import { VideoModel } from '../video/entities/video.model';
-import { VideoService } from '../video/video.service';
 import { CountryService } from '../country/country.service';
 import { CountryModel } from '../country/entities/country.model';
 import { StudioCountryService } from '../studio-country/studio-country.service';
@@ -32,9 +30,14 @@ import { SeriesGenreService } from '../series-genre/series-genre.service';
 import { SeriesStudioService } from '../series-studio/series-studio.service';
 import { EpisodeModel } from '../episode/entities/episode.model';
 import { EpisodeService } from '../episode/episode.service';
-import { QualityModel } from '../quality/entities/quality.model';
-import { QualityService } from '../quality/quality.service';
-import { VideoQualityService } from '../video-quality/video-quality.service';
+import { VideoModel } from '../video/entities/video.model';
+import { VideoService } from '../video/video.service';
+import { ImageModel } from '../image/entities/image.model';
+import { ImageService } from '../image/image.service';
+import { EpisodePosterService } from '../episode-poster/episode-poster.service';
+import { FilmPosterService } from '../film-poster/film-poster.service';
+import { SeriesPosterService } from '../series-poster/series-poster.service';
+import { SeasonPosterService } from '../season-poster/season-poster.service';
 
 @Injectable()
 export class DataLoaderService {
@@ -42,13 +45,17 @@ export class DataLoaderService {
     private readonly countryService: CountryService,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly episodeService: EpisodeService,
+    private readonly episodePosterService: EpisodePosterService,
+    private readonly filmPosterService: FilmPosterService,
+    private readonly seasonPosterService: SeasonPosterService,
+    private readonly seriesPosterService: SeriesPosterService,
     private readonly filmService: FilmService,
     private readonly filmPersonService: FilmPersonService,
     private readonly filmGenreService: FilmGenreService,
     private readonly filmStudioService: FilmStudioService,
+    private readonly imageService: ImageService,
     private readonly genreService: GenreService,
     private readonly personService: PersonService,
-    private readonly qualityService: QualityService,
     private readonly seasonService: SeasonService,
     private readonly seriesService: SeriesService,
     private readonly seriesPersonService: SeriesPersonService,
@@ -58,7 +65,6 @@ export class DataLoaderService {
     private readonly studioCountryService: StudioCountryService,
     private readonly userService: UserService,
     private readonly videoService: VideoService,
-    private readonly videoQualityService: VideoQualityService,
   ) {}
 
   private mapSingleData<T extends { id: string | number }>(
@@ -104,6 +110,12 @@ export class DataLoaderService {
     const filmLoader = new DataLoader<string, FilmModel>(
       async (ids: string[]) => {
         const data = await this.filmService.readAllByIds(ids);
+        return this.mapSingleData(ids, data);
+      },
+    );
+    const episodeLoader = new DataLoader<string, EpisodeModel>(
+      async (ids: string[]) => {
+        const data = await this.episodeService.readAllByIds(ids);
         return this.mapSingleData(ids, data);
       },
     );
@@ -153,6 +165,12 @@ export class DataLoaderService {
           }
         });
         return filmsIds.map((filmId) => map[filmId] ?? []);
+      },
+    );
+    const imageLoader = new DataLoader<string, ImageModel>(
+      async (ids: string[]) => {
+        const data = await this.imageService.readAllByIds(ids);
+        return this.mapSingleData(ids, data);
       },
     );
     const genreLoader = new DataLoader<string, GenreModel>(
@@ -216,25 +234,66 @@ export class DataLoaderService {
         return this.mapSingleData(ids, data);
       },
     );
-    const qualityLoader = new DataLoader<number, QualityModel>(
-      async (ids: number[]) => {
-        const data = await this.qualityService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const qualitiesByVideoLoader = new DataLoader<string, QualityModel[]>(
-      async (videosIds: string[]) => {
-        const videosQualities =
-          await this.videoQualityService.readVideosQualities(videosIds);
-        const map: { [key: string]: QualityModel[] } = {};
-        videosQualities.forEach((videoQuality) => {
-          if (map[videoQuality.videoId]) {
-            map[videoQuality.videoId].push(videoQuality.quality);
+    const postersByEpisodeLoader = new DataLoader<string, ImageModel[]>(
+      async (episodesIds: string[]) => {
+        const episodesPosters =
+          await this.episodePosterService.readEpisodesPosters(episodesIds);
+        const map: { [key: string]: ImageModel[] } = {};
+        episodesPosters.forEach((episodePoster) => {
+          if (map[episodePoster.episodeId]) {
+            map[episodePoster.episodeId].push(episodePoster.image);
           } else {
-            map[videoQuality.videoId] = [videoQuality.quality];
+            map[episodePoster.episodeId] = [episodePoster.image];
           }
         });
-        return videosIds.map((videoId) => map[videoId] ?? []);
+        return episodesIds.map((episodeId) => map[episodeId] ?? []);
+      },
+    );
+    const postersByFilmLoader = new DataLoader<string, ImageModel[]>(
+      async (filmsIds: string[]) => {
+        const filmsPosters = await this.filmPosterService.readFilmsPosters(
+          filmsIds,
+        );
+        const map: { [key: string]: ImageModel[] } = {};
+        filmsPosters.forEach((filmPoster) => {
+          if (map[filmPoster.filmId]) {
+            map[filmPoster.filmId].push(filmPoster.image);
+          } else {
+            map[filmPoster.filmId] = [filmPoster.image];
+          }
+        });
+        return filmsIds.map((filmId) => map[filmId] ?? []);
+      },
+    );
+    const postersBySeasonLoader = new DataLoader<string, ImageModel[]>(
+      async (seasonsIds: string[]) => {
+        const seasonsPosters =
+          await this.seasonPosterService.readSeasonsPosters(seasonsIds);
+        const map: { [key: string]: ImageModel[] } = {};
+        seasonsPosters.forEach((seasonPoster) => {
+          if (map[seasonPoster.seasonId]) {
+            map[seasonPoster.seasonId].push(seasonPoster.image);
+          } else {
+            map[seasonPoster.seasonId] = [seasonPoster.image];
+          }
+        });
+        return seasonsIds.map((seasonId) => map[seasonId] ?? []);
+      },
+    );
+    const postersBySeriesLoader = new DataLoader<string, ImageModel[]>(
+      async (seriesIds: string[]) => {
+        const seriesPosters = await this.seriesPosterService.readSeriesPosters(
+          seriesIds,
+        );
+        const map: { [key: string]: ImageModel[] } = {};
+        seriesPosters.forEach((seriesPoster) => {
+          if (map[seriesPoster.seriesId]) {
+            map[seriesPoster.seriesId].push(seriesPoster.image);
+          } else {
+            map[seriesPoster.seriesId] = [seriesPoster.image];
+          }
+        });
+        return seriesIds.map((seriesId) => map[seriesId] ?? []);
       },
     );
     const seasonLoader = new DataLoader<string, SeasonModel>(
@@ -317,16 +376,21 @@ export class DataLoaderService {
       countryLoader,
       countriesByStudioLoader,
       emailConfirmationLoader,
+      episodeLoader,
       episodesBySeriesLoader,
       episodesBySeasonLoader,
+      videoLoader,
       filmLoader,
       filmPersonsByFilmLoader,
+      imageLoader,
       genreLoader,
       genresByFilmLoader,
       genresBySeriesLoader,
       personLoader,
-      qualityLoader,
-      qualitiesByVideoLoader,
+      postersByEpisodeLoader,
+      postersByFilmLoader,
+      postersBySeasonLoader,
+      postersBySeriesLoader,
       seasonLoader,
       seasonsBySeriesLoader,
       seriesLoader,
@@ -335,7 +399,6 @@ export class DataLoaderService {
       studiosByFilmLoader,
       studiosBySeriesLoader,
       userLoader,
-      videoLoader,
     };
   }
 }

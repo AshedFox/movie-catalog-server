@@ -1,7 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
-import { QualityModel } from '../../quality/entities/quality.model';
-import { VideoQualityModel } from '../../video-quality/entities/video-quality.model';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity('videos')
@@ -12,20 +10,13 @@ export class VideoModel {
 
   @Field()
   @Column()
-  baseUrl!: string;
+  url!: string;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   width?: number;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   height?: number;
-
-  @Field(() => [QualityModel])
-  qualities!: QualityModel[];
-
-  @HideField()
-  @OneToMany(() => VideoQualityModel, (videoQuality) => videoQuality.video)
-  qualitiesConnection!: VideoQualityModel[];
 }

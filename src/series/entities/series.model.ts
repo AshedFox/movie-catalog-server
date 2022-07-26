@@ -14,6 +14,9 @@ import { EpisodeModel } from '../../episode/entities/episode.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 import { SeriesGenreModel } from '../../series-genre/entities/series-genre.model';
 import { SeriesStudioModel } from '../../series-studio/entities/series-studio.model';
+import { SeriesPosterModel } from '../../series-poster/entities/series-poster.model';
+import { ImageModel } from '../../image/entities/image.model';
+import { AccessModeEnum } from '../../shared/access-mode.enum';
 
 @ObjectType()
 @Entity({ name: 'series' })
@@ -26,9 +29,9 @@ export class SeriesModel {
   @Column()
   title!: string;
 
-  @Field()
-  @Column({ default: '' })
-  description!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description?: string;
 
   @Field(() => AgeRestrictionEnum)
   @Column({ type: 'enum', enum: AgeRestrictionEnum })
@@ -46,11 +49,26 @@ export class SeriesModel {
   @CreateDateColumn()
   publicationDate!: Date;
 
+  @Field(() => AccessModeEnum)
+  @Column({
+    type: 'enum',
+    enum: AccessModeEnum,
+    default: AccessModeEnum.PRIVATE,
+  })
+  accessMode!: AccessModeEnum;
+
   @Field(() => Int)
   episodesCount!: number;
 
   @Field(() => Int)
   seasonsCount?: number;
+
+  @Field(() => [ImageModel])
+  posters!: ImageModel[];
+
+  @HideField()
+  @OneToMany(() => SeriesPosterModel, (seriesPoster) => seriesPoster.series)
+  postersConnection!: SeriesPosterModel[];
 
   @Field(() => [GenreModel])
   genres!: GenreModel[];

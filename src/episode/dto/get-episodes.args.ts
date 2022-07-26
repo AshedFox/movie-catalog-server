@@ -11,5 +11,6 @@ export class GetEpisodesArgs extends PaginatedArgs {
 
   @Field({ nullable: true })
   @IsUUID('4')
+  @IsOptional()
   seasonId?: string;
 }

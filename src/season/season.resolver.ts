@@ -20,6 +20,8 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '../user/entities/role.enum';
+import { EpisodeModel } from '../episode/entities/episode.model';
+import { ImageModel } from '../image/entities/image.model';
 
 @Resolver(SeasonModel)
 export class SeasonResolver {
@@ -67,11 +69,19 @@ export class SeasonResolver {
     return loaders.seriesLoader.load(season.seriesId);
   }
 
-  @ResolveField(() => SeriesModel)
+  @ResolveField(() => [EpisodeModel])
   episodes(
     @Parent() season: SeasonModel,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.episodesBySeasonLoader.load(season.seriesId);
+  }
+
+  @ResolveField(() => [ImageModel])
+  posters(
+    @Parent() season: SeasonModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.postersBySeasonLoader.load(season.id);
   }
 }

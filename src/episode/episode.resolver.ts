@@ -22,6 +22,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '../user/entities/role.enum';
 import { VideoModel } from '../video/entities/video.model';
+import { ImageModel } from '../image/entities/image.model';
 
 @Resolver(EpisodeModel)
 export class EpisodeResolver {
@@ -66,7 +67,9 @@ export class EpisodeResolver {
     @Parent() episode: EpisodeModel,
     @Context('loader') loaders: IDataLoaders,
   ) {
-    return loaders.seasonLoader.load(episode.seasonId);
+    return episode.seasonId
+      ? loaders.seasonLoader.load(episode.seasonId)
+      : undefined;
   }
 
   @ResolveField(() => SeriesModel)
@@ -85,5 +88,13 @@ export class EpisodeResolver {
     return episode.videoId
       ? loaders.videoLoader.load(episode.videoId)
       : undefined;
+  }
+
+  @ResolveField(() => [ImageModel])
+  posters(
+    @Parent() episode: EpisodeModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.postersByEpisodeLoader.load(episode.id);
   }
 }

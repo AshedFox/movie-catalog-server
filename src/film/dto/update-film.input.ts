@@ -3,5 +3,5 @@ import { CreateFilmInput } from './create-film.input';
 
 @InputType()
 export class UpdateFilmInput extends PartialType(
-  OmitType(CreateFilmInput, ['studiosIds', 'genresIds']),
+  OmitType(CreateFilmInput, ['studiosIds', 'genresIds', 'postersIds']),
 ) {}

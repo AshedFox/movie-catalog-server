@@ -1,5 +1,5 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -26,28 +26,33 @@ import { GqlThrottlerGuard } from './shared/gql-throttler.guard';
 import { ErrorInterceptor } from './shared/error.interceptor';
 import { VideoModule } from './video/video.module';
 import { CountryModule } from './country/country.module';
-import { QualityModule } from './quality/quality.module';
 import { ImageModule } from './image/image.module';
 import { StudioCountryModule } from './studio-country/studio-country.module';
 import { FilmGenreModule } from './film-genre/film-genre.module';
 import { FilmStudioModule } from './film-studio/film-studio.module';
 import { SeriesStudioModule } from './series-studio/series-studio.module';
 import { SeriesGenreModule } from './series-genre/series-genre.module';
-import { VideoQualityModule } from './video-quality/video-quality.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { v2 } from 'cloudinary';
+import { SeriesPosterModule } from './series-poster/series-poster.module';
+import { FilmPosterModule } from './film-poster/film-poster.module';
+import { EpisodePosterModule } from './episode-poster/episode-poster.module';
+import { SeasonPosterModule } from './season-poster/season-poster.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.CONNECTION_STRING,
-      synchronize: true,
-      autoLoadEntities: true,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get('CONNECTION_STRING'),
+        synchronize: true,
+        autoLoadEntities: true,
+        logging: true,
+      }),
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -78,9 +83,12 @@ import { v2 } from 'cloudinary';
         plugins: [ApolloServerPluginLandingPageLocalDefault()],
       }),
     }),
-    ThrottlerModule.forRoot({
-      ttl: 30,
-      limit: 10,
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        ttl: configService.get('THROTTLER_TTL'),
+        limit: configService.get('THROTTLER_LIMIT'),
+      }),
     }),
     AuthModule,
     FilmModule,
@@ -98,15 +106,17 @@ import { v2 } from 'cloudinary';
     RefreshTokenModule,
     VideoModule,
     CountryModule,
-    QualityModule,
     ImageModule,
     StudioCountryModule,
     FilmGenreModule,
     FilmStudioModule,
     SeriesStudioModule,
     SeriesGenreModule,
-    VideoQualityModule,
     CloudinaryModule,
+    SeriesPosterModule,
+    FilmPosterModule,
+    EpisodePosterModule,
+    SeasonPosterModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
@@ -114,11 +124,12 @@ import { v2 } from 'cloudinary';
     { provide: APP_PIPE, useClass: ValidationPipe },
     {
       provide: 'CLOUDINARY',
-      useFactory: () =>
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
         v2.config({
-          api_key: process.env.CLOUD_API_KEY,
-          api_secret: process.env.CLOUD_API_SECRET,
-          cloud_name: process.env.CLOUD_NAME,
+          api_key: configService.get('CLOUD_API_KEY'),
+          api_secret: configService.get('CLOUD_API_SECRET'),
+          cloud_name: configService.get('CLOUD_NAME'),
         }),
     },
   ],

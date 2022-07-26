@@ -6,7 +6,7 @@ import { IsInt, IsOptional, IsPositive, IsUrl } from 'class-validator';
 export class CreateImageInput implements Partial<ImageModel> {
   @Field()
   @IsUrl()
-  baseUrl!: string;
+  url!: string;
 
   @Field(() => Int, { nullable: true })
   @IsInt()

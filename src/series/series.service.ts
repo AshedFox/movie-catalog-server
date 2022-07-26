@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
 import { SeriesModel } from './entities/series.model';
@@ -8,26 +8,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 import { SeriesStudioService } from '../series-studio/series-studio.service';
 import { SeriesGenreService } from '../series-genre/series-genre.service';
+import { SeriesPosterService } from '../series-poster/series-poster.service';
 
 @Injectable()
 export class SeriesService {
   constructor(
     @InjectRepository(SeriesModel)
     private readonly seriesRepository: Repository<SeriesModel>,
-    @Inject(forwardRef(() => SeriesGenreService))
     private readonly seriesGenreService: SeriesGenreService,
-    @Inject(forwardRef(() => SeriesStudioService))
     private readonly seriesStudioService: SeriesStudioService,
+    private readonly seriesPosterService: SeriesPosterService,
   ) {}
 
   async create(createSeriesInput: CreateSeriesInput): Promise<SeriesModel> {
     const series = await this.seriesRepository.save(createSeriesInput);
-    const { genresIds, studiosIds } = createSeriesInput;
-    if (genresIds && genresIds.length > 0) {
+    const { genresIds, studiosIds, postersIds } = createSeriesInput;
+    if (genresIds) {
       await this.seriesGenreService.createSeriesGenres(series.id, genresIds);
     }
-    if (studiosIds && studiosIds.length > 0) {
+    if (studiosIds) {
       await this.seriesStudioService.createSeriesStudios(series.id, studiosIds);
+    }
+    if (postersIds) {
+      await this.seriesPosterService.createSeriesPosters(series.id, postersIds);
     }
     return series;
   }

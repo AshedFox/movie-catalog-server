@@ -9,6 +9,7 @@ import {
 import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import { RoleEnum } from './role.enum';
 import { CountryModel } from '../../country/entities/country.model';
+import { ImageModel } from '../../image/entities/image.model';
 
 @ObjectType()
 @Entity({ name: 'users' })
@@ -48,4 +49,12 @@ export class UserModel {
   @Field(() => CountryModel, { nullable: true })
   @ManyToOne(() => CountryModel, { nullable: true })
   country?: CountryModel;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  avatarId?: string;
+
+  @Field(() => ImageModel, { nullable: true })
+  @ManyToOne(() => ImageModel, { nullable: true })
+  avatar?: ImageModel;
 }

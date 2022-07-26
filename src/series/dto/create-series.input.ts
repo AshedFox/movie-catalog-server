@@ -1,7 +1,14 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { SeriesModel } from '../entities/series.model';
-import { IsArray, IsEnum, IsOptional, Length } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsOptional,
+  Length,
+} from 'class-validator';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
+import { AccessModeEnum } from '../../shared/access-mode.enum';
 
 @InputType()
 export class CreateSeriesInput implements Partial<SeriesModel> {
@@ -10,7 +17,7 @@ export class CreateSeriesInput implements Partial<SeriesModel> {
   title!: string;
 
   @Field({ nullable: true })
-  @Length(0, 2000)
+  @Length(1, 2000)
   @IsOptional()
   description?: string;
 
@@ -26,13 +33,26 @@ export class CreateSeriesInput implements Partial<SeriesModel> {
   @IsEnum(AgeRestrictionEnum)
   ageRestriction!: AgeRestrictionEnum;
 
-  @Field(() => [Int], { nullable: true, defaultValue: [] })
+  @Field(() => AccessModeEnum, { nullable: true })
+  @IsEnum(AccessModeEnum)
+  @IsOptional()
+  accessMode?: AccessModeEnum;
+
+  @Field(() => [Int], { nullable: true })
   @IsOptional()
   @IsArray()
+  @ArrayNotEmpty()
   studiosIds?: number[];
 
-  @Field(() => [String], { nullable: true, defaultValue: [] })
+  @Field(() => [String], { nullable: true })
   @IsOptional()
   @IsArray()
+  @ArrayNotEmpty()
   genresIds?: string[];
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  postersIds?: string[];
 }

@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 import { FilmGenreService } from '../film-genre/film-genre.service';
 import { FilmStudioService } from '../film-studio/film-studio.service';
+import { FilmPosterService } from '../film-poster/film-poster.service';
 
 @Injectable()
 export class FilmService {
@@ -16,16 +17,20 @@ export class FilmService {
     private readonly filmRepository: Repository<FilmModel>,
     private readonly filmGenreService: FilmGenreService,
     private readonly filmStudioService: FilmStudioService,
+    private readonly filmPosterService: FilmPosterService,
   ) {}
 
   async create(createFilmInput: CreateFilmInput): Promise<FilmModel> {
     const film = await this.filmRepository.save(createFilmInput);
-    const { genresIds, studiosIds } = createFilmInput;
-    if (genresIds && genresIds.length > 0) {
+    const { genresIds, studiosIds, postersIds } = createFilmInput;
+    if (genresIds) {
       await this.filmGenreService.createFilmGenres(film.id, genresIds);
     }
-    if (studiosIds && studiosIds.length > 0) {
+    if (studiosIds) {
       await this.filmStudioService.createFilmStudios(film.id, studiosIds);
+    }
+    if (postersIds) {
+      await this.filmPosterService.createFilmPosters(film.id, postersIds);
     }
     return film;
   }

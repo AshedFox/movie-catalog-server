@@ -1,9 +1,10 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -12,26 +13,29 @@ import { SeasonModel } from '../../season/entities/season.model';
 import { SeriesModel } from '../../series/entities/series.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
 import { VideoModel } from '../../video/entities/video.model';
+import { ImageModel } from '../../image/entities/image.model';
+import { EpisodePosterModel } from '../../episode-poster/entities/episode-poster.model';
+import { AccessModeEnum } from '../../shared/access-mode.enum';
 
 @ObjectType()
 @Entity({ name: 'episodes' })
-@Unique(['episodeNumber', 'seriesId', 'seasonId'])
+@Unique(['numberInSeries', 'seriesId'])
 export class EpisodeModel {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Field()
-  @Column()
-  title!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  title?: string;
 
-  @Field()
-  @Column({ default: '' })
-  description!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description?: string;
 
-  @Field(() => AgeRestrictionEnum)
-  @Column({ type: 'enum', enum: AgeRestrictionEnum })
-  ageRestriction!: AgeRestrictionEnum;
+  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
+  ageRestriction?: AgeRestrictionEnum;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -45,17 +49,36 @@ export class EpisodeModel {
   @Column({ type: 'int', nullable: true })
   duration?: number;
 
+  @Field(() => AccessModeEnum)
+  @Column({
+    type: 'enum',
+    enum: AccessModeEnum,
+    default: AccessModeEnum.PRIVATE,
+  })
+  accessMode!: AccessModeEnum;
+
   @Field(() => Int)
   @Column({ type: 'int' })
-  episodeNumber!: number;
+  numberInSeries!: number;
 
-  @Field()
-  @Column()
-  seasonId!: string;
+  @Field(() => Int, { nullable: true })
+  @Column({ type: 'int', nullable: true })
+  numberInSeason?: number;
 
-  @Field(() => SeasonModel)
-  @ManyToOne(() => SeasonModel)
-  season!: SeasonModel;
+  @Field(() => [ImageModel])
+  posters!: ImageModel[];
+
+  @HideField()
+  @OneToMany(() => EpisodePosterModel, (episodePoster) => episodePoster.episode)
+  postersConnection!: EpisodePosterModel[];
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  seasonId?: string;
+
+  @Field(() => SeasonModel, { nullable: true })
+  @ManyToOne(() => SeasonModel, { nullable: true })
+  season?: SeasonModel;
 
   @Field()
   @Column()

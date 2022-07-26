@@ -11,10 +11,14 @@ import { Request } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 import ms from 'ms';
+import { ConfigService } from '@nestjs/config';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Mutation(() => AuthResult)
   @UseGuards(GqlLocalAuthGuard)
@@ -29,7 +33,7 @@ export class AuthResolver {
       secure: true,
       signed: true,
       sameSite: 'none',
-      maxAge: ms(process.env.REFRESH_TOKEN_LIFETIME),
+      maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
     return result;
   }
@@ -45,7 +49,7 @@ export class AuthResolver {
       secure: true,
       signed: true,
       sameSite: 'none',
-      maxAge: ms(process.env.REFRESH_TOKEN_LIFETIME),
+      maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
     return result;
   }
@@ -62,7 +66,7 @@ export class AuthResolver {
       secure: true,
       signed: true,
       sameSite: 'none',
-      maxAge: ms(process.env.REFRESH_TOKEN_LIFETIME),
+      maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
     return result;
   }

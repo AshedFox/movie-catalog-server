@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateImageInput } from './dto/create-image.input';
-import { UpdateImageInput } from './dto/update-image.input';
 import { Repository } from 'typeorm';
 import { ImageModel } from './entities/image.model';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,11 +15,11 @@ export class ImageService {
 
   async create(createImageInput: CreateImageInput): Promise<ImageModel> {
     const existingImage = await this.imageRepository.findOne({
-      baseUrl: createImageInput.baseUrl,
+      url: createImageInput.url,
     });
     if (existingImage) {
       throw new AlreadyExistsError(
-        `Image with url "${createImageInput.baseUrl}" already exists`,
+        `Image with url "${createImageInput.url}" already exists`,
       );
     }
     return this.imageRepository.save(createImageInput);
@@ -38,15 +37,8 @@ export class ImageService {
     return image;
   }
 
-  async update(
-    id: string,
-    updateImageInput: UpdateImageInput,
-  ): Promise<ImageModel> {
-    const image = await this.imageRepository.findOne(id);
-    if (!image) {
-      throw new NotFoundError(`Image with id "${id}" not found`);
-    }
-    return this.imageRepository.save({ ...image, ...updateImageInput });
+  async readAllByIds(ids: string[]): Promise<ImageModel[]> {
+    return this.imageRepository.findByIds(ids);
   }
 
   async delete(id: string): Promise<boolean> {

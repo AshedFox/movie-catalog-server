@@ -1,16 +1,26 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { EpisodeModel } from '../entities/episode.model';
-import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  Length,
+  Min,
+} from 'class-validator';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
+import { AccessModeEnum } from '../../shared/access-mode.enum';
 
 @InputType()
 export class CreateEpisodeInput implements Partial<EpisodeModel> {
-  @Field()
+  @Field({ nullable: true })
   @Length(1, 200)
-  title!: string;
+  @IsOptional()
+  title?: string;
 
   @Field({ nullable: true })
-  @Length(0, 2000)
+  @Length(1, 2000)
   @IsOptional()
   description?: string;
 
@@ -18,29 +28,42 @@ export class CreateEpisodeInput implements Partial<EpisodeModel> {
   @IsOptional()
   releaseDate?: Date;
 
-  @Field(() => Int, { nullable: true })
+  @Field()
+  @Min(0)
+  numberInSeries!: number;
+
+  @Field({ nullable: true })
   @Min(0)
   @IsOptional()
-  duration?: number;
+  numberInSeason?: number;
 
-  @Field(() => Int, { nullable: true })
-  @Min(0)
-  episodeNumber!: number;
-
-  @Field(() => AgeRestrictionEnum)
+  @Field(() => AgeRestrictionEnum, { nullable: true })
   @IsEnum(AgeRestrictionEnum)
-  ageRestriction!: AgeRestrictionEnum;
+  @IsOptional()
+  ageRestriction?: AgeRestrictionEnum;
 
-  @Field()
+  @Field(() => AccessModeEnum, { nullable: true })
+  @IsEnum(AccessModeEnum)
+  @IsOptional()
+  accessMode?: AccessModeEnum;
+
+  @Field({ nullable: true })
   @IsUUID('4')
-  seasonId!: string;
+  @IsOptional()
+  seasonId?: string;
 
   @Field()
   @IsUUID('4')
   seriesId!: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsUUID('4')
   @IsOptional()
   videoId?: string;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  postersIds?: string[];
 }

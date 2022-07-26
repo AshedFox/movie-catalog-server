@@ -6,16 +6,23 @@ import { PaginatedSeasons } from './dto/paginated-seasons.result';
 import { ILike, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
+import { SeasonPosterService } from '../season-poster/season-poster.service';
 
 @Injectable()
 export class SeasonService {
   constructor(
     @InjectRepository(SeasonModel)
     private readonly seasonRepository: Repository<SeasonModel>,
+    private readonly seasonPosterService: SeasonPosterService,
   ) {}
 
   async create(createSeasonInput: CreateSeasonInput): Promise<SeasonModel> {
-    return this.seasonRepository.save(createSeasonInput);
+    const season = await this.seasonRepository.save(createSeasonInput);
+    const { postersIds } = createSeasonInput;
+    if (postersIds) {
+      await this.seasonPosterService.createSeasonPosters(season.id, postersIds);
+    }
+    return season;
   }
 
   async readAll(

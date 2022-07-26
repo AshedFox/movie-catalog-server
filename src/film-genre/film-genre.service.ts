@@ -33,7 +33,10 @@ export class FilmGenreService {
     return this.filmGenreRepository.save({ filmId, genreId });
   }
 
-  async createFilmGenres(filmId: string, genresIds: string[]) {
+  async createFilmGenres(
+    filmId: string,
+    genresIds: string[],
+  ): Promise<FilmGenreModel[]> {
     return this.filmGenreRepository.save(
       genresIds.map((genreId) => ({ filmId, genreId })),
     );

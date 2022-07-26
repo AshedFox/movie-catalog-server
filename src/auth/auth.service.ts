@@ -7,10 +7,12 @@ import { RegisterInput } from './dto/register.input';
 import { AuthResult } from './dto/auth.result';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly refreshTokenService: RefreshTokenService,
@@ -38,13 +40,15 @@ export class AuthService {
   async generateRefreshToken(user: UserModel): Promise<string> {
     const refreshToken = await this.refreshTokenService.create(
       user.id,
-      new Date(Date.now() + ms(process.env.REFRESH_TOKEN_LIFETIME)),
+      new Date(
+        Date.now() + ms(this.configService.get('REFRESH_TOKEN_LIFETIME')),
+      ),
     );
     return this.jwtService.sign(
       { sub: refreshToken.id },
       {
-        expiresIn: process.env.REFRESH_TOKEN_LIFETIME,
-        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.configService.get('REFRESH_TOKEN_LIFETIME'),
+        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       },
     );
   }
@@ -57,8 +61,8 @@ export class AuthService {
         role: user.role,
       },
       {
-        expiresIn: process.env.ACCESS_TOKEN_LIFETIME,
-        secret: process.env.ACCESS_TOKEN_SECRET,
+        expiresIn: this.configService.get('ACCESS_TOKEN_LIFETIME'),
+        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       },
     );
   }

@@ -5,19 +5,20 @@ import { FilmModel } from '../film/entities/film.model';
 import { PersonModel } from '../person/entities/person.model';
 import { SeasonModel } from '../season/entities/season.model';
 import { UserModel } from '../user/entities/user.model';
-import { VideoModel } from '../video/entities/video.model';
 import { CountryModel } from '../country/entities/country.model';
 import { StudioModel } from '../studio/entities/studio.model';
 import { FilmPersonModel } from '../film-person/entities/film-person.model';
 import { SeriesPersonModel } from '../series-person/entities/series-person.model';
 import { GenreModel } from '../genre/entities/genre.model';
 import { EpisodeModel } from '../episode/entities/episode.model';
-import { QualityModel } from '../quality/entities/quality.model';
+import { VideoModel } from '../video/entities/video.model';
+import { ImageModel } from '../image/entities/image.model';
 
 export interface IDataLoaders {
   countryLoader: DataLoader<number, CountryModel>;
   countriesByStudioLoader: DataLoader<number, CountryModel[]>;
   emailConfirmationLoader: DataLoader<string, EmailConfirmationModel>;
+  episodeLoader: DataLoader<string, EpisodeModel>;
   episodesBySeriesLoader: DataLoader<string, EpisodeModel[]>;
   episodesBySeasonLoader: DataLoader<string, EpisodeModel[]>;
   filmLoader: DataLoader<string, FilmModel>;
@@ -25,9 +26,12 @@ export interface IDataLoaders {
   genreLoader: DataLoader<string, GenreModel>;
   genresByFilmLoader: DataLoader<string, GenreModel[]>;
   genresBySeriesLoader: DataLoader<string, GenreModel[]>;
+  imageLoader: DataLoader<string, ImageModel>;
   personLoader: DataLoader<number, PersonModel>;
-  qualityLoader: DataLoader<number, QualityModel>;
-  qualitiesByVideoLoader: DataLoader<string, QualityModel[]>;
+  postersByEpisodeLoader: DataLoader<string, ImageModel[]>;
+  postersByFilmLoader: DataLoader<string, ImageModel[]>;
+  postersBySeasonLoader: DataLoader<string, ImageModel[]>;
+  postersBySeriesLoader: DataLoader<string, ImageModel[]>;
   seasonLoader: DataLoader<string, SeasonModel>;
   seasonsBySeriesLoader: DataLoader<string, SeasonModel[]>;
   seriesLoader: DataLoader<string, SeriesModel>;

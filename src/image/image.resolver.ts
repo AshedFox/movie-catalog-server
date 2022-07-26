@@ -1,19 +1,36 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ImageService } from './image.service';
-import { CreateImageInput } from './dto/create-image.input';
-import { UpdateImageInput } from './dto/update-image.input';
 import { ImageModel } from './entities/image.model';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '../user/entities/role.enum';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
+import { FileUpload } from 'graphql-upload';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Resolver(() => ImageModel)
 export class ImageResolver {
-  constructor(private readonly imageService: ImageService) {}
+  constructor(
+    private readonly imageService: ImageService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => ImageModel)
-  createImage(@Args('input') input: CreateImageInput) {
-    return this.imageService.create(input);
+  async createImage(
+    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
+  ) {
+    const { url, height, width } = await this.cloudinaryService.uploadImage(
+      file,
+    );
+    return this.imageService.create({ height, width, url });
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => [ImageModel])
   getImages() {
     return this.imageService.readAll();
@@ -24,11 +41,8 @@ export class ImageResolver {
     return this.imageService.readOne(id);
   }
 
-  @Mutation(() => ImageModel)
-  updateImage(@Args('id') id: string, @Args('input') input: UpdateImageInput) {
-    return this.imageService.update(id, input);
-  }
-
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteImage(@Args('id', ParseUUIDPipe) id: string) {
     return this.imageService.delete(id);

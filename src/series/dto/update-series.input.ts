@@ -1,5 +1,7 @@
 import { CreateSeriesInput } from './create-series.input';
-import { InputType, PartialType } from '@nestjs/graphql';
+import { InputType, OmitType, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateSeriesInput extends PartialType(CreateSeriesInput) {}
+export class UpdateSeriesInput extends PartialType(
+  OmitType(CreateSeriesInput, ['studiosIds', 'genresIds', 'postersIds']),
+) {}

@@ -15,11 +15,11 @@ export class VideoService {
 
   async create(createVideoInput: CreateVideoInput): Promise<VideoModel> {
     const existingVideo = await this.videoRepository.findOne({
-      baseUrl: createVideoInput.baseUrl,
+      url: createVideoInput.url,
     });
     if (existingVideo) {
       throw new AlreadyExistsError(
-        `Video with url "${createVideoInput.baseUrl}" already exists`,
+        `Video with url "${createVideoInput.url}" already exists`,
       );
     }
     return await this.videoRepository.save(createVideoInput);
@@ -28,7 +28,7 @@ export class VideoService {
   async readOne(id: string): Promise<VideoModel> {
     const video = await this.videoRepository.findOne(id);
     if (!video) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Video with id "${id}" not found`);
     }
     return video;
   }
@@ -44,7 +44,7 @@ export class VideoService {
   async delete(id: string) {
     const video = await this.videoRepository.findOne(id);
     if (!video) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Video with id "${id}" not found`);
     }
     await this.videoRepository.remove(video);
     return true;

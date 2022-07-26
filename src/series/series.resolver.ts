@@ -24,6 +24,7 @@ import { GenreModel } from '../genre/entities/genre.model';
 import { StudioModel } from '../studio/entities/studio.model';
 import { SeasonModel } from '../season/entities/season.model';
 import { EpisodeModel } from '../episode/entities/episode.model';
+import { ImageModel } from '../image/entities/image.model';
 
 @Resolver(SeriesModel)
 export class SeriesResolver {
@@ -101,5 +102,13 @@ export class SeriesResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.episodesBySeriesLoader.load(series.id);
+  }
+
+  @ResolveField(() => [ImageModel])
+  posters(
+    @Parent() series: SeriesModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.postersBySeriesLoader.load(series.id);
   }
 }

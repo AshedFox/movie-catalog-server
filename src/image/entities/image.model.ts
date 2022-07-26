@@ -10,13 +10,13 @@ export class ImageModel {
 
   @Field()
   @Column({ unique: true })
-  baseUrl!: string;
+  url!: string;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   width?: number;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   height?: number;
 }

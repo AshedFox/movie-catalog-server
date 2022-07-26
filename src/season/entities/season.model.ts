@@ -1,4 +1,4 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -11,10 +11,13 @@ import {
 import { SeriesModel } from '../../series/entities/series.model';
 import { EpisodeModel } from '../../episode/entities/episode.model';
 import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
+import { ImageModel } from '../../image/entities/image.model';
+import { SeasonPosterModel } from '../../season-poster/entities/season-poster.model';
+import { AccessModeEnum } from '../../shared/access-mode.enum';
 
 @ObjectType()
 @Entity({ name: 'seasons' })
-@Unique(['seasonNumber', 'seriesId'])
+@Unique(['numberInSeries', 'seriesId'])
 export class SeasonModel {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -22,19 +25,19 @@ export class SeasonModel {
 
   @Field(() => Int)
   @Column({ type: 'int' })
-  seasonNumber!: number;
+  numberInSeries!: number;
 
-  @Field()
-  @Column()
-  title!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  title?: string;
 
-  @Field()
-  @Column({ default: '' })
-  description!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description?: string;
 
-  @Field(() => AgeRestrictionEnum)
-  @Column({ type: 'enum', enum: AgeRestrictionEnum })
-  ageRestriction!: AgeRestrictionEnum;
+  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
+  ageRestriction?: AgeRestrictionEnum;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -48,8 +51,23 @@ export class SeasonModel {
   @CreateDateColumn()
   publicationDate!: Date;
 
+  @Field(() => AccessModeEnum)
+  @Column({
+    type: 'enum',
+    enum: AccessModeEnum,
+    default: AccessModeEnum.PRIVATE,
+  })
+  accessMode!: AccessModeEnum;
+
   @Field(() => Int)
   episodesCount!: number;
+
+  @Field(() => [ImageModel])
+  posters!: ImageModel[];
+
+  @HideField()
+  @OneToMany(() => SeasonPosterModel, (seasonPoster) => seasonPoster.season)
+  postersConnection!: SeasonPosterModel[];
 
   @Field()
   @Column()

@@ -18,11 +18,12 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '../user/entities/role.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { VideoModel } from '../video/entities/video.model';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { FilmPersonModel } from '../film-person/entities/film-person.model';
 import { GenreModel } from '../genre/entities/genre.model';
 import { StudioModel } from '../studio/entities/studio.model';
+import { VideoModel } from '../video/entities/video.model';
+import { ImageModel } from '../image/entities/image.model';
 
 @Resolver(FilmModel)
 export class FilmResolver {
@@ -86,5 +87,13 @@ export class FilmResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.studiosByFilmLoader.load(film.id);
+  }
+
+  @ResolveField(() => [ImageModel])
+  posters(
+    @Parent() film: FilmModel,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.postersByFilmLoader.load(film.id);
   }
 }
