@@ -37,7 +37,7 @@ export class EpisodeResolver {
 
   @Query(() => PaginatedEpisodes)
   getEpisodes(@Args() { searchTitle, seasonId, take, skip }: GetEpisodesArgs) {
-    return this.episodeService.readAll(searchTitle, seasonId, take, skip);
+    return this.episodeService.readAll(take, skip, searchTitle, seasonId);
   }
 
   @Query(() => EpisodeModel, { nullable: true })

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateGenreInput } from './dto/create-genre.input';
 import { UpdateGenreInput } from './dto/update-genre.input';
 import { GenreModel } from './entities/genre.model';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { PaginatedGenres } from './dto/paginated-genres.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -19,18 +19,14 @@ export class GenreService {
   }
 
   async readAll(
-    name: string,
     take: number,
     skip: number,
+    name?: string,
   ): Promise<PaginatedGenres> {
     const [data, count] = await this.genreRepository.findAndCount({
-      where: [
-        name
-          ? {
-              name: ILike(`%${name}%`),
-            }
-          : {},
-      ],
+      where: {
+        name: name ? ILike(`%${name}%`) : undefined,
+      },
       take,
       skip,
       order: {
@@ -38,15 +34,15 @@ export class GenreService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<GenreModel[]> {
-    return await this.genreRepository.findByIds(ids);
+    return await this.genreRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: string): Promise<GenreModel> {
-    const genre = await this.genreRepository.findOne(id);
+    const genre = await this.genreRepository.findOneBy({ id });
     if (!genre) {
       throw new NotFoundError();
     }
@@ -57,7 +53,7 @@ export class GenreService {
     id: string,
     updateGenreInput: UpdateGenreInput,
   ): Promise<GenreModel> {
-    const genre = await this.genreRepository.findOne(id);
+    const genre = await this.genreRepository.findOneBy({ id });
     if (!genre) {
       throw new NotFoundError();
     }
@@ -68,7 +64,7 @@ export class GenreService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const genre = await this.genreRepository.findOne(id);
+    const genre = await this.genreRepository.findOneBy({ id });
     if (!genre) {
       throw new NotFoundError();
     }

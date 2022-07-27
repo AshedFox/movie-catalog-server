@@ -24,7 +24,7 @@ export class StudioCountryService {
   ): Promise<StudioCountryModel> {
     await this.studioService.readOne(studioId);
     await this.countryService.readOne(countryId);
-    const studioCountry = await this.studioCountryRepository.findOne({
+    const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
     });
@@ -54,7 +54,9 @@ export class StudioCountryService {
   ): Promise<StudioCountryModel[]> {
     return this.studioCountryRepository.find({
       where: { studioId: In(studiosIds) },
-      relations: ['country'],
+      relations: {
+        country: true,
+      },
     });
   }
 
@@ -62,7 +64,7 @@ export class StudioCountryService {
     studioId: number,
     countryId: number,
   ): Promise<StudioCountryModel> {
-    const studioCountry = await this.studioCountryRepository.findOne({
+    const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
     });
@@ -73,7 +75,7 @@ export class StudioCountryService {
   }
 
   async delete(studioId: number, countryId: number): Promise<boolean> {
-    const studioCountry = await this.studioCountryRepository.findOne({
+    const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
     });

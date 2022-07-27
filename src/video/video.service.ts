@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { VideoModel } from './entities/video.model';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 import { CreateVideoInput } from './dto/create-video.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ export class VideoService {
   ) {}
 
   async create(createVideoInput: CreateVideoInput): Promise<VideoModel> {
-    const existingVideo = await this.videoRepository.findOne({
+    const existingVideo = await this.videoRepository.findOneBy({
       url: createVideoInput.url,
     });
     if (existingVideo) {
@@ -26,7 +26,7 @@ export class VideoService {
   }
 
   async readOne(id: string): Promise<VideoModel> {
-    const video = await this.videoRepository.findOne(id);
+    const video = await this.videoRepository.findOneBy({ id });
     if (!video) {
       throw new NotFoundError(`Video with id "${id}" not found`);
     }
@@ -38,11 +38,11 @@ export class VideoService {
   }
 
   async readAllByIds(ids: string[]): Promise<VideoModel[]> {
-    return this.videoRepository.findByIds(ids);
+    return this.videoRepository.findBy({ id: In(ids) });
   }
 
   async delete(id: string) {
-    const video = await this.videoRepository.findOne(id);
+    const video = await this.videoRepository.findOneBy({ id });
     if (!video) {
       throw new NotFoundError(`Video with id "${id}" not found`);
     }

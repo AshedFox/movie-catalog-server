@@ -24,7 +24,7 @@ export class PersonResolver {
 
   @Query(() => PaginatedPersons)
   getPersons(@Args() { searchName, take, skip }: GetPersonsArgs) {
-    return this.personService.readAll(searchName, take, skip);
+    return this.personService.readAll(take, skip, searchName);
   }
 
   @Query(() => PersonModel, { nullable: true })

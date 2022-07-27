@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCountryInput } from './dto/create-country.input';
 import { UpdateCountryInput } from './dto/update-country.input';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CountryModel } from './entities/country.model';
 import { NotFoundError } from '../shared/errors/not-found.error';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,11 +22,11 @@ export class CountryService {
   }
 
   async readAllByIds(ids: number[]): Promise<CountryModel[]> {
-    return this.countryRepository.findByIds(ids);
+    return this.countryRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: number): Promise<CountryModel> {
-    const country = await this.countryRepository.findOne(id);
+    const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
       throw new NotFoundError(`Country with id "${id}" not found`);
     }
@@ -37,7 +37,7 @@ export class CountryService {
     id: number,
     updateCountryInput: UpdateCountryInput,
   ): Promise<CountryModel> {
-    const country = await this.countryRepository.findOne(id);
+    const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
       throw new NotFoundError();
     }
@@ -45,7 +45,7 @@ export class CountryService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const country = await this.countryRepository.findOne(id);
+    const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
       throw new NotFoundError();
     }

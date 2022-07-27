@@ -36,7 +36,7 @@ export class SeasonResolver {
 
   @Query(() => PaginatedSeasons)
   getSeasons(@Args() { searchTitle, seasonId, take, skip }: GetSeasonsArgs) {
-    return this.seasonService.readAll(searchTitle, seasonId, take, skip);
+    return this.seasonService.readAll(take, skip, searchTitle, seasonId);
   }
 
   @Query(() => SeasonModel, { nullable: true })

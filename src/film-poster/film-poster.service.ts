@@ -21,7 +21,7 @@ export class FilmPosterService {
   async create(filmId: string, imageId: string) {
     await this.filmService.readOne(filmId);
     await this.posterService.readOne(imageId);
-    const filmPoster = await this.filmPosterRepository.findOne({
+    const filmPoster = await this.filmPosterRepository.findOneBy({
       filmId,
       imageId,
     });
@@ -49,12 +49,14 @@ export class FilmPosterService {
   async readFilmsPosters(filmsIds: string[]): Promise<FilmPosterModel[]> {
     return this.filmPosterRepository.find({
       where: { filmId: In(filmsIds) },
-      relations: ['image'],
+      relations: {
+        image: true,
+      },
     });
   }
 
   async readOne(filmId: string, imageId: string): Promise<FilmPosterModel> {
-    const filmPoster = await this.filmPosterRepository.findOne({
+    const filmPoster = await this.filmPosterRepository.findOneBy({
       filmId,
       imageId,
     });
@@ -65,7 +67,7 @@ export class FilmPosterService {
   }
 
   async delete(filmId: string, imageId: string) {
-    const filmPoster = await this.filmPosterRepository.findOne({
+    const filmPoster = await this.filmPosterRepository.findOneBy({
       filmId,
       imageId,
     });

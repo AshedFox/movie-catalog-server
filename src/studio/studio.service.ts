@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateStudioInput } from './dto/create-studio.input';
 import { UpdateStudioInput } from './dto/update-studio.input';
 import { StudioModel } from './entities/studio.model';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { PaginatedStudios } from './dto/paginated-studios.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -29,18 +29,14 @@ export class StudioService {
   }
 
   async readAll(
-    name: string,
     take: number,
     skip: number,
+    name?: string,
   ): Promise<PaginatedStudios> {
     const [data, count] = await this.studioRepository.findAndCount({
-      where: [
-        name
-          ? {
-              name: ILike(`%${name}%`),
-            }
-          : {},
-      ],
+      where: {
+        name: name ? ILike(`%${name}%`) : undefined,
+      },
       take,
       skip,
       order: {
@@ -48,15 +44,15 @@ export class StudioService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: number[]): Promise<StudioModel[]> {
-    return await this.studioRepository.findByIds(ids);
+    return await this.studioRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: number): Promise<StudioModel> {
-    const studio = await this.studioRepository.findOne(id);
+    const studio = await this.studioRepository.findOneBy({ id });
     if (!studio) {
       throw new NotFoundError(`Studio with id "${id}" not found`);
     }
@@ -67,7 +63,7 @@ export class StudioService {
     id: number,
     updateStudioInput: UpdateStudioInput,
   ): Promise<StudioModel> {
-    const studio = await this.studioRepository.findOne(id);
+    const studio = await this.studioRepository.findOneBy({ id });
     if (!studio) {
       throw new NotFoundError();
     }
@@ -78,7 +74,7 @@ export class StudioService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const studio = await this.studioRepository.findOne(id);
+    const studio = await this.studioRepository.findOneBy({ id });
     if (!studio) {
       throw new NotFoundError();
     }

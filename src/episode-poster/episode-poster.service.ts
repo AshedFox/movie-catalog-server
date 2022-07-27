@@ -21,7 +21,7 @@ export class EpisodePosterService {
   async create(episodeId: string, imageId: string) {
     await this.episodeService.readOne(episodeId);
     await this.posterService.readOne(imageId);
-    const episodePoster = await this.episodePosterRepository.findOne({
+    const episodePoster = await this.episodePosterRepository.findOneBy({
       episodeId,
       imageId,
     });
@@ -51,7 +51,9 @@ export class EpisodePosterService {
   ): Promise<EpisodePosterModel[]> {
     return this.episodePosterRepository.find({
       where: { episodeId: In(episodesIds) },
-      relations: ['image'],
+      relations: {
+        image: true,
+      },
     });
   }
 
@@ -59,7 +61,7 @@ export class EpisodePosterService {
     episodeId: string,
     imageId: string,
   ): Promise<EpisodePosterModel> {
-    const episodePoster = await this.episodePosterRepository.findOne({
+    const episodePoster = await this.episodePosterRepository.findOneBy({
       episodeId,
       imageId,
     });
@@ -70,7 +72,7 @@ export class EpisodePosterService {
   }
 
   async delete(episodeId: string, imageId: string) {
-    const episodePoster = await this.episodePosterRepository.findOne({
+    const episodePoster = await this.episodePosterRepository.findOneBy({
       episodeId,
       imageId,
     });

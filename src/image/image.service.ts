@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateImageInput } from './dto/create-image.input';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ImageModel } from './entities/image.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -14,7 +14,7 @@ export class ImageService {
   ) {}
 
   async create(createImageInput: CreateImageInput): Promise<ImageModel> {
-    const existingImage = await this.imageRepository.findOne({
+    const existingImage = await this.imageRepository.findOneBy({
       url: createImageInput.url,
     });
     if (existingImage) {
@@ -30,7 +30,7 @@ export class ImageService {
   }
 
   async readOne(id: string): Promise<ImageModel> {
-    const image = await this.imageRepository.findOne(id);
+    const image = await this.imageRepository.findOneBy({ id });
     if (!image) {
       throw new NotFoundError(`Image with id "${id}" not found`);
     }
@@ -38,11 +38,11 @@ export class ImageService {
   }
 
   async readAllByIds(ids: string[]): Promise<ImageModel[]> {
-    return this.imageRepository.findByIds(ids);
+    return this.imageRepository.findBy({ id: In(ids) });
   }
 
   async delete(id: string): Promise<boolean> {
-    const image = await this.imageRepository.findOne(id);
+    const image = await this.imageRepository.findOneBy({ id });
     if (!image) {
       throw new NotFoundError(`Image with id "${id}" not found`);
     }

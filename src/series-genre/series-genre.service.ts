@@ -21,7 +21,7 @@ export class SeriesGenreService {
   async create(seriesId: string, genreId: string) {
     await this.seriesService.readOne(seriesId);
     await this.genreService.readOne(genreId);
-    const seriesGenre = await this.seriesGenreRepository.findOne({
+    const seriesGenre = await this.seriesGenreRepository.findOneBy({
       seriesId,
       genreId,
     });
@@ -46,12 +46,14 @@ export class SeriesGenreService {
   async readManySeriesGenres(seriesIds: string[]): Promise<SeriesGenreModel[]> {
     return this.seriesGenreRepository.find({
       where: { seriesId: In(seriesIds) },
-      relations: ['genre'],
+      relations: {
+        genre: true,
+      },
     });
   }
 
   async readOne(seriesId: string, genreId: string): Promise<SeriesGenreModel> {
-    const seriesGenre = await this.seriesGenreRepository.findOne({
+    const seriesGenre = await this.seriesGenreRepository.findOneBy({
       seriesId,
       genreId,
     });
@@ -62,7 +64,7 @@ export class SeriesGenreService {
   }
 
   async delete(seriesId: string, genreId: string) {
-    const seriesGenre = await this.seriesGenreRepository.findOne({
+    const seriesGenre = await this.seriesGenreRepository.findOneBy({
       seriesId,
       genreId,
     });

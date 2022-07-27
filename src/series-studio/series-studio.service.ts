@@ -21,7 +21,7 @@ export class SeriesStudioService {
   async create(seriesId: string, studioId: number): Promise<SeriesStudioModel> {
     await this.seriesService.readOne(seriesId);
     await this.studioService.readOne(studioId);
-    const seriesStudio = await this.seriesStudioRepository.findOne({
+    const seriesStudio = await this.seriesStudioRepository.findOneBy({
       seriesId,
       studioId,
     });
@@ -51,7 +51,9 @@ export class SeriesStudioService {
   ): Promise<SeriesStudioModel[]> {
     return this.seriesStudioRepository.find({
       where: { seriesId: In(seriesIds) },
-      relations: ['studio'],
+      relations: {
+        studio: true,
+      },
     });
   }
 
@@ -59,7 +61,7 @@ export class SeriesStudioService {
     seriesId: string,
     studioId: number,
   ): Promise<SeriesStudioModel> {
-    const seriesStudio = await this.seriesStudioRepository.findOne({
+    const seriesStudio = await this.seriesStudioRepository.findOneBy({
       seriesId,
       studioId,
     });
@@ -70,7 +72,7 @@ export class SeriesStudioService {
   }
 
   async delete(seriesId: string, studioId: number): Promise<boolean> {
-    const seriesStudio = await this.seriesStudioRepository.findOne({
+    const seriesStudio = await this.seriesStudioRepository.findOneBy({
       seriesId,
       studioId,
     });

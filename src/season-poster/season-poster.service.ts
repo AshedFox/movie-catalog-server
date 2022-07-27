@@ -21,7 +21,7 @@ export class SeasonPosterService {
   async create(seasonId: string, imageId: string) {
     await this.seasonService.readOne(seasonId);
     await this.posterService.readOne(imageId);
-    const seasonPoster = await this.seasonPosterRepository.findOne({
+    const seasonPoster = await this.seasonPosterRepository.findOneBy({
       seasonId,
       imageId,
     });
@@ -49,12 +49,14 @@ export class SeasonPosterService {
   async readSeasonsPosters(seasonsIds: string[]): Promise<SeasonPosterModel[]> {
     return this.seasonPosterRepository.find({
       where: { seasonId: In(seasonsIds) },
-      relations: ['image'],
+      relations: {
+        image: true,
+      },
     });
   }
 
   async readOne(seasonId: string, imageId: string): Promise<SeasonPosterModel> {
-    const seasonPoster = await this.seasonPosterRepository.findOne({
+    const seasonPoster = await this.seasonPosterRepository.findOneBy({
       seasonId,
       imageId,
     });
@@ -65,7 +67,7 @@ export class SeasonPosterService {
   }
 
   async delete(seasonId: string, imageId: string) {
-    const seasonPoster = await this.seasonPosterRepository.findOne({
+    const seasonPoster = await this.seasonPosterRepository.findOneBy({
       seasonId,
       imageId,
     });

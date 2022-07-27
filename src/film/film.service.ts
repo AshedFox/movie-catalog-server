@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFilmInput } from './dto/create-film.input';
 import { FilmModel } from './entities/film.model';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { UpdateFilmInput } from './dto/update-film.input';
 import { PaginatedFilms } from './dto/paginated-films.result';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -36,18 +36,14 @@ export class FilmService {
   }
 
   async readAll(
-    title: string,
     take: number,
     skip: number,
+    title?: string,
   ): Promise<PaginatedFilms> {
     const [data, count] = await this.filmRepository.findAndCount({
-      where: [
-        title
-          ? {
-              title: ILike(`%${title}%`),
-            }
-          : {},
-      ],
+      where: {
+        title: title ? ILike(`%${title}%`) : undefined,
+      },
       take,
       skip,
       order: {
@@ -56,15 +52,15 @@ export class FilmService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<FilmModel[]> {
-    return await this.filmRepository.findByIds(ids);
+    return await this.filmRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: string): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(id);
+    const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
       throw new NotFoundError();
     }
@@ -75,7 +71,7 @@ export class FilmService {
     id: string,
     updateFilmInput: UpdateFilmInput,
   ): Promise<FilmModel> {
-    const film = await this.filmRepository.findOne(id);
+    const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
       throw new NotFoundError();
     }
@@ -86,7 +82,7 @@ export class FilmService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const film = await this.filmRepository.findOne(id);
+    const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
       throw new NotFoundError();
     }

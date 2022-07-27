@@ -21,7 +21,7 @@ export class FilmStudioService {
   async create(filmId: string, studioId: number): Promise<FilmStudioModel> {
     await this.filmService.readOne(filmId);
     await this.studioService.readOne(studioId);
-    const filmStudio = await this.filmStudioRepository.findOne({
+    const filmStudio = await this.filmStudioRepository.findOneBy({
       filmId,
       studioId,
     });
@@ -49,12 +49,14 @@ export class FilmStudioService {
   async readFilmsStudios(filmsIds: string[]): Promise<FilmStudioModel[]> {
     return this.filmStudioRepository.find({
       where: { filmId: In(filmsIds) },
-      relations: ['studio'],
+      relations: {
+        studio: true,
+      },
     });
   }
 
   async readOne(filmId: string, studioId: number): Promise<FilmStudioModel> {
-    const filmStudio = await this.filmStudioRepository.findOne({
+    const filmStudio = await this.filmStudioRepository.findOneBy({
       filmId,
       studioId,
     });
@@ -65,7 +67,7 @@ export class FilmStudioService {
   }
 
   async delete(filmId: string, studioId: number): Promise<boolean> {
-    const filmStudio = await this.filmStudioRepository.findOne({
+    const filmStudio = await this.filmStudioRepository.findOneBy({
       filmId,
       studioId,
     });

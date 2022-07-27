@@ -21,7 +21,7 @@ export class FilmGenreService {
   async create(filmId: string, genreId: string) {
     await this.filmService.readOne(filmId);
     await this.genreService.readOne(genreId);
-    const filmGenre = await this.filmGenreRepository.findOne({
+    const filmGenre = await this.filmGenreRepository.findOneBy({
       filmId,
       genreId,
     });
@@ -49,12 +49,14 @@ export class FilmGenreService {
   async readFilmsGenres(filmsIds: string[]): Promise<FilmGenreModel[]> {
     return this.filmGenreRepository.find({
       where: { filmId: In(filmsIds) },
-      relations: ['genre'],
+      relations: {
+        genre: true,
+      },
     });
   }
 
   async readOne(filmId: string, genreId: string): Promise<FilmGenreModel> {
-    const filmGenre = await this.filmGenreRepository.findOne({
+    const filmGenre = await this.filmGenreRepository.findOneBy({
       filmId,
       genreId,
     });
@@ -65,7 +67,7 @@ export class FilmGenreService {
   }
 
   async delete(filmId: string, genreId: string) {
-    const filmGenre = await this.filmGenreRepository.findOne({
+    const filmGenre = await this.filmGenreRepository.findOneBy({
       filmId,
       genreId,
     });

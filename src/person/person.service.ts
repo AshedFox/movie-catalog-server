@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonInput } from './dto/create-person.input';
 import { UpdatePersonInput } from './dto/update-person.input';
 import { PersonModel } from './entities/person.model';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { PaginatedPersons } from './dto/paginated-persons.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -19,18 +19,14 @@ export class PersonService {
   }
 
   async readAll(
-    name: string,
     take: number,
     skip: number,
+    name?: string,
   ): Promise<PaginatedPersons> {
     const [data, count] = await this.personRepository.findAndCount({
-      where: [
-        name
-          ? {
-              name: ILike(`%${name}%`),
-            }
-          : {},
-      ],
+      where: {
+        name: name ? ILike(`%${name}%`) : undefined,
+      },
       take,
       skip,
       order: {
@@ -38,15 +34,15 @@ export class PersonService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: number[]): Promise<PersonModel[]> {
-    return await this.personRepository.findByIds(ids);
+    return await this.personRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: number): Promise<PersonModel> {
-    const person = await this.personRepository.findOne(id);
+    const person = await this.personRepository.findOneBy({ id });
     if (!person) {
       throw new NotFoundError();
     }
@@ -57,7 +53,7 @@ export class PersonService {
     id: number,
     updatePersonInput: UpdatePersonInput,
   ): Promise<PersonModel> {
-    const person = await this.personRepository.findOne(id);
+    const person = await this.personRepository.findOneBy({ id });
     if (!person) {
       throw new NotFoundError();
     }
@@ -68,7 +64,7 @@ export class PersonService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const person = await this.personRepository.findOne(id);
+    const person = await this.personRepository.findOneBy({ id });
     if (!person) {
       throw new NotFoundError();
     }

@@ -26,20 +26,16 @@ export class SeasonService {
   }
 
   async readAll(
-    title: string,
-    seriesId: string,
     take: number,
     skip: number,
+    title?: string,
+    seriesId?: string,
   ): Promise<PaginatedSeasons> {
     const [data, count] = await this.seasonRepository.findAndCount({
-      where: [
-        title
-          ? {
-              title: ILike(`%${title}%`),
-            }
-          : {},
-        seriesId ? { seriesId } : {},
-      ],
+      where: {
+        title: title ? ILike(`%${title}%`) : undefined,
+        seriesId,
+      },
       take,
       skip,
       order: {
@@ -48,21 +44,19 @@ export class SeasonService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<SeasonModel[]> {
-    return this.seasonRepository.findByIds(ids);
+    return this.seasonRepository.findBy({ id: In(ids) });
   }
 
   async readSeasonsBySeries(seriesIds: string[]): Promise<SeasonModel[]> {
-    return this.seasonRepository.find({
-      seriesId: In(seriesIds),
-    });
+    return this.seasonRepository.findBy({ seriesId: In(seriesIds) });
   }
 
   async readOne(id: string): Promise<SeasonModel> {
-    const season = await this.seasonRepository.findOne(id);
+    const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
       throw new NotFoundError();
     }
@@ -73,7 +67,7 @@ export class SeasonService {
     id: string,
     updateSeasonInput: UpdateSeasonInput,
   ): Promise<SeasonModel> {
-    const season = await this.seasonRepository.findOne(id);
+    const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
       throw new NotFoundError();
     }
@@ -84,7 +78,7 @@ export class SeasonService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const season = await this.seasonRepository.findOne(id);
+    const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
       throw new NotFoundError();
     }

@@ -16,7 +16,7 @@ export class RefreshTokenService {
   }
 
   async readOne(id: string): Promise<RefreshTokenModel> {
-    const token = await this.refreshTokenRepository.findOne({
+    const token = await this.refreshTokenRepository.findOneBy({
       id,
     });
     if (!token) {
@@ -26,7 +26,7 @@ export class RefreshTokenService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const token = await this.refreshTokenRepository.findOne(id);
+    const token = await this.refreshTokenRepository.findOneBy({ id });
     if (!token) {
       throw new NotFoundError();
     }

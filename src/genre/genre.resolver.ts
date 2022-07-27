@@ -24,7 +24,7 @@ export class GenreResolver {
 
   @Query(() => PaginatedGenres)
   getGenres(@Args() { searchName, take, skip }: GetGenresArgs) {
-    return this.genreService.readAll(searchName, take, skip);
+    return this.genreService.readAll(take, skip, searchName);
   }
 
   @Query(() => GenreModel, { nullable: true })

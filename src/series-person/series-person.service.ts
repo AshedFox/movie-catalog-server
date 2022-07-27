@@ -29,30 +29,28 @@ export class SeriesPersonService {
     type?: PersonTypeEnum,
   ): Promise<PaginatedSeriesPersons> {
     const [data, count] = await this.seriesPersonRepository.findAndCount({
-      where: [
-        seriesId ? { seriesId } : {},
-        personId ? { personId } : {},
-        type ? { type } : {},
-      ],
+      where: {
+        seriesId,
+        personId,
+        type,
+      },
       take,
       skip,
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<SeriesPersonModel[]> {
-    return await this.seriesPersonRepository.findByIds(ids);
+    return await this.seriesPersonRepository.findBy({ id: In(ids) });
   }
 
   async readSeriesPersons(seriesIds: string[]): Promise<SeriesPersonModel[]> {
-    return this.seriesPersonRepository.find({
-      where: { seriesId: In(seriesIds) },
-    });
+    return this.seriesPersonRepository.findBy({ seriesId: In(seriesIds) });
   }
 
   async readOne(id: number): Promise<SeriesPersonModel> {
-    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    const seriesPerson = await this.seriesPersonRepository.findOneBy({ id });
     if (!seriesPerson) {
       throw new NotFoundError();
     }
@@ -63,7 +61,7 @@ export class SeriesPersonService {
     id: number,
     updateSeriesPersonInput: UpdateSeriesPersonInput,
   ): Promise<SeriesPersonModel> {
-    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    const seriesPerson = await this.seriesPersonRepository.findOneBy({ id });
     if (!seriesPerson) {
       throw new NotFoundError();
     }
@@ -74,7 +72,7 @@ export class SeriesPersonService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const seriesPerson = await this.seriesPersonRepository.findOne(id);
+    const seriesPerson = await this.seriesPersonRepository.findOneBy({ id });
     if (!seriesPerson) {
       throw new NotFoundError();
     }

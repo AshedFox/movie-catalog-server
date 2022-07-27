@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
 import { SeriesModel } from './entities/series.model';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 import { PaginatedSeries } from './dto/paginated-series.result';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
@@ -40,14 +40,12 @@ export class SeriesService {
     take: number,
     skip: number,
   ): Promise<PaginatedSeries> {
+    let where: FindOptionsWhere<SeriesModel> = {};
+    if (title) {
+      where = { ...where, title: ILike(`%${title}%`) };
+    }
     const [data, count] = await this.seriesRepository.findAndCount({
-      where: [
-        title
-          ? {
-              title: ILike(`%${title}%`),
-            }
-          : {},
-      ],
+      where,
       take,
       skip,
       order: {
@@ -56,15 +54,15 @@ export class SeriesService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<SeriesModel[]> {
-    return await this.seriesRepository.findByIds(ids);
+    return await this.seriesRepository.findBy({ id: In(ids) });
   }
 
   async readOne(id: string): Promise<SeriesModel> {
-    const series = await this.seriesRepository.findOne(id);
+    const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
       throw new NotFoundError();
     }
@@ -75,7 +73,7 @@ export class SeriesService {
     id: string,
     updateSeriesInput: UpdateSeriesInput,
   ): Promise<SeriesModel> {
-    const series = await this.seriesRepository.findOne(id);
+    const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
       throw new NotFoundError();
     }
@@ -86,7 +84,7 @@ export class SeriesService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const series = await this.seriesRepository.findOne(id);
+    const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
       throw new NotFoundError();
     }

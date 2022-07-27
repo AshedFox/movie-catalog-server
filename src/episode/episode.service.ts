@@ -29,24 +29,16 @@ export class EpisodeService {
   }
 
   async readAll(
-    title: string,
-    seasonId: string,
     take: number,
     skip: number,
+    title?: string,
+    seasonId?: string,
   ): Promise<PaginatedEpisodes> {
     const [data, count] = await this.episodeRepository.findAndCount({
-      where: [
-        title
-          ? {
-              title: ILike(`%${title}%`),
-            }
-          : {},
-        seasonId
-          ? {
-              seasonId,
-            }
-          : {},
-      ],
+      where: {
+        title: title ? ILike(`%${title}%`) : undefined,
+        seasonId,
+      },
       take,
       skip,
       order: {
@@ -55,27 +47,27 @@ export class EpisodeService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<EpisodeModel[]> {
-    return this.episodeRepository.findByIds(ids);
+    return this.episodeRepository.findBy({ id: In(ids) });
   }
 
   async readManySeriesEpisodes(seriesIds: string[]): Promise<EpisodeModel[]> {
-    return this.episodeRepository.find({
+    return this.episodeRepository.findBy({
       seriesId: In(seriesIds),
     });
   }
 
   async readSeasonsEpisodes(seasonsIds: string[]): Promise<EpisodeModel[]> {
-    return this.episodeRepository.find({
+    return this.episodeRepository.findBy({
       seasonId: In(seasonsIds),
     });
   }
 
   async readOne(id: string): Promise<EpisodeModel> {
-    const episode = await this.episodeRepository.findOne(id);
+    const episode = await this.episodeRepository.findOneBy({ id });
     if (!episode) {
       throw new NotFoundError();
     }
@@ -86,7 +78,7 @@ export class EpisodeService {
     id: string,
     updateEpisodeInput: UpdateEpisodeInput,
   ): Promise<EpisodeModel> {
-    const episode = await this.episodeRepository.findOne(id);
+    const episode = await this.episodeRepository.findOneBy({ id });
     if (!episode) {
       throw new NotFoundError();
     }
@@ -97,7 +89,7 @@ export class EpisodeService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const episode = await this.episodeRepository.findOne(id);
+    const episode = await this.episodeRepository.findOneBy({ id });
     if (!episode) {
       throw new NotFoundError();
     }

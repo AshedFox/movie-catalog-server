@@ -21,7 +21,7 @@ export class SeriesPosterService {
   async create(seriesId: string, imageId: string) {
     await this.seriesService.readOne(seriesId);
     await this.posterService.readOne(imageId);
-    const seriesPoster = await this.seriesPosterRepository.findOne({
+    const seriesPoster = await this.seriesPosterRepository.findOneBy({
       seriesId,
       imageId,
     });
@@ -49,12 +49,14 @@ export class SeriesPosterService {
   async readSeriesPosters(seriesIds: string[]): Promise<SeriesPosterModel[]> {
     return this.seriesPosterRepository.find({
       where: { seriesId: In(seriesIds) },
-      relations: ['image'],
+      relations: {
+        image: true,
+      },
     });
   }
 
   async readOne(seriesId: string, imageId: string): Promise<SeriesPosterModel> {
-    const seriesPoster = await this.seriesPosterRepository.findOne({
+    const seriesPoster = await this.seriesPosterRepository.findOneBy({
       seriesId,
       imageId,
     });
@@ -65,7 +67,7 @@ export class SeriesPosterService {
   }
 
   async delete(seriesId: string, imageId: string) {
-    const seriesPoster = await this.seriesPosterRepository.findOne({
+    const seriesPoster = await this.seriesPosterRepository.findOneBy({
       seriesId,
       imageId,
     });

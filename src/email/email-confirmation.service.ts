@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EmailConfirmationModel } from './entities/email-confirmation.model';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { In, LessThan, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 
@@ -21,11 +21,13 @@ export class EmailConfirmationService {
   }
 
   async readAllByIds(ids: string[]): Promise<EmailConfirmationModel[]> {
-    return await this.emailConfirmationRepository.findByIds(ids);
+    return await this.emailConfirmationRepository.findBy({ id: In(ids) });
   }
 
   async readOneById(id: string): Promise<EmailConfirmationModel> {
-    const confirmation = await this.emailConfirmationRepository.findOne(id);
+    const confirmation = await this.emailConfirmationRepository.findOneBy({
+      id,
+    });
     if (!confirmation) {
       throw new NotFoundError();
     }
@@ -36,7 +38,7 @@ export class EmailConfirmationService {
     id: string,
     email: string,
   ): Promise<EmailConfirmationModel> {
-    const confirmation = await this.emailConfirmationRepository.findOne({
+    const confirmation = await this.emailConfirmationRepository.findOneBy({
       id,
       email,
       expiredAt: MoreThan(new Date()),
@@ -55,7 +57,9 @@ export class EmailConfirmationService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const confirmation = await this.emailConfirmationRepository.findOne(id);
+    const confirmation = await this.emailConfirmationRepository.findOneBy({
+      id,
+    });
     if (!confirmation) {
       throw new NotFoundError();
     }

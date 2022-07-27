@@ -22,7 +22,7 @@ export class FilmPersonService {
   async create(createFilmPersonInput: CreateFilmPersonInput) {
     await this.filmService.readOne(createFilmPersonInput.filmId);
     await this.personService.readOne(createFilmPersonInput.personId);
-    const filmPerson = await this.filmPersonRepository.findOne({
+    const filmPerson = await this.filmPersonRepository.findOneBy({
       filmId: createFilmPersonInput.filmId,
       personId: createFilmPersonInput.personId,
     });
@@ -42,30 +42,28 @@ export class FilmPersonService {
     type?: PersonTypeEnum,
   ) {
     const [data, count] = await this.filmPersonRepository.findAndCount({
-      where: [
-        filmId ? { filmId } : {},
-        personId ? { personId } : {},
-        type ? { type } : {},
-      ],
+      where: {
+        filmId,
+        personId,
+        type,
+      },
       take,
       skip,
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: number[]): Promise<FilmPersonModel[]> {
-    return await this.filmPersonRepository.findByIds(ids);
+    return await this.filmPersonRepository.findBy({ id: In(ids) });
   }
 
   async readFilmsPersons(filmsIds: string[]): Promise<FilmPersonModel[]> {
-    return await this.filmPersonRepository.find({
-      where: { filmId: In(filmsIds) },
-    });
+    return await this.filmPersonRepository.findBy({ filmId: In(filmsIds) });
   }
 
   async readOne(id: number): Promise<FilmPersonModel> {
-    const filmPerson = await this.filmPersonRepository.findOne(id);
+    const filmPerson = await this.filmPersonRepository.findOneBy({ id });
     if (!filmPerson) {
       throw new NotFoundError();
     }
@@ -76,7 +74,7 @@ export class FilmPersonService {
     id: number,
     updateFilmPersonInput: UpdateFilmPersonInput,
   ): Promise<FilmPersonModel> {
-    const filmPerson = await this.filmPersonRepository.findOne(id);
+    const filmPerson = await this.filmPersonRepository.findOneBy({ id });
     if (!filmPerson) {
       throw new NotFoundError();
     }
@@ -87,7 +85,7 @@ export class FilmPersonService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const filmPerson = await this.filmPersonRepository.findOne(id);
+    const filmPerson = await this.filmPersonRepository.findOneBy({ id });
     if (!filmPerson) {
       throw new NotFoundError();
     }

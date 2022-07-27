@@ -4,7 +4,7 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { UserModel } from './entities/user.model';
 import { PaginatedUsers } from './dto/paginated-users.result';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../shared/errors/not-found.error';
 import { AlreadyExistsError } from '../shared/errors/already-exists.error';
 
@@ -16,7 +16,7 @@ export class UserService {
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<UserModel> {
-    const user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOneBy({
       email: createUserInput.email,
     });
     if (user) {
@@ -34,15 +34,15 @@ export class UserService {
       },
     });
 
-    return { data, count, hasNext: count >= take + skip };
+    return { data, count, hasNext: count > take + skip };
   }
 
   async readAllByIds(ids: string[]): Promise<UserModel[]> {
-    return await this.userRepository.findByIds(ids);
+    return await this.userRepository.findBy({ id: In(ids) });
   }
 
   async readOneById(id: string): Promise<UserModel> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundError();
     }
@@ -50,7 +50,7 @@ export class UserService {
   }
 
   async readOneByEmail(email: string): Promise<UserModel> {
-    const user = await this.userRepository.findOne({ email });
+    const user = await this.userRepository.findOneBy({ email });
     if (!user) {
       throw new NotFoundError();
     }
@@ -61,7 +61,7 @@ export class UserService {
     id: string,
     updateUserInput: UpdateUserInput,
   ): Promise<UserModel> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundError();
     }
@@ -80,7 +80,7 @@ export class UserService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundError();
     }
