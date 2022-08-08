@@ -1,57 +1,16 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { FilmModel } from '../entities/film.model';
-import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsOptional,
-  IsUUID,
-  Length,
-} from 'class-validator';
-import { AccessModeEnum } from '../../shared/access-mode.enum';
+import { Field, InputType } from '@nestjs/graphql';
+import { FilmEntity } from '../entities/film.entity';
+import { IsOptional, IsUUID } from 'class-validator';
+import { CreateMovieInput } from '../../movie/dto/create-movie.input';
 
 @InputType()
-export class CreateFilmInput implements Partial<FilmModel> {
-  @Field()
-  @Length(1, 200)
-  title!: string;
-
-  @Field({ nullable: true })
-  @Length(1, 2000)
-  @IsOptional()
-  description?: string;
-
+export class CreateFilmInput
+  extends CreateMovieInput
+  implements Partial<FilmEntity>
+{
   @Field({ nullable: true })
   @IsOptional()
   releaseDate?: Date;
-
-  @Field(() => AgeRestrictionEnum)
-  @IsEnum(AgeRestrictionEnum)
-  ageRestriction!: AgeRestrictionEnum;
-
-  @Field(() => AccessModeEnum, { nullable: true })
-  @IsEnum(AccessModeEnum)
-  @IsOptional()
-  accessMode?: AccessModeEnum;
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  postersIds?: string[];
-
-  @Field(() => [Int], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  studiosIds?: number[];
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  genresIds?: string[];
 
   @Field({ nullable: true })
   @IsUUID('4')

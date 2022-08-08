@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { RefreshTokenService } from './refresh-token.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RefreshTokenModel } from './entities/refresh-token.model';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RefreshTokenModel])],
+  imports: [TypeOrmModule.forFeature([RefreshTokenEntity])],
   providers: [RefreshTokenService],
   exports: [RefreshTokenService],
 })

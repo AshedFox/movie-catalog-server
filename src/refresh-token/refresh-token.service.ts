@@ -1,36 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { RefreshTokenModel } from './entities/refresh-token.model';
-import { Repository } from 'typeorm';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
+import { LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
+import { NotFoundError } from '../utils/errors/not-found.error';
 
 @Injectable()
 export class RefreshTokenService {
   constructor(
-    @InjectRepository(RefreshTokenModel)
-    private readonly refreshTokenRepository: Repository<RefreshTokenModel>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
-  async create(userId: string, expiresAt: Date): Promise<RefreshTokenModel> {
-    return this.refreshTokenRepository.save({ userId, expiresAt });
-  }
+  create = async (
+    userId: string,
+    expiresAt: Date,
+  ): Promise<RefreshTokenEntity> =>
+    this.refreshTokenRepository.save({
+      userId,
+      expiresAt,
+    });
 
-  async readOne(id: string): Promise<RefreshTokenModel> {
+  readOne = async (id: string): Promise<RefreshTokenEntity> => {
     const token = await this.refreshTokenRepository.findOneBy({
       id,
     });
     if (!token) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Refresh token with id "${id}" not found!`);
     }
     return token;
-  }
+  };
 
-  async delete(id: string): Promise<boolean> {
+  deleteExpired = async (): Promise<boolean> => {
+    await this.refreshTokenRepository.delete({
+      expiresAt: LessThan(new Date()),
+    });
+    return true;
+  };
+
+  delete = async (id: string): Promise<boolean> => {
     const token = await this.refreshTokenRepository.findOneBy({ id });
     if (!token) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Refresh token with id "${id}" not found!`);
     }
     await this.refreshTokenRepository.remove(token);
     return true;
-  }
+  };
 }

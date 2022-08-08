@@ -1,43 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { FilmPersonService } from '../film-person/film-person.service';
+import { MoviePersonService } from '../movie-person/movie-person.service';
 import { IDataLoaders } from './idataloaders.interface';
 import DataLoader from 'dataloader';
-import { FilmPersonModel } from '../film-person/entities/film-person.model';
-import { EmailConfirmationService } from '../email/email-confirmation.service';
-import { EmailConfirmationModel } from '../email/entities/email-confirmation.model';
+import { EmailConfirmationService } from '../email/services/email-confirmation.service';
 import { SeriesService } from '../series/series.service';
-import { SeriesModel } from '../series/entities/series.model';
 import { FilmService } from '../film/film.service';
-import { PersonModel } from '../person/entities/person.model';
 import { PersonService } from '../person/person.service';
 import { SeasonService } from '../season/season.service';
-import { SeasonModel } from '../season/entities/season.model';
-import { UserModel } from '../user/entities/user.model';
 import { UserService } from '../user/user.service';
-import { FilmModel } from '../film/entities/film.model';
 import { CountryService } from '../country/country.service';
-import { CountryModel } from '../country/entities/country.model';
 import { StudioCountryService } from '../studio-country/studio-country.service';
 import { StudioService } from '../studio/studio.service';
-import { StudioModel } from '../studio/entities/studio.model';
-import { SeriesPersonService } from '../series-person/series-person.service';
-import { SeriesPersonModel } from '../series-person/entities/series-person.model';
-import { GenreModel } from '../genre/entities/genre.model';
 import { GenreService } from '../genre/genre.service';
-import { FilmGenreService } from '../film-genre/film-genre.service';
-import { FilmStudioService } from '../film-studio/film-studio.service';
-import { SeriesGenreService } from '../series-genre/series-genre.service';
-import { SeriesStudioService } from '../series-studio/series-studio.service';
-import { EpisodeModel } from '../episode/entities/episode.model';
+import { MovieGenreService } from '../movie-genre/movie-genre.service';
+import { MovieStudioService } from '../movie-studio/movie-studio.service';
 import { EpisodeService } from '../episode/episode.service';
-import { VideoModel } from '../video/entities/video.model';
 import { VideoService } from '../video/video.service';
-import { ImageModel } from '../image/entities/image.model';
 import { ImageService } from '../image/image.service';
-import { EpisodePosterService } from '../episode-poster/episode-poster.service';
-import { FilmPosterService } from '../film-poster/film-poster.service';
-import { SeriesPosterService } from '../series-poster/series-poster.service';
-import { SeasonPosterService } from '../season-poster/season-poster.service';
+import { MovieImageService } from '../movie-image/movie-image.service';
+import { MovieService } from '../movie/movie.service';
+import { ReviewService } from '../review/review.service';
+import { TrailerService } from '../trailer/trailer.service';
+import { IndexType } from 'src/utils/types/index.type';
 
 @Injectable()
 export class DataLoaderService {
@@ -45,360 +29,173 @@ export class DataLoaderService {
     private readonly countryService: CountryService,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly episodeService: EpisodeService,
-    private readonly episodePosterService: EpisodePosterService,
-    private readonly filmPosterService: FilmPosterService,
-    private readonly seasonPosterService: SeasonPosterService,
-    private readonly seriesPosterService: SeriesPosterService,
     private readonly filmService: FilmService,
-    private readonly filmPersonService: FilmPersonService,
-    private readonly filmGenreService: FilmGenreService,
-    private readonly filmStudioService: FilmStudioService,
-    private readonly imageService: ImageService,
     private readonly genreService: GenreService,
+    private readonly imageService: ImageService,
+    private readonly movieGenreService: MovieGenreService,
+    private readonly movieImageService: MovieImageService,
+    private readonly moviePersonService: MoviePersonService,
+    private readonly movieService: MovieService,
+    private readonly movieStudioService: MovieStudioService,
     private readonly personService: PersonService,
+    private readonly reviewService: ReviewService,
     private readonly seasonService: SeasonService,
     private readonly seriesService: SeriesService,
-    private readonly seriesPersonService: SeriesPersonService,
-    private readonly seriesGenreService: SeriesGenreService,
-    private readonly seriesStudioService: SeriesStudioService,
-    private readonly studioService: StudioService,
     private readonly studioCountryService: StudioCountryService,
+    private readonly studioService: StudioService,
+    private readonly trailerService: TrailerService,
     private readonly userService: UserService,
     private readonly videoService: VideoService,
   ) {}
 
-  private mapSingleData<T extends { id: string | number }>(
-    ids: (string | number)[],
-    data: T[],
-  ) {
-    const dataAsObj = data.reduce((result, currentValue) => {
-      result[currentValue.id] = currentValue;
-      return result;
-    }, {});
-    return ids.map((id) => dataAsObj[id]);
-  }
-
-  createLoaders(): IDataLoaders {
-    const countryLoader = new DataLoader<number, CountryModel>(
-      async (ids: number[]) => {
-        const data = await this.countryService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const countriesByStudioLoader = new DataLoader<number, CountryModel[]>(
-      async (studiosIds: number[]) => {
-        const studiosCountries =
-          await this.studioCountryService.readStudiosCountries(studiosIds);
-        const map: { [key: number]: CountryModel[] } = {};
-        studiosCountries.forEach((studioCountry) => {
-          if (map[studioCountry.studioId]) {
-            map[studioCountry.studioId].push(studioCountry.country);
-          } else {
-            map[studioCountry.studioId] = [studioCountry.country];
-          }
-        });
-        return studiosIds.map((studioId) => map[studioId] ?? []);
-      },
-    );
-    const emailConfirmationLoader = new DataLoader<
-      string,
-      EmailConfirmationModel
-    >(async (ids: string[]) => {
-      const data = await this.emailConfirmationService.readAllByIds(ids);
-      return this.mapSingleData(ids, data);
+  private mapSingleData = <I extends IndexType, D extends { id: I }>(
+    ids: I[],
+    data: D[],
+  ): D[] => {
+    const map: { [key: IndexType]: D } = {};
+    data.forEach((value) => {
+      map[value.id] = value;
     });
-    const filmLoader = new DataLoader<string, FilmModel>(
-      async (ids: string[]) => {
-        const data = await this.filmService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const episodeLoader = new DataLoader<string, EpisodeModel>(
-      async (ids: string[]) => {
-        const data = await this.episodeService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const episodesBySeriesLoader = new DataLoader<string, EpisodeModel[]>(
-      async (seriesIds: string[]) => {
-        const episodes = await this.episodeService.readManySeriesEpisodes(
-          seriesIds,
-        );
-        const map: { [key: string]: EpisodeModel[] } = {};
-        episodes.forEach((episode) => {
-          if (map[episode.seriesId]) {
-            map[episode.seriesId].push(episode);
-          } else {
-            map[episode.seriesId] = [episode];
-          }
-        });
-        return seriesIds.map((seriesId) => map[seriesId] ?? []);
-      },
-    );
-    const episodesBySeasonLoader = new DataLoader<string, EpisodeModel[]>(
-      async (seasonsIds: string[]) => {
-        const episodes = await this.episodeService.readSeasonsEpisodes(
-          seasonsIds,
-        );
-        const map: { [key: string]: EpisodeModel[] } = {};
-        episodes.forEach((episode) => {
-          if (map[episode.seasonId]) {
-            map[episode.seasonId].push(episode);
-          } else {
-            map[episode.seasonId] = [episode];
-          }
-        });
-        return seasonsIds.map((seasonId) => map[seasonId] ?? []);
-      },
-    );
-    const filmPersonsByFilmLoader = new DataLoader<string, FilmPersonModel[]>(
-      async (filmsIds: string[]) => {
-        const filmsPersons = await this.filmPersonService.readFilmsPersons(
-          filmsIds,
-        );
-        const map: { [key: string]: FilmPersonModel[] } = {};
-        filmsPersons.forEach((filmPerson) => {
-          if (map[filmPerson.filmId]) {
-            map[filmPerson.filmId].push(filmPerson);
-          } else {
-            map[filmPerson.filmId] = [filmPerson];
-          }
-        });
-        return filmsIds.map((filmId) => map[filmId] ?? []);
-      },
-    );
-    const imageLoader = new DataLoader<string, ImageModel>(
-      async (ids: string[]) => {
-        const data = await this.imageService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const genreLoader = new DataLoader<string, GenreModel>(
-      async (ids: string[]) => {
-        const data = await this.genreService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const genresByFilmLoader = new DataLoader<string, GenreModel[]>(
-      async (filmsIds: string[]) => {
-        const filmGenres = await this.filmGenreService.readFilmsGenres(
-          filmsIds,
-        );
-        const map: { [key: string]: GenreModel[] } = {};
-        filmGenres.forEach((filmGenre) => {
-          if (map[filmGenre.filmId]) {
-            map[filmGenre.filmId].push(filmGenre.genre);
-          } else {
-            map[filmGenre.filmId] = [filmGenre.genre];
-          }
-        });
-        return filmsIds.map((genreId) => map[genreId] ?? []);
-      },
-    );
-    const genresBySeriesLoader = new DataLoader<string, GenreModel[]>(
-      async (seriesIds: string[]) => {
-        const seriesGenres = await this.seriesGenreService.readManySeriesGenres(
-          seriesIds,
-        );
-        const map: { [key: string]: GenreModel[] } = {};
-        seriesGenres.forEach((seriesGenre) => {
-          if (map[seriesGenre.seriesId]) {
-            map[seriesGenre.seriesId].push(seriesGenre.genre);
-          } else {
-            map[seriesGenre.seriesId] = [seriesGenre.genre];
-          }
-        });
-        return seriesIds.map((genreId) => map[genreId] ?? []);
-      },
-    );
-    const seriesPersonsBySeriesLoader = new DataLoader<
-      string,
-      SeriesPersonModel[]
-    >(async (seriesIds: string[]) => {
-      const seriesPersons = await this.seriesPersonService.readSeriesPersons(
-        seriesIds,
-      );
-      const map: { [key: string]: SeriesPersonModel[] } = {};
-      seriesPersons.forEach((seriesPerson) => {
-        if (map[seriesPerson.seriesId]) {
-          map[seriesPerson.seriesId].push(seriesPerson);
-        } else {
-          map[seriesPerson.seriesId] = [seriesPerson];
-        }
-      });
-      return seriesIds.map((studioId) => map[studioId] ?? []);
-    });
-    const personLoader = new DataLoader<number, PersonModel>(
-      async (ids: number[]) => {
-        const data = await this.personService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const postersByEpisodeLoader = new DataLoader<string, ImageModel[]>(
-      async (episodesIds: string[]) => {
-        const episodesPosters =
-          await this.episodePosterService.readEpisodesPosters(episodesIds);
-        const map: { [key: string]: ImageModel[] } = {};
-        episodesPosters.forEach((episodePoster) => {
-          if (map[episodePoster.episodeId]) {
-            map[episodePoster.episodeId].push(episodePoster.image);
-          } else {
-            map[episodePoster.episodeId] = [episodePoster.image];
-          }
-        });
-        return episodesIds.map((episodeId) => map[episodeId] ?? []);
-      },
-    );
-    const postersByFilmLoader = new DataLoader<string, ImageModel[]>(
-      async (filmsIds: string[]) => {
-        const filmsPosters = await this.filmPosterService.readFilmsPosters(
-          filmsIds,
-        );
-        const map: { [key: string]: ImageModel[] } = {};
-        filmsPosters.forEach((filmPoster) => {
-          if (map[filmPoster.filmId]) {
-            map[filmPoster.filmId].push(filmPoster.image);
-          } else {
-            map[filmPoster.filmId] = [filmPoster.image];
-          }
-        });
-        return filmsIds.map((filmId) => map[filmId] ?? []);
-      },
-    );
-    const postersBySeasonLoader = new DataLoader<string, ImageModel[]>(
-      async (seasonsIds: string[]) => {
-        const seasonsPosters =
-          await this.seasonPosterService.readSeasonsPosters(seasonsIds);
-        const map: { [key: string]: ImageModel[] } = {};
-        seasonsPosters.forEach((seasonPoster) => {
-          if (map[seasonPoster.seasonId]) {
-            map[seasonPoster.seasonId].push(seasonPoster.image);
-          } else {
-            map[seasonPoster.seasonId] = [seasonPoster.image];
-          }
-        });
-        return seasonsIds.map((seasonId) => map[seasonId] ?? []);
-      },
-    );
-    const postersBySeriesLoader = new DataLoader<string, ImageModel[]>(
-      async (seriesIds: string[]) => {
-        const seriesPosters = await this.seriesPosterService.readSeriesPosters(
-          seriesIds,
-        );
-        const map: { [key: string]: ImageModel[] } = {};
-        seriesPosters.forEach((seriesPoster) => {
-          if (map[seriesPoster.seriesId]) {
-            map[seriesPoster.seriesId].push(seriesPoster.image);
-          } else {
-            map[seriesPoster.seriesId] = [seriesPoster.image];
-          }
-        });
-        return seriesIds.map((seriesId) => map[seriesId] ?? []);
-      },
-    );
-    const seasonLoader = new DataLoader<string, SeasonModel>(
-      async (ids: string[]) => {
-        const data = await this.seasonService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const seasonsBySeriesLoader = new DataLoader<string, SeasonModel[]>(
-      async (seriesIds: string[]) => {
-        const seasons = await this.seasonService.readSeasonsBySeries(seriesIds);
-        const map: { [key: string]: SeasonModel[] } = {};
-        seasons.forEach((season) => {
-          if (map[season.seriesId]) {
-            map[season.seriesId].push(season);
-          } else {
-            map[season.seriesId] = [season];
-          }
-        });
-        return seriesIds.map((seasonId) => map[seasonId] ?? []);
-      },
-    );
-    const seriesLoader = new DataLoader<string, SeriesModel>(
-      async (ids: string[]) => {
-        const data = await this.seriesService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const studioLoader = new DataLoader<number, StudioModel>(
-      async (ids: number[]) => {
-        const data = await this.studioService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const studiosByFilmLoader = new DataLoader<string, StudioModel[]>(
-      async (filmsIds: string[]) => {
-        const filmStudios = await this.filmStudioService.readFilmsStudios(
-          filmsIds,
-        );
-        const map: { [key: string]: StudioModel[] } = {};
-        filmStudios.forEach((filmStudio) => {
-          if (map[filmStudio.filmId]) {
-            map[filmStudio.filmId].push(filmStudio.studio);
-          } else {
-            map[filmStudio.filmId] = [filmStudio.studio];
-          }
-        });
-        return filmsIds.map((studioId) => map[studioId] ?? []);
-      },
-    );
-    const studiosBySeriesLoader = new DataLoader<string, StudioModel[]>(
-      async (seriesIds: string[]) => {
-        const seriesStudios =
-          await this.seriesStudioService.readManySeriesStudios(seriesIds);
-        const map: { [key: string]: StudioModel[] } = {};
-        seriesStudios.forEach((seriesStudio) => {
-          if (map[seriesStudio.seriesId]) {
-            map[seriesStudio.seriesId].push(seriesStudio.studio);
-          } else {
-            map[seriesStudio.seriesId] = [seriesStudio.studio];
-          }
-        });
-        return seriesIds.map((studioId) => map[studioId] ?? []);
-      },
-    );
-    const userLoader = new DataLoader<string, UserModel>(
-      async (ids: string[]) => {
-        const data = await this.userService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
-    const videoLoader = new DataLoader<string, VideoModel>(
-      async (ids: string[]) => {
-        const data = await this.videoService.readAllByIds(ids);
-        return this.mapSingleData(ids, data);
-      },
-    );
+    return ids.map((id) => map[id] ?? null);
+  };
 
-    return {
-      countryLoader,
-      countriesByStudioLoader,
-      emailConfirmationLoader,
-      episodeLoader,
-      episodesBySeriesLoader,
-      episodesBySeasonLoader,
-      videoLoader,
-      filmLoader,
-      filmPersonsByFilmLoader,
-      imageLoader,
-      genreLoader,
-      genresByFilmLoader,
-      genresBySeriesLoader,
-      personLoader,
-      postersByEpisodeLoader,
-      postersByFilmLoader,
-      postersBySeasonLoader,
-      postersBySeriesLoader,
-      seasonLoader,
-      seasonsBySeriesLoader,
-      seriesLoader,
-      seriesPersonsBySeriesLoader,
-      studioLoader,
-      studiosByFilmLoader,
-      studiosBySeriesLoader,
-      userLoader,
-    };
-  }
+  private mapMultipleData = <I extends IndexType, D extends object>(
+    ids: I[],
+    data: D[],
+    keyFieldName: IndexType,
+  ): D[][] => {
+    const map: { [key: IndexType]: D[] } = {};
+    data.forEach((value) => {
+      if (map[value[keyFieldName]]) {
+        map[value[keyFieldName]].push(value);
+      } else {
+        map[value[keyFieldName]] = [value];
+      }
+    });
+    return ids.map((id) => map[id] ?? []);
+  };
+
+  private mapMultipleDataConcrete = <
+    I extends IndexType,
+    D extends object,
+    R extends object,
+  >(
+    ids: I[],
+    data: D[],
+    keyFieldName: IndexType,
+    relationFieldName: IndexType,
+  ): R[][] => {
+    const map: { [key: IndexType]: R[] } = {};
+    data.forEach((value) => {
+      if (map[value[keyFieldName]]) {
+        map[value[keyFieldName]].push(value[relationFieldName]);
+      } else {
+        map[value[keyFieldName]] = [value[relationFieldName]];
+      }
+    });
+    return ids.map((id) => map[id] ?? []);
+  };
+
+  private createSingleLoader = <I extends IndexType, D extends { id: I }>(
+    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+  ) => {
+    return new DataLoader<I, D>(async (ids: I[]) =>
+      this.mapSingleData(ids, await readByIdsMethod(ids)),
+    );
+  };
+
+  private createMultipleLoader = <I extends IndexType, D extends object>(
+    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+    keyFieldName: keyof D,
+  ) => {
+    return new DataLoader<I, D[]>(async (ids: I[]) =>
+      this.mapMultipleData(ids, await readByIdsMethod(ids), keyFieldName),
+    );
+  };
+
+  private createMultipleRelationLoader = <
+    I extends IndexType,
+    D extends object,
+    R extends object,
+  >(
+    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+    keyFieldName: keyof D,
+    relationFieldName: keyof D,
+  ) => {
+    return new DataLoader<I, R[]>(async (ids: I[]) =>
+      this.mapMultipleDataConcrete<I, D, R>(
+        ids,
+        await readByIdsMethod(ids),
+        keyFieldName,
+        relationFieldName,
+      ),
+    );
+  };
+
+  createLoaders = (): IDataLoaders => ({
+    countriesByStudioLoader: this.createMultipleRelationLoader(
+      this.studioCountryService.readManyByStudios,
+      'studioId',
+      'country',
+    ),
+    countryLoader: this.createSingleLoader(this.countryService.readManyByIds),
+    emailConfirmationLoader: this.createSingleLoader(
+      this.emailConfirmationService.readManyByIds,
+    ),
+    episodeLoader: this.createSingleLoader(this.episodeService.readManyByIds),
+    episodesBySeasonLoader: this.createMultipleLoader(
+      this.episodeService.readManyBySeasons,
+      'seasonId',
+    ),
+    episodesBySeriesLoader: this.createMultipleLoader(
+      this.episodeService.readManyBySeries,
+      'seriesId',
+    ),
+    filmLoader: this.createSingleLoader(this.filmService.readManyByIds),
+    genreLoader: this.createSingleLoader(this.genreService.readManyByIds),
+    genresByMovieLoader: this.createMultipleRelationLoader(
+      this.movieGenreService.readManyByMovies,
+      'movieId',
+      'genre',
+    ),
+    imageLoader: this.createSingleLoader(this.imageService.readManyByIds),
+    movieImagesByMovieLoader: this.createMultipleLoader(
+      this.movieImageService.readManyByMovies,
+      'movieId',
+    ),
+    movieLoader: this.createSingleLoader(this.movieService.readManyByIds),
+    moviePersonsByMovieLoader: this.createMultipleLoader(
+      this.moviePersonService.readManyByMovies,
+      'movieId',
+    ),
+    personLoader: this.createSingleLoader(this.personService.readManyByIds),
+    reviewLoader: this.createSingleLoader(this.reviewService.readManyByIds),
+    reviewsByMovieLoader: this.createMultipleLoader(
+      this.reviewService.readManyByMovies,
+      'movieId',
+    ),
+    reviewsByUserLoader: this.createMultipleLoader(
+      this.reviewService.readManyByUsers,
+      'userId',
+    ),
+    seasonLoader: this.createSingleLoader(this.seasonService.readManyByIds),
+    seasonsBySeriesLoader: this.createMultipleLoader(
+      this.seasonService.readManyBySeries,
+      'seriesId',
+    ),
+    seriesLoader: this.createSingleLoader(this.seriesService.readManyByIds),
+    studioLoader: this.createSingleLoader(this.studioService.readManyByIds),
+    studiosByMovieLoader: this.createMultipleRelationLoader(
+      this.movieStudioService.readManyByMovies,
+      'movieId',
+      'studio',
+    ),
+    trailerLoader: this.createSingleLoader(this.trailerService.readManyByIds),
+    trailersByMovieLoader: this.createMultipleLoader(
+      this.trailerService.readManyByMovies,
+      'movieId',
+    ),
+    userLoader: this.createSingleLoader(this.userService.readManyByIds),
+    videoLoader: this.createSingleLoader(this.videoService.readManyByIds),
+  });
 }

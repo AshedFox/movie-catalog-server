@@ -1,10 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { CountryModel } from '../entities/country.model';
+import { CountryEntity } from '../entities/country.entity';
 import { MinLength } from 'class-validator';
 
 @InputType()
-export class CreateCountryInput implements Partial<CountryModel> {
+export class CreateCountryInput implements Partial<CountryEntity> {
   @Field()
   @MinLength(2)
-  name!: string;
+  name: string;
 }

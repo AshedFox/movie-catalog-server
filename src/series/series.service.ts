@@ -1,94 +1,88 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
-import { SeriesModel } from './entities/series.model';
-import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
-import { PaginatedSeries } from './dto/paginated-series.result';
+import { SeriesEntity } from './entities/series.entity';
+import { ILike, In, Repository } from 'typeorm';
+import { PaginatedSeries } from './dto/paginated-series';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
-import { SeriesStudioService } from '../series-studio/series-studio.service';
-import { SeriesGenreService } from '../series-genre/series-genre.service';
-import { SeriesPosterService } from '../series-poster/series-poster.service';
+import { NotFoundError } from '../utils/errors/not-found.error';
+import { MovieGenreService } from '../movie-genre/movie-genre.service';
+import { MovieStudioService } from '../movie-studio/movie-studio.service';
 
 @Injectable()
 export class SeriesService {
   constructor(
-    @InjectRepository(SeriesModel)
-    private readonly seriesRepository: Repository<SeriesModel>,
-    private readonly seriesGenreService: SeriesGenreService,
-    private readonly seriesStudioService: SeriesStudioService,
-    private readonly seriesPosterService: SeriesPosterService,
+    @InjectRepository(SeriesEntity)
+    private readonly seriesRepository: Repository<SeriesEntity>,
+    private readonly movieGenreService: MovieGenreService,
+    private readonly movieStudioService: MovieStudioService,
   ) {}
 
-  async create(createSeriesInput: CreateSeriesInput): Promise<SeriesModel> {
+  create = async (
+    createSeriesInput: CreateSeriesInput,
+  ): Promise<SeriesEntity> => {
     const series = await this.seriesRepository.save(createSeriesInput);
-    const { genresIds, studiosIds, postersIds } = createSeriesInput;
+    const { genresIds, studiosIds } = createSeriesInput;
     if (genresIds) {
-      await this.seriesGenreService.createSeriesGenres(series.id, genresIds);
+      await this.movieGenreService.createManyForMovie(series.id, genresIds);
     }
     if (studiosIds) {
-      await this.seriesStudioService.createSeriesStudios(series.id, studiosIds);
-    }
-    if (postersIds) {
-      await this.seriesPosterService.createSeriesPosters(series.id, postersIds);
+      await this.movieStudioService.createManyForMovie(series.id, studiosIds);
     }
     return series;
-  }
+  };
 
-  async readAll(
-    title: string,
+  readMany = async (
     take: number,
     skip: number,
-  ): Promise<PaginatedSeries> {
-    let where: FindOptionsWhere<SeriesModel> = {};
-    if (title) {
-      where = { ...where, title: ILike(`%${title}%`) };
-    }
+    title?: string,
+  ): Promise<PaginatedSeries> => {
     const [data, count] = await this.seriesRepository.findAndCount({
-      where,
+      where: {
+        title: title ? ILike(`%${title}%`) : undefined,
+      },
       take,
       skip,
       order: {
-        publicationDate: 'DESC',
+        createdAt: 'DESC',
         title: 'ASC',
       },
     });
 
     return { data, count, hasNext: count > take + skip };
-  }
+  };
 
-  async readAllByIds(ids: string[]): Promise<SeriesModel[]> {
-    return await this.seriesRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<SeriesEntity[]> =>
+    await this.seriesRepository.findBy({ id: In(ids) });
 
-  async readOne(id: string): Promise<SeriesModel> {
+  readOne = async (id: string): Promise<SeriesEntity> => {
     const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Series with id "${id}" not found!`);
     }
     return series;
-  }
+  };
 
-  async update(
+  update = async (
     id: string,
     updateSeriesInput: UpdateSeriesInput,
-  ): Promise<SeriesModel> {
+  ): Promise<SeriesEntity> => {
     const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Series with id "${id}" not found!`);
     }
     return this.seriesRepository.save({
       ...series,
       ...updateSeriesInput,
     });
-  }
+  };
 
-  async delete(id: string): Promise<boolean> {
+  delete = async (id: string): Promise<boolean> => {
     const series = await this.seriesRepository.findOneBy({ id });
     if (!series) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Series with id "${id}" not found!`);
     }
     await this.seriesRepository.remove(series);
     return true;
-  }
+  };
 }

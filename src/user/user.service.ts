@@ -1,31 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UserModel } from './entities/user.model';
-import { PaginatedUsers } from './dto/paginated-users.result';
+import { UserEntity } from './entities/user.entity';
+import { PaginatedUsers } from './dto/paginated-users';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
-import { AlreadyExistsError } from '../shared/errors/already-exists.error';
+import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserModel)
-    private readonly userRepository: Repository<UserModel>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(createUserInput: CreateUserInput): Promise<UserModel> {
+  create = async (createUserInput: CreateUserInput): Promise<UserEntity> => {
+    const { email } = createUserInput;
     const user = await this.userRepository.findOneBy({
-      email: createUserInput.email,
+      email,
     });
     if (user) {
-      throw new AlreadyExistsError();
+      throw new AlreadyExistsError(
+        `User with email "${email}" already exists!`,
+      );
     }
     return this.userRepository.save(createUserInput);
-  }
+  };
 
-  async readAll(take: number, skip: number): Promise<PaginatedUsers> {
+  readMany = async (take: number, skip: number): Promise<PaginatedUsers> => {
     const [data, count] = await this.userRepository.findAndCount({
       take,
       skip,
@@ -35,35 +38,34 @@ export class UserService {
     });
 
     return { data, count, hasNext: count > take + skip };
-  }
+  };
 
-  async readAllByIds(ids: string[]): Promise<UserModel[]> {
-    return await this.userRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<UserEntity[]> =>
+    await this.userRepository.findBy({ id: In(ids) });
 
-  async readOneById(id: string): Promise<UserModel> {
+  readOneById = async (id: string): Promise<UserEntity> => {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundError();
+      throw new NotFoundError(`User with id "${id}" not found!`);
     }
     return user;
-  }
+  };
 
-  async readOneByEmail(email: string): Promise<UserModel> {
+  readOneByEmail = async (email: string): Promise<UserEntity> => {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {
-      throw new NotFoundError();
+      throw new NotFoundError(`User with email "${email}" not found!`);
     }
     return user;
-  }
+  };
 
-  async update(
+  update = async (
     id: string,
     updateUserInput: UpdateUserInput,
-  ): Promise<UserModel> {
+  ): Promise<UserEntity> => {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundError();
+      throw new NotFoundError(`User with id "${id}" not found!`);
     }
     return this.userRepository.save({
       ...user,
@@ -73,18 +75,18 @@ export class UserService {
           ? false
           : user.isEmailConfirmed,
     });
-  }
+  };
 
-  async setEmailConfirmed(id: string) {
+  setEmailConfirmed = async (id: string) => {
     await this.userRepository.update(id, { isEmailConfirmed: true });
-  }
+  };
 
-  async delete(id: string): Promise<boolean> {
+  delete = async (id: string): Promise<boolean> => {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundError();
+      throw new NotFoundError(`User with id "${id}" not found!`);
     }
     await this.userRepository.remove(user);
     return true;
-  }
+  };
 }

@@ -9,24 +9,24 @@ import {
 } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UserModel } from './entities/user.model';
-import { PaginatedUsers } from './dto/paginated-users.result';
+import { UserEntity } from './entities/user.entity';
+import { PaginatedUsers } from './dto/paginated-users';
 import { GetUsersArgs } from './dto/get-users.args';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from './dto/current-user.dto';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from './entities/role.enum';
+import { RoleEnum } from '../utils/enums/role.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CountryModel } from '../country/entities/country.model';
+import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
-@Resolver(UserModel)
+@Resolver(UserEntity)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(() => UserModel, { nullable: true })
+  @Query(() => UserEntity, { nullable: true })
   @UseGuards(GqlJwtAuthGuard)
   getMe(@CurrentUser() currentUser: CurrentUserDto) {
     return this.userService.readOneById(currentUser.id);
@@ -36,16 +36,16 @@ export class UserResolver {
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedUsers)
   getUsers(@Args() { take, skip }: GetUsersArgs) {
-    return this.userService.readAll(take, skip);
+    return this.userService.readMany(take, skip);
   }
 
-  @Query(() => UserModel, { nullable: true })
+  @Query(() => UserEntity, { nullable: true })
   @UseGuards(GqlJwtAuthGuard)
   getUser(@Args('id', ParseUUIDPipe) id: string) {
     return this.userService.readOneById(id);
   }
 
-  @Mutation(() => UserModel)
+  @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
   updateMe(
     @CurrentUser() currentUser: CurrentUserDto,
@@ -67,9 +67,9 @@ export class UserResolver {
     return this.userService.delete(id);
   }
 
-  @ResolveField(() => CountryModel)
+  @ResolveField(() => CountryEntity)
   country(
-    @Parent() parent: UserModel,
+    @Parent() parent: UserEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return parent.countryId

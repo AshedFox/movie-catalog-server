@@ -11,41 +11,41 @@ import {
 import { StudioService } from './studio.service';
 import { CreateStudioInput } from './dto/create-studio.input';
 import { UpdateStudioInput } from './dto/update-studio.input';
-import { StudioModel } from './entities/studio.model';
-import { PaginatedStudios } from './dto/paginated-studios.result';
+import { StudioEntity } from './entities/studio.entity';
+import { PaginatedStudios } from './dto/paginated-studios';
 import { UseGuards } from '@nestjs/common';
 import { GetStudiosArgs } from './dto/get-studios.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../user/entities/role.enum';
-import { CountryModel } from '../country/entities/country.model';
+import { RoleEnum } from '../utils/enums/role.enum';
+import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
-@Resolver(StudioModel)
+@Resolver(StudioEntity)
 export class StudioResolver {
   constructor(private readonly studioService: StudioService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => StudioModel)
+  @Mutation(() => StudioEntity)
   async createStudio(@Args('input') createStudioInput: CreateStudioInput) {
     return this.studioService.create(createStudioInput);
   }
 
   @Query(() => PaginatedStudios)
   getStudios(@Args() { searchName, take, skip }: GetStudiosArgs) {
-    return this.studioService.readAll(take, skip, searchName);
+    return this.studioService.readMany(take, skip, searchName);
   }
 
-  @Query(() => StudioModel, { nullable: true })
+  @Query(() => StudioEntity, { nullable: true })
   getStudio(@Args('id', { type: () => Int }) id: number) {
     return this.studioService.readOne(id);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => StudioModel)
+  @Mutation(() => StudioEntity)
   updateStudio(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') updateStudioInput: UpdateStudioInput,
@@ -60,9 +60,9 @@ export class StudioResolver {
     return this.studioService.delete(id);
   }
 
-  @ResolveField(() => [CountryModel])
+  @ResolveField(() => [CountryEntity])
   countries(
-    @Parent() studio: StudioModel,
+    @Parent() studio: StudioEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.countriesByStudioLoader.load(studio.id);

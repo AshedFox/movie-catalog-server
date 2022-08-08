@@ -2,54 +2,52 @@ import { Injectable } from '@nestjs/common';
 import { CreateCountryInput } from './dto/create-country.input';
 import { UpdateCountryInput } from './dto/update-country.input';
 import { In, Repository } from 'typeorm';
-import { CountryModel } from './entities/country.model';
-import { NotFoundError } from '../shared/errors/not-found.error';
+import { CountryEntity } from './entities/country.entity';
+import { NotFoundError } from '../utils/errors/not-found.error';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CountryService {
   constructor(
-    @InjectRepository(CountryModel)
-    private readonly countryRepository: Repository<CountryModel>,
+    @InjectRepository(CountryEntity)
+    private readonly countryRepository: Repository<CountryEntity>,
   ) {}
 
-  async create(createCountryInput: CreateCountryInput): Promise<CountryModel> {
-    return this.countryRepository.save(createCountryInput);
-  }
+  create = async (
+    createCountryInput: CreateCountryInput,
+  ): Promise<CountryEntity> => this.countryRepository.save(createCountryInput);
 
-  async readAll(): Promise<CountryModel[]> {
-    return this.countryRepository.find();
-  }
+  readMany = async (): Promise<CountryEntity[]> =>
+    this.countryRepository.find();
 
-  async readAllByIds(ids: number[]): Promise<CountryModel[]> {
-    return this.countryRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: number[]): Promise<CountryEntity[]> =>
+    this.countryRepository.findBy({ id: In(ids) });
 
-  async readOne(id: number): Promise<CountryModel> {
+  readOne = async (id: number): Promise<CountryEntity> => {
     const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
-      throw new NotFoundError(`Country with id "${id}" not found`);
+      throw new NotFoundError(`Country with id "${id}" not found!`);
     }
     return country;
-  }
+  };
 
-  async update(
+  update = async (
     id: number,
     updateCountryInput: UpdateCountryInput,
-  ): Promise<CountryModel> {
+  ): Promise<CountryEntity> => {
     const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Country with id "${id}" not found!`);
     }
     return this.countryRepository.save({ ...country, ...updateCountryInput });
-  }
+  };
 
-  async delete(id: number): Promise<boolean> {
+  delete = async (id: number): Promise<boolean> => {
     const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Country with id "${id}" not found!`);
     }
     await this.countryRepository.delete(id);
     return true;
-  }
+  };
 }

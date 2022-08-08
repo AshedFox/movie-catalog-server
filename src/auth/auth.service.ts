@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { UserModel } from '../user/entities/user.model';
+import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
 import { RegisterInput } from './dto/register.input';
 import { AuthResult } from './dto/auth.result';
@@ -18,16 +18,19 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<UserModel> {
+  validateUser = async (
+    username: string,
+    password: string,
+  ): Promise<UserEntity> => {
     const user = await this.userService.readOneByEmail(username);
     if (user && (await argon2.verify(user.password, password))) {
       user.password = '';
       return user;
     }
     return null;
-  }
+  };
 
-  async validateRefreshToken(token: string): Promise<UserModel> {
+  validateRefreshToken = async (token: string): Promise<UserEntity> => {
     const oldRefreshToken = await this.refreshTokenService.readOne(token);
     const result =
       oldRefreshToken.expiresAt > new Date()
@@ -35,9 +38,9 @@ export class AuthService {
         : null;
     await this.refreshTokenService.delete(oldRefreshToken.id);
     return result;
-  }
+  };
 
-  async generateRefreshToken(user: UserModel): Promise<string> {
+  generateRefreshToken = async (user: UserEntity): Promise<string> => {
     const refreshToken = await this.refreshTokenService.create(
       user.id,
       new Date(
@@ -51,10 +54,10 @@ export class AuthService {
         secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       },
     );
-  }
+  };
 
-  async generateAccessToken(user: UserModel): Promise<string> {
-    return this.jwtService.sign(
+  generateAccessToken = async (user: UserEntity): Promise<string> =>
+    this.jwtService.sign(
       {
         sub: user.id,
         email: user.email,
@@ -65,20 +68,17 @@ export class AuthService {
         secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       },
     );
-  }
 
-  async login(user: UserModel): Promise<AuthResult> {
-    return {
-      refreshToken: await this.generateRefreshToken(user),
-      accessToken: await this.generateAccessToken(user),
-    };
-  }
+  login = async (user: UserEntity): Promise<AuthResult> => ({
+    refreshToken: await this.generateRefreshToken(user),
+    accessToken: await this.generateAccessToken(user),
+  });
 
-  async register(registerInput: RegisterInput): Promise<AuthResult> {
+  register = async (registerInput: RegisterInput): Promise<AuthResult> => {
     const user = await this.userService.create({
       ...registerInput,
       password: await argon2.hash(registerInput.password),
     });
     return this.login(user);
-  }
+  };
 }

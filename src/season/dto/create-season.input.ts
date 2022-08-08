@@ -1,19 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { SeasonModel } from '../entities/season.model';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsOptional,
-  IsUUID,
-  Length,
-  Min,
-} from 'class-validator';
-import { AgeRestrictionEnum } from '../../shared/age-restriction.enum';
-import { AccessModeEnum } from '../../shared/access-mode.enum';
+import { SeasonEntity } from '../entities/season.entity';
+import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
+import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
+import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
 
 @InputType()
-export class CreateSeasonInput implements Partial<SeasonModel> {
+export class CreateSeasonInput implements Partial<SeasonEntity> {
   @Field({ nullable: true })
   @Length(1, 200)
   @IsOptional()
@@ -34,7 +26,7 @@ export class CreateSeasonInput implements Partial<SeasonModel> {
 
   @Field()
   @Min(0)
-  seasonNumber!: number;
+  seasonNumber: number;
 
   @Field(() => AgeRestrictionEnum, { nullable: true })
   @IsEnum(AgeRestrictionEnum)
@@ -48,11 +40,5 @@ export class CreateSeasonInput implements Partial<SeasonModel> {
 
   @Field()
   @IsUUID('4')
-  seriesId!: string;
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  postersIds?: string[];
+  seriesId: string;
 }

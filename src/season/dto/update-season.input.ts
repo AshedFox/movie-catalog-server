@@ -1,7 +1,5 @@
 import { CreateSeasonInput } from './create-season.input';
-import { InputType, OmitType, PartialType } from '@nestjs/graphql';
+import { InputType, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateSeasonInput extends PartialType(
-  OmitType(CreateSeasonInput, ['postersIds']),
-) {}
+export class UpdateSeasonInput extends PartialType(CreateSeasonInput) {}

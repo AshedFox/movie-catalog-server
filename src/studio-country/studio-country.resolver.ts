@@ -8,23 +8,23 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { StudioCountryService } from './studio-country.service';
-import { StudioCountryModel } from './entities/studio-country.model';
-import { CountryModel } from '../country/entities/country.model';
-import { StudioModel } from '../studio/entities/studio.model';
+import { StudioCountryEntity } from './entities/studio-country.entity';
+import { CountryEntity } from '../country/entities/country.entity';
+import { StudioEntity } from '../studio/entities/studio.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../user/entities/role.enum';
+import { RoleEnum } from '../utils/enums/role.enum';
 
-@Resolver(() => StudioCountryModel)
+@Resolver(() => StudioCountryEntity)
 export class StudioCountryResolver {
   constructor(private readonly studioCountryService: StudioCountryService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => StudioCountryModel)
+  @Mutation(() => StudioCountryEntity)
   createStudioCountry(
     @Args('studioId', { type: () => Int }) studioId: number,
     @Args('countryId', { type: () => Int }) countryId: number,
@@ -42,17 +42,17 @@ export class StudioCountryResolver {
     return this.studioCountryService.delete(studioId, countryId);
   }
 
-  @ResolveField(() => StudioModel)
+  @ResolveField(() => StudioEntity)
   studio(
-    @Parent() studioCountry: StudioCountryModel,
+    @Parent() studioCountry: StudioCountryEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.studioLoader.load(studioCountry.studioId);
   }
 
-  @ResolveField(() => CountryModel)
+  @ResolveField(() => CountryEntity)
   country(
-    @Parent() studioCountry: StudioCountryModel,
+    @Parent() studioCountry: StudioCountryEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.countryLoader.load(studioCountry.countryId);

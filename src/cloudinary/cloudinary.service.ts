@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { v2, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 import { FileUpload } from 'graphql-upload';
 
 @Injectable()
 export class CloudinaryService {
-  async uploadImage(
+  uploadImage = async (
     file: FileUpload,
-  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    return new Promise((resolve, reject) => {
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> =>
+    new Promise((resolve, reject) => {
       const upload = v2.uploader.upload_stream(
         {
           unique_filename: true,
@@ -25,12 +25,11 @@ export class CloudinaryService {
 
       file.createReadStream().pipe(upload);
     });
-  }
 
-  async uploadVideo(
+  uploadVideo = async (
     file: FileUpload,
-  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    return new Promise((resolve, reject) => {
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> =>
+    new Promise((resolve, reject) => {
       const upload = v2.uploader.upload_chunked_stream(
         {
           unique_filename: true,
@@ -49,5 +48,4 @@ export class CloudinaryService {
 
       file.createReadStream().pipe(upload);
     });
-  }
 }

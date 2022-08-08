@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { UserModel } from '../user/entities/user.model';
+import { UserEntity } from '../user/entities/user.entity';
 import { AuthResult } from './dto/auth.result';
 import { RegisterInput } from './dto/register.input';
 import { LoginInput } from './dto/login.input';
@@ -24,7 +24,7 @@ export class AuthResolver {
   @UseGuards(GqlLocalAuthGuard)
   async login(
     @Args('input') loginInput: LoginInput,
-    @CurrentUser() user: UserModel,
+    @CurrentUser() user: UserEntity,
     @Context('req') request: Request,
   ) {
     const result = await this.authService.login(user);
@@ -57,7 +57,7 @@ export class AuthResolver {
   @Mutation(() => AuthResult)
   @UseGuards(RefreshTokenGuard)
   async refresh(
-    @CurrentUser() user: UserModel,
+    @CurrentUser() user: UserEntity,
     @Context('req') request: Request,
   ) {
     const result = await this.authService.login(user);

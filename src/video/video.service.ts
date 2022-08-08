@@ -1,52 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { VideoModel } from './entities/video.model';
+import { VideoEntity } from './entities/video.entity';
 import { In, Repository } from 'typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
+import { NotFoundError } from '../utils/errors/not-found.error';
 import { CreateVideoInput } from './dto/create-video.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AlreadyExistsError } from '../shared/errors/already-exists.error';
+import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 
 @Injectable()
 export class VideoService {
   constructor(
-    @InjectRepository(VideoModel)
-    private readonly videoRepository: Repository<VideoModel>,
+    @InjectRepository(VideoEntity)
+    private readonly videoRepository: Repository<VideoEntity>,
   ) {}
 
-  async create(createVideoInput: CreateVideoInput): Promise<VideoModel> {
+  create = async (createVideoInput: CreateVideoInput): Promise<VideoEntity> => {
+    const { url } = createVideoInput;
     const existingVideo = await this.videoRepository.findOneBy({
-      url: createVideoInput.url,
+      url,
     });
     if (existingVideo) {
-      throw new AlreadyExistsError(
-        `Video with url "${createVideoInput.url}" already exists`,
-      );
+      throw new AlreadyExistsError(`Video with url "${url}" already exists!`);
     }
     return await this.videoRepository.save(createVideoInput);
-  }
+  };
 
-  async readOne(id: string): Promise<VideoModel> {
+  readOne = async (id: string): Promise<VideoEntity> => {
     const video = await this.videoRepository.findOneBy({ id });
     if (!video) {
-      throw new NotFoundError(`Video with id "${id}" not found`);
+      throw new NotFoundError(`Video with id "${id}" not found!`);
     }
     return video;
-  }
+  };
 
-  async readAll(): Promise<VideoModel[]> {
-    return this.videoRepository.find();
-  }
+  readMany = async (): Promise<VideoEntity[]> => this.videoRepository.find();
 
-  async readAllByIds(ids: string[]): Promise<VideoModel[]> {
-    return this.videoRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<VideoEntity[]> =>
+    this.videoRepository.findBy({ id: In(ids) });
 
-  async delete(id: string) {
+  delete = async (id: string) => {
     const video = await this.videoRepository.findOneBy({ id });
     if (!video) {
-      throw new NotFoundError(`Video with id "${id}" not found`);
+      throw new NotFoundError(`Video with id "${id}" not found!`);
     }
     await this.videoRepository.remove(video);
     return true;
-  }
+  };
 }

@@ -13,8 +13,7 @@ import { SeriesModule } from './series/series.module';
 import { GenreModule } from './genre/genre.module';
 import { PersonModule } from './person/person.module';
 import { StudioModule } from './studio/studio.module';
-import { FilmPersonModule } from './film-person/film-person.module';
-import { SeriesPersonModule } from './series-person/series-person.module';
+import { MoviePersonModule } from './movie-person/movie-person.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
@@ -22,22 +21,21 @@ import { DataLoaderService } from './dataloader/data-loader.service';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { GqlThrottlerGuard } from './shared/gql-throttler.guard';
-import { ErrorInterceptor } from './shared/error.interceptor';
+import { GqlThrottlerGuard } from './utils/gql-throttler.guard';
+import { ErrorInterceptor } from './utils/error.interceptor';
 import { VideoModule } from './video/video.module';
 import { CountryModule } from './country/country.module';
 import { ImageModule } from './image/image.module';
 import { StudioCountryModule } from './studio-country/studio-country.module';
-import { FilmGenreModule } from './film-genre/film-genre.module';
-import { FilmStudioModule } from './film-studio/film-studio.module';
-import { SeriesStudioModule } from './series-studio/series-studio.module';
-import { SeriesGenreModule } from './series-genre/series-genre.module';
+import { MovieGenreModule } from './movie-genre/movie-genre.module';
+import { MovieStudioModule } from './movie-studio/movie-studio.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { v2 } from 'cloudinary';
-import { SeriesPosterModule } from './series-poster/series-poster.module';
-import { FilmPosterModule } from './film-poster/film-poster.module';
-import { EpisodePosterModule } from './episode-poster/episode-poster.module';
-import { SeasonPosterModule } from './season-poster/season-poster.module';
+import { MovieImageModule } from './movie-image/movie-image.module';
+import { MovieModule } from './movie/movie.module';
+import { TrailerModule } from './trailer/trailer.module';
+import { ReviewModule } from './review/review.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -90,33 +88,31 @@ import { SeasonPosterModule } from './season-poster/season-poster.module';
         limit: configService.get('THROTTLER_LIMIT'),
       }),
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
-    FilmModule,
-    UserModule,
+    CloudinaryModule,
+    CountryModule,
+    DataLoaderModule,
+    EmailModule,
     EpisodeModule,
+    FilmModule,
+    GenreModule,
+    ImageModule,
+    MovieGenreModule,
+    MovieImageModule,
+    MovieModule,
+    MoviePersonModule,
+    MovieStudioModule,
+    PersonModule,
+    RefreshTokenModule,
+    ReviewModule,
     SeasonModule,
     SeriesModule,
-    GenreModule,
-    PersonModule,
-    StudioModule,
-    FilmPersonModule,
-    SeriesPersonModule,
-    EmailModule,
-    DataLoaderModule,
-    RefreshTokenModule,
-    VideoModule,
-    CountryModule,
-    ImageModule,
     StudioCountryModule,
-    FilmGenreModule,
-    FilmStudioModule,
-    SeriesStudioModule,
-    SeriesGenreModule,
-    CloudinaryModule,
-    SeriesPosterModule,
-    FilmPosterModule,
-    EpisodePosterModule,
-    SeasonPosterModule,
+    StudioModule,
+    TrailerModule,
+    UserModule,
+    VideoModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },

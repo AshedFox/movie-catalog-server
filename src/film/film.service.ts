@@ -1,45 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFilmInput } from './dto/create-film.input';
-import { FilmModel } from './entities/film.model';
+import { FilmEntity } from './entities/film.entity';
 import { ILike, In, Repository } from 'typeorm';
 import { UpdateFilmInput } from './dto/update-film.input';
-import { PaginatedFilms } from './dto/paginated-films.result';
+import { PaginatedFilms } from './dto/paginated-films';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
-import { FilmGenreService } from '../film-genre/film-genre.service';
-import { FilmStudioService } from '../film-studio/film-studio.service';
-import { FilmPosterService } from '../film-poster/film-poster.service';
+import { NotFoundError } from '../utils/errors/not-found.error';
+import { MovieGenreService } from '../movie-genre/movie-genre.service';
+import { MovieStudioService } from '../movie-studio/movie-studio.service';
 
 @Injectable()
 export class FilmService {
   constructor(
-    @InjectRepository(FilmModel)
-    private readonly filmRepository: Repository<FilmModel>,
-    private readonly filmGenreService: FilmGenreService,
-    private readonly filmStudioService: FilmStudioService,
-    private readonly filmPosterService: FilmPosterService,
+    @InjectRepository(FilmEntity)
+    private readonly filmRepository: Repository<FilmEntity>,
+    private readonly movieGenreService: MovieGenreService,
+    private readonly movieStudioService: MovieStudioService,
   ) {}
 
-  async create(createFilmInput: CreateFilmInput): Promise<FilmModel> {
-    const film = await this.filmRepository.save(createFilmInput);
-    const { genresIds, studiosIds, postersIds } = createFilmInput;
+  create = async (createFilmInput: CreateFilmInput): Promise<FilmEntity> => {
+    const film = await this.filmRepository.create(createFilmInput);
+    const { genresIds, studiosIds } = createFilmInput;
     if (genresIds) {
-      await this.filmGenreService.createFilmGenres(film.id, genresIds);
+      await this.movieGenreService.createManyForMovie(film.id, genresIds);
     }
     if (studiosIds) {
-      await this.filmStudioService.createFilmStudios(film.id, studiosIds);
-    }
-    if (postersIds) {
-      await this.filmPosterService.createFilmPosters(film.id, postersIds);
+      await this.movieStudioService.createManyForMovie(film.id, studiosIds);
     }
     return film;
-  }
+  };
 
-  async readAll(
+  readMany = async (
     take: number,
     skip: number,
     title?: string,
-  ): Promise<PaginatedFilms> {
+  ): Promise<PaginatedFilms> => {
     const [data, count] = await this.filmRepository.findAndCount({
       where: {
         title: title ? ILike(`%${title}%`) : undefined,
@@ -47,46 +42,45 @@ export class FilmService {
       take,
       skip,
       order: {
-        publicationDate: 'DESC',
+        createdAt: 'DESC',
         title: 'ASC',
       },
     });
 
     return { data, count, hasNext: count > take + skip };
-  }
+  };
 
-  async readAllByIds(ids: string[]): Promise<FilmModel[]> {
-    return await this.filmRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<FilmEntity[]> =>
+    await this.filmRepository.findBy({ id: In(ids) });
 
-  async readOne(id: string): Promise<FilmModel> {
+  readOne = async (id: string): Promise<FilmEntity> => {
     const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Film with id "${id}" not found!`);
     }
     return film;
-  }
+  };
 
-  async update(
+  update = async (
     id: string,
     updateFilmInput: UpdateFilmInput,
-  ): Promise<FilmModel> {
+  ): Promise<FilmEntity> => {
     const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Film with id "${id}" not found!`);
     }
     return this.filmRepository.save({
       ...film,
       ...updateFilmInput,
     });
-  }
+  };
 
-  async delete(id: string): Promise<boolean> {
+  delete = async (id: string): Promise<boolean> => {
     const film = await this.filmRepository.findOneBy({ id });
     if (!film) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Film with id "${id}" not found!`);
     }
     await this.filmRepository.remove(film);
     return true;
-  }
+  };
 }

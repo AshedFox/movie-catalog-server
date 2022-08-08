@@ -11,42 +11,41 @@ import { SeasonService } from './season.service';
 import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
 import { GetSeasonsArgs } from './dto/get-seasons.args';
-import { SeasonModel } from './entities/season.model';
-import { PaginatedSeasons } from './dto/paginated-seasons.result';
+import { SeasonEntity } from './entities/season.entity';
+import { PaginatedSeasons } from './dto/paginated-seasons';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { SeriesModel } from '../series/entities/series.model';
+import { SeriesEntity } from '../series/entities/series.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../user/entities/role.enum';
-import { EpisodeModel } from '../episode/entities/episode.model';
-import { ImageModel } from '../image/entities/image.model';
+import { RoleEnum } from '../utils/enums/role.enum';
+import { EpisodeEntity } from '../episode/entities/episode.entity';
 
-@Resolver(SeasonModel)
+@Resolver(SeasonEntity)
 export class SeasonResolver {
   constructor(private readonly seasonService: SeasonService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => SeasonModel)
+  @Mutation(() => SeasonEntity)
   createSeason(@Args('input') input: CreateSeasonInput) {
     return this.seasonService.create(input);
   }
 
   @Query(() => PaginatedSeasons)
-  getSeasons(@Args() { searchTitle, seasonId, take, skip }: GetSeasonsArgs) {
-    return this.seasonService.readAll(take, skip, searchTitle, seasonId);
+  getSeasons(@Args() { searchTitle, seriesId, take, skip }: GetSeasonsArgs) {
+    return this.seasonService.readMany(take, skip, searchTitle, seriesId);
   }
 
-  @Query(() => SeasonModel, { nullable: true })
+  @Query(() => SeasonEntity, { nullable: true })
   getSeason(@Args('id', ParseUUIDPipe) id: string) {
     return this.seasonService.readOne(id);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => SeasonModel)
+  @Mutation(() => SeasonEntity)
   updateSeason(
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateSeasonInput,
@@ -61,27 +60,19 @@ export class SeasonResolver {
     return this.seasonService.delete(id);
   }
 
-  @ResolveField(() => SeriesModel)
+  @ResolveField(() => SeriesEntity)
   series(
-    @Parent() season: SeasonModel,
+    @Parent() season: SeasonEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.seriesLoader.load(season.seriesId);
   }
 
-  @ResolveField(() => [EpisodeModel])
+  @ResolveField(() => [EpisodeEntity])
   episodes(
-    @Parent() season: SeasonModel,
+    @Parent() season: SeasonEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.episodesBySeasonLoader.load(season.seriesId);
-  }
-
-  @ResolveField(() => [ImageModel])
-  posters(
-    @Parent() season: SeasonModel,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.postersBySeasonLoader.load(season.id);
   }
 }

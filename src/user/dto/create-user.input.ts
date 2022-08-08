@@ -1,14 +1,14 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { UserModel } from '../entities/user.model';
+import { UserEntity } from '../entities/user.entity';
 import { IsEmail, IsHash } from 'class-validator';
 
 @InputType()
-export class CreateUserInput implements Partial<UserModel> {
+export class CreateUserInput implements Partial<UserEntity> {
   @Field()
   @IsEmail()
-  email!: string;
+  email: string;
 
   @Field()
   @IsHash('sha512')
-  password!: string;
+  password: string;
 }

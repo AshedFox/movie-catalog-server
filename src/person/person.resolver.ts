@@ -1,40 +1,51 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { PersonService } from './person.service';
 import { CreatePersonInput } from './dto/create-person.input';
 import { UpdatePersonInput } from './dto/update-person.input';
-import { PersonModel } from './entities/person.model';
+import { PersonEntity } from './entities/person.entity';
 import { UseGuards } from '@nestjs/common';
-import { PaginatedPersons } from './dto/paginated-persons.result';
+import { PaginatedPersons } from './dto/paginated-persons';
 import { GetPersonsArgs } from './dto/get-persons.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../user/entities/role.enum';
+import { RoleEnum } from '../utils/enums/role.enum';
+import { CountryEntity } from '../country/entities/country.entity';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
-@Resolver(PersonModel)
+@Resolver(PersonEntity)
 export class PersonResolver {
   constructor(private readonly personService: PersonService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => PersonModel)
+  @Mutation(() => PersonEntity)
   createPerson(@Args('input') createPersonInput: CreatePersonInput) {
     return this.personService.create(createPersonInput);
   }
 
   @Query(() => PaginatedPersons)
-  getPersons(@Args() { searchName, take, skip }: GetPersonsArgs) {
-    return this.personService.readAll(take, skip, searchName);
+  getPersons(@Args() { searchName, countriesIds, take, skip }: GetPersonsArgs) {
+    return this.personService.readMany(take, skip, searchName, countriesIds);
   }
 
-  @Query(() => PersonModel, { nullable: true })
+  @Query(() => PersonEntity, { nullable: true })
   getPerson(@Args('id', { type: () => Int }) id: number) {
     return this.personService.readOne(id);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => PersonModel)
+  @Mutation(() => PersonEntity)
   updatePerson(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') updatePersonInput: UpdatePersonInput,
@@ -47,5 +58,15 @@ export class PersonResolver {
   @Mutation(() => Boolean)
   deletePerson(@Args('id', { type: () => Int }) id: number) {
     return this.personService.delete(id);
+  }
+
+  @ResolveField(() => CountryEntity)
+  country(
+    @Parent() person: PersonEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return person.countryId
+      ? loaders.countryLoader.load(person.countryId)
+      : undefined;
   }
 }

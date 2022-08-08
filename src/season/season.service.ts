@@ -1,36 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
-import { SeasonModel } from './entities/season.model';
-import { PaginatedSeasons } from './dto/paginated-seasons.result';
+import { SeasonEntity } from './entities/season.entity';
+import { PaginatedSeasons } from './dto/paginated-seasons';
 import { ILike, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
-import { SeasonPosterService } from '../season-poster/season-poster.service';
+import { NotFoundError } from '../utils/errors/not-found.error';
 
 @Injectable()
 export class SeasonService {
   constructor(
-    @InjectRepository(SeasonModel)
-    private readonly seasonRepository: Repository<SeasonModel>,
-    private readonly seasonPosterService: SeasonPosterService,
+    @InjectRepository(SeasonEntity)
+    private readonly seasonRepository: Repository<SeasonEntity>,
   ) {}
 
-  async create(createSeasonInput: CreateSeasonInput): Promise<SeasonModel> {
-    const season = await this.seasonRepository.save(createSeasonInput);
-    const { postersIds } = createSeasonInput;
-    if (postersIds) {
-      await this.seasonPosterService.createSeasonPosters(season.id, postersIds);
-    }
-    return season;
-  }
+  create = async (
+    createSeasonInput: CreateSeasonInput,
+  ): Promise<SeasonEntity> => this.seasonRepository.save(createSeasonInput);
 
-  async readAll(
+  readMany = async (
     take: number,
     skip: number,
     title?: string,
     seriesId?: string,
-  ): Promise<PaginatedSeasons> {
+  ): Promise<PaginatedSeasons> => {
     const [data, count] = await this.seasonRepository.findAndCount({
       where: {
         title: title ? ILike(`%${title}%`) : undefined,
@@ -45,44 +38,42 @@ export class SeasonService {
     });
 
     return { data, count, hasNext: count > take + skip };
-  }
+  };
 
-  async readAllByIds(ids: string[]): Promise<SeasonModel[]> {
-    return this.seasonRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<SeasonEntity[]> =>
+    this.seasonRepository.findBy({ id: In(ids) });
 
-  async readSeasonsBySeries(seriesIds: string[]): Promise<SeasonModel[]> {
-    return this.seasonRepository.findBy({ seriesId: In(seriesIds) });
-  }
+  readManyBySeries = async (seriesIds: string[]): Promise<SeasonEntity[]> =>
+    this.seasonRepository.findBy({ seriesId: In(seriesIds) });
 
-  async readOne(id: string): Promise<SeasonModel> {
+  readOne = async (id: string): Promise<SeasonEntity> => {
     const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Season with id "${id}" not found!`);
     }
     return season;
-  }
+  };
 
-  async update(
+  update = async (
     id: string,
     updateSeasonInput: UpdateSeasonInput,
-  ): Promise<SeasonModel> {
+  ): Promise<SeasonEntity> => {
     const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Season with id "${id}" not found!`);
     }
     return this.seasonRepository.save({
       ...season,
       ...updateSeasonInput,
     });
-  }
+  };
 
-  async delete(id: string): Promise<boolean> {
+  delete = async (id: string): Promise<boolean> => {
     const season = await this.seasonRepository.findOneBy({ id });
     if (!season) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Season with id "${id}" not found!`);
     }
     await this.seasonRepository.remove(season);
     return true;
-  }
+  };
 }

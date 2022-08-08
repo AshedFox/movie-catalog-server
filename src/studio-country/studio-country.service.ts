@@ -1,27 +1,27 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
-import { StudioCountryModel } from './entities/studio-country.model';
+import { StudioCountryEntity } from './entities/studio-country.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
+import { NotFoundError } from '../utils/errors/not-found.error';
 import { StudioService } from '../studio/studio.service';
 import { CountryService } from '../country/country.service';
-import { AlreadyExistsError } from '../shared/errors/already-exists.error';
+import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 
 @Injectable()
 export class StudioCountryService {
   constructor(
-    @InjectRepository(StudioCountryModel)
-    private readonly studioCountryRepository: Repository<StudioCountryModel>,
+    @InjectRepository(StudioCountryEntity)
+    private readonly studioCountryRepository: Repository<StudioCountryEntity>,
     @Inject(forwardRef(() => StudioService))
     private readonly studioService: StudioService,
     @Inject(forwardRef(() => CountryService))
     private readonly countryService: CountryService,
   ) {}
 
-  async create(
+  create = async (
     studioId: number,
     countryId: number,
-  ): Promise<StudioCountryModel> {
+  ): Promise<StudioCountryEntity> => {
     await this.studioService.readOne(studioId);
     await this.countryService.readOne(countryId);
     const studioCountry = await this.studioCountryRepository.findOneBy({
@@ -30,59 +30,61 @@ export class StudioCountryService {
     });
     if (studioCountry) {
       throw new AlreadyExistsError(
-        `Country with id "${countryId}" already exists for studio with id "${studioId}"`,
+        `Studio country with studioId "${studioId}" and countryId "${countryId}" already exists!`,
       );
     }
     return this.studioCountryRepository.save({ studioId, countryId });
-  }
+  };
 
-  async createStudioCountries(
+  createManyForStudio = async (
     studioId: number,
     countriesIds: number[],
-  ): Promise<StudioCountryModel[]> {
-    return this.studioCountryRepository.save(
+  ): Promise<StudioCountryEntity[]> =>
+    this.studioCountryRepository.save(
       countriesIds.map((countryId) => ({ countryId, studioId })),
     );
-  }
 
-  async readAll(): Promise<StudioCountryModel[]> {
+  async readMany(): Promise<StudioCountryEntity[]> {
     return this.studioCountryRepository.find();
   }
 
-  async readStudiosCountries(
+  readManyByStudios = async (
     studiosIds: number[],
-  ): Promise<StudioCountryModel[]> {
-    return this.studioCountryRepository.find({
+  ): Promise<StudioCountryEntity[]> =>
+    this.studioCountryRepository.find({
       where: { studioId: In(studiosIds) },
       relations: {
         country: true,
       },
     });
-  }
 
-  async readOne(
+  readOne = async (
     studioId: number,
     countryId: number,
-  ): Promise<StudioCountryModel> {
+  ): Promise<StudioCountryEntity> => {
     const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
     });
     if (!studioCountry) {
-      throw new NotFoundError();
+      throw new NotFoundError(
+        `Studio country with studioId "${studioId}" and countryId "${countryId}" not found!`,
+      );
     }
     return studioCountry;
-  }
+  };
 
-  async delete(studioId: number, countryId: number): Promise<boolean> {
+  delete = async (studioId: number, countryId: number): Promise<boolean> => {
     const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
     });
     if (!studioCountry) {
-      throw new NotFoundError();
+      throw new NotFoundError(
+        `Studio country with studioId "${studioId}" and countryId "${countryId}" not found!`,
+      );
     }
     await this.studioCountryRepository.remove(studioCountry);
     return true;
-  }
+  };
 }

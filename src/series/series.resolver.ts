@@ -10,46 +10,50 @@ import {
 import { SeriesService } from './series.service';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
-import { SeriesModel } from './entities/series.model';
-import { PaginatedSeries } from './dto/paginated-series.result';
+import { SeriesEntity } from './entities/series.entity';
+import { PaginatedSeries } from './dto/paginated-series';
 import { GetSeriesArgs } from './dto/get-series.args';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../user/entities/role.enum';
-import { SeriesPersonModel } from '../series-person/entities/series-person.model';
+import { RoleEnum } from '../utils/enums/role.enum';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
-import { GenreModel } from '../genre/entities/genre.model';
-import { StudioModel } from '../studio/entities/studio.model';
-import { SeasonModel } from '../season/entities/season.model';
-import { EpisodeModel } from '../episode/entities/episode.model';
-import { ImageModel } from '../image/entities/image.model';
+import { GenreEntity } from '../genre/entities/genre.entity';
+import { StudioEntity } from '../studio/entities/studio.entity';
+import { SeasonEntity } from '../season/entities/season.entity';
+import { EpisodeEntity } from '../episode/entities/episode.entity';
+import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
+import { MovieEntity } from '../movie/entities/movie.entity';
+import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
+import { ImageEntity } from '../image/entities/image.entity';
+import { TrailerEntity } from '../trailer/entities/trailer.entity';
+import { ReviewEntity } from '../review/entities/review.entity';
 
-@Resolver(SeriesModel)
+@Resolver(SeriesEntity)
 export class SeriesResolver {
   constructor(private readonly seriesService: SeriesService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => SeriesModel)
+  @Mutation(() => SeriesEntity)
   createSeries(@Args('input') input: CreateSeriesInput) {
     return this.seriesService.create(input);
   }
 
   @Query(() => PaginatedSeries)
-  getAllSeries(@Args() { searchTitle, take, skip }: GetSeriesArgs) {
-    return this.seriesService.readAll(searchTitle, take, skip);
+  getManySeries(@Args() { searchTitle, take, skip }: GetSeriesArgs) {
+    return this.seriesService.readMany(take, skip, searchTitle);
   }
 
-  @Query(() => SeriesModel, { nullable: true })
+  @Query(() => SeriesEntity, { nullable: true })
   getOneSeries(@Args('id', ParseUUIDPipe) id: string) {
     return this.seriesService.readOne(id);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => SeriesModel)
+  @Mutation(() => SeriesEntity)
   updateSeries(
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateSeriesInput,
@@ -64,51 +68,75 @@ export class SeriesResolver {
     return this.seriesService.delete(id);
   }
 
-  @ResolveField(() => [SeriesPersonModel])
-  seriesPersons(
-    @Parent() series: SeriesModel,
+  @ResolveField(() => ImageEntity, { nullable: true })
+  cover(
+    @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.seriesPersonsBySeriesLoader.load(series.id);
+    return movie.coverId ? loaders.imageLoader.load(movie.coverId) : undefined;
   }
 
-  @ResolveField(() => [GenreModel])
+  @ResolveField(() => [TrailerEntity])
+  trailers(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.trailersByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => [ReviewEntity])
+  reviews(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.reviewsByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => [MoviePersonEntity])
+  moviePersons(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.moviePersonsByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => [MovieImageEntity])
+  movieImages(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.movieImagesByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => [GenreEntity])
   genres(
-    @Parent() series: SeriesModel,
+    @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.genresBySeriesLoader.load(series.id);
+    return loaders.genresByMovieLoader.load(movie.id);
   }
 
-  @ResolveField(() => [StudioModel])
+  @ResolveField(() => [StudioEntity])
   studios(
-    @Parent() series: SeriesModel,
+    @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.studiosBySeriesLoader.load(series.id);
+    return loaders.studiosByMovieLoader.load(movie.id);
   }
 
-  @ResolveField(() => [SeasonModel])
+  @ResolveField(() => [SeasonEntity])
   seasons(
-    @Parent() series: SeriesModel,
+    @Parent() series: SeriesEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.seasonsBySeriesLoader.load(series.id);
   }
 
-  @ResolveField(() => [EpisodeModel])
+  @ResolveField(() => [EpisodeEntity])
   episodes(
-    @Parent() series: SeriesModel,
+    @Parent() series: SeriesEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.episodesBySeriesLoader.load(series.id);
-  }
-
-  @ResolveField(() => [ImageModel])
-  posters(
-    @Parent() series: SeriesModel,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.postersBySeriesLoader.load(series.id);
   }
 }

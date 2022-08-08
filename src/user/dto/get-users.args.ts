@@ -1,5 +1,5 @@
 import { ArgsType } from '@nestjs/graphql';
-import { PaginatedArgs } from '../../shared/paginated.args';
+import { PaginatedArgs } from '../../utils/paginated.args';
 
 @ArgsType()
 export class GetUsersArgs extends PaginatedArgs {}

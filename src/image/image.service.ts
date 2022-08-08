@@ -1,52 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { CreateImageInput } from './dto/create-image.input';
 import { In, Repository } from 'typeorm';
-import { ImageModel } from './entities/image.model';
+import { ImageEntity } from './entities/image.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../shared/errors/not-found.error';
-import { AlreadyExistsError } from '../shared/errors/already-exists.error';
+import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 
 @Injectable()
 export class ImageService {
   constructor(
-    @InjectRepository(ImageModel)
-    private readonly imageRepository: Repository<ImageModel>,
+    @InjectRepository(ImageEntity)
+    private readonly imageRepository: Repository<ImageEntity>,
   ) {}
 
-  async create(createImageInput: CreateImageInput): Promise<ImageModel> {
+  create = async (createImageInput: CreateImageInput): Promise<ImageEntity> => {
     const existingImage = await this.imageRepository.findOneBy({
       url: createImageInput.url,
     });
     if (existingImage) {
       throw new AlreadyExistsError(
-        `Image with url "${createImageInput.url}" already exists`,
+        `Image with url "${createImageInput.url}" already exists!`,
       );
     }
     return this.imageRepository.save(createImageInput);
-  }
+  };
 
-  async readAll(): Promise<ImageModel[]> {
-    return this.imageRepository.find();
-  }
+  readMany = async (): Promise<ImageEntity[]> => this.imageRepository.find();
 
-  async readOne(id: string): Promise<ImageModel> {
+  readOne = async (id: string): Promise<ImageEntity> => {
     const image = await this.imageRepository.findOneBy({ id });
     if (!image) {
-      throw new NotFoundError(`Image with id "${id}" not found`);
+      throw new NotFoundError(`Image with id "${id}" not found!`);
     }
     return image;
-  }
+  };
 
-  async readAllByIds(ids: string[]): Promise<ImageModel[]> {
-    return this.imageRepository.findBy({ id: In(ids) });
-  }
+  readManyByIds = async (ids: string[]): Promise<ImageEntity[]> =>
+    this.imageRepository.findBy({ id: In(ids) });
 
-  async delete(id: string): Promise<boolean> {
+  delete = async (id: string): Promise<boolean> => {
     const image = await this.imageRepository.findOneBy({ id });
     if (!image) {
-      throw new NotFoundError(`Image with id "${id}" not found`);
+      throw new NotFoundError(`Image with id "${id}" not found!`);
     }
     await this.imageRepository.remove(image);
     return true;
-  }
+  };
 }

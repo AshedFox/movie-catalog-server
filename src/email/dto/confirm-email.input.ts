@@ -5,8 +5,8 @@ import { IsEmail } from 'class-validator';
 export class ConfirmEmailInput {
   @Field()
   @IsEmail()
-  email!: string;
+  email: string;
 
   @Field()
-  token!: string;
+  token: string;
 }

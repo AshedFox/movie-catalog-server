@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { PaginatedArgs } from '../../shared/paginated.args';
+import { PaginatedArgs } from '../../utils/paginated.args';
 import { IsOptional, IsUUID, Length } from 'class-validator';
 
 @ArgsType()
@@ -13,4 +13,9 @@ export class GetEpisodesArgs extends PaginatedArgs {
   @IsUUID('4')
   @IsOptional()
   seasonId?: string;
+
+  @Field({ nullable: true })
+  @IsUUID('4')
+  @IsOptional()
+  seriesId?: string;
 }

@@ -1,12 +1,12 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { StudioModel } from '../entities/studio.model';
+import { StudioEntity } from '../entities/studio.entity';
 import { ArrayNotEmpty, IsArray, IsOptional, Length } from 'class-validator';
 
 @InputType()
-export class CreateStudioInput implements Partial<StudioModel> {
+export class CreateStudioInput implements Partial<StudioEntity> {
   @Field()
   @Length(1, 200)
-  name!: string;
+  name: string;
 
   @Field(() => [Int], { nullable: true })
   @IsOptional()

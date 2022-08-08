@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { PaginatedArgs } from '../../shared/paginated.args';
+import { PaginatedArgs } from '../../utils/paginated.args';
 import { IsOptional, Length } from 'class-validator';
 
 @ArgsType()

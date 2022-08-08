@@ -1,12 +1,12 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { VideoModel } from '../entities/video.model';
+import { VideoEntity } from '../entities/video.entity';
 import { IsInt, IsOptional, IsPositive, IsUrl } from 'class-validator';
 
 @InputType()
-export class CreateVideoInput implements Partial<VideoModel> {
+export class CreateVideoInput implements Partial<VideoEntity> {
   @Field()
   @IsUrl()
-  url!: string;
+  url: string;
 
   @Field(() => Int, { nullable: true })
   @IsInt()

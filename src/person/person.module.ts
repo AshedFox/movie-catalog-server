@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { PersonService } from './person.service';
 import { PersonResolver } from './person.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PersonModel } from './entities/person.model';
+import { PersonEntity } from './entities/person.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PersonModel])],
+  imports: [TypeOrmModule.forFeature([PersonEntity])],
   providers: [PersonResolver, PersonService],
   exports: [PersonService],
 })

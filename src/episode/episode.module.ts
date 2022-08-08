@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { EpisodeService } from './episode.service';
 import { EpisodeResolver } from './episode.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EpisodeModel } from './entities/episode.model';
-import { EpisodePosterModule } from '../episode-poster/episode-poster.module';
+import { EpisodeEntity } from './entities/episode.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EpisodeModel]), EpisodePosterModule],
+  imports: [TypeOrmModule.forFeature([EpisodeEntity])],
   providers: [EpisodeResolver, EpisodeService],
   exports: [EpisodeService],
 })

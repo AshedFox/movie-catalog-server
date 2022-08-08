@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { SeasonService } from './season.service';
 import { SeasonResolver } from './season.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SeasonModel } from './entities/season.model';
-import { SeasonPosterModule } from '../season-poster/season-poster.module';
+import { SeasonEntity } from './entities/season.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SeasonModel]), SeasonPosterModule],
+  imports: [TypeOrmModule.forFeature([SeasonEntity])],
   providers: [SeasonResolver, SeasonService],
   exports: [SeasonService],
 })
