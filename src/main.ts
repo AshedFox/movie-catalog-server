@@ -12,6 +12,6 @@ async function bootstrap() {
   app.use(cookieParser(config.get('COOKIE_SECRET')));
   app.use(graphqlUploadExpress());
 
-  await app.listen(config.get('PORT'));
+  await app.listen(config.get('PORT') || 3000);
 }
 bootstrap();
