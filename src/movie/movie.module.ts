@@ -5,10 +5,12 @@ import { MovieGenreModule } from '../movie-genre/movie-genre.module';
 import { MovieStudioModule } from '../movie-studio/movie-studio.module';
 import { MovieService } from './movie.service';
 import { MovieResolver } from './movie.resolver';
+import { MovieCountryModule } from '../movie-country/movie-country.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MovieEntity]),
+    forwardRef(() => MovieCountryModule),
     forwardRef(() => MovieGenreModule),
     forwardRef(() => MovieStudioModule),
   ],

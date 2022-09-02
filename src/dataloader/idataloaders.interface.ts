@@ -19,6 +19,7 @@ import { ReviewEntity } from '../review/entities/review.entity';
 
 export interface IDataLoaders {
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
+  countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
   countryLoader: DataLoader<number, CountryEntity>;
   emailConfirmationLoader: DataLoader<string, EmailConfirmationEntity>;
   episodeLoader: DataLoader<string, EpisodeEntity>;

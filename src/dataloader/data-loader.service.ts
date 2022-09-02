@@ -18,6 +18,7 @@ import { EpisodeService } from '../episode/episode.service';
 import { VideoService } from '../video/video.service';
 import { ImageService } from '../image/image.service';
 import { MovieImageService } from '../movie-image/movie-image.service';
+import { MovieCountryService } from '../movie-country/movie-country.service';
 import { MovieService } from '../movie/movie.service';
 import { ReviewService } from '../review/review.service';
 import { TrailerService } from '../trailer/trailer.service';
@@ -32,6 +33,7 @@ export class DataLoaderService {
     private readonly filmService: FilmService,
     private readonly genreService: GenreService,
     private readonly imageService: ImageService,
+    private readonly movieCountryService: MovieCountryService,
     private readonly movieGenreService: MovieGenreService,
     private readonly movieImageService: MovieImageService,
     private readonly moviePersonService: MoviePersonService,
@@ -132,6 +134,11 @@ export class DataLoaderService {
     countriesByStudioLoader: this.createMultipleRelationLoader(
       this.studioCountryService.readManyByStudios,
       'studioId',
+      'country',
+    ),
+    countriesByMovieLoader: this.createMultipleRelationLoader(
+      this.movieCountryService.readManyByMovies,
+      'movieId',
       'country',
     ),
     countryLoader: this.createSingleLoader(this.countryService.readManyByIds),

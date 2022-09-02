@@ -40,6 +40,12 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
+  countriesIds?: number[];
+
+  @Field(() => [Int], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
   studiosIds?: number[];
 
   @Field(() => [String], { nullable: true })

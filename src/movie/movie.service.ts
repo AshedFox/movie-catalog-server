@@ -8,12 +8,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
 import { MovieGenreService } from '../movie-genre/movie-genre.service';
 import { MovieStudioService } from '../movie-studio/movie-studio.service';
+import { MovieCountryService } from '../movie-country/movie-country.service';
 
 @Injectable()
 export class MovieService {
   constructor(
     @InjectRepository(MovieEntity)
     private readonly movieRepository: Repository<MovieEntity>,
+    @Inject(forwardRef(() => MovieCountryService))
+    private readonly movieCountryService: MovieCountryService,
     @Inject(forwardRef(() => MovieGenreService))
     private readonly movieGenreService: MovieGenreService,
     @Inject(forwardRef(() => MovieStudioService))
@@ -22,7 +25,10 @@ export class MovieService {
 
   create = async (createMovieInput: CreateMovieInput): Promise<MovieEntity> => {
     const movie = await this.movieRepository.save(createMovieInput);
-    const { genresIds, studiosIds } = createMovieInput;
+    const { genresIds, studiosIds, countriesIds } = createMovieInput;
+    if (countriesIds) {
+      await this.movieCountryService.createManyForMovie(movie.id, countriesIds);
+    }
     if (genresIds) {
       await this.movieGenreService.createManyForMovie(movie.id, genresIds);
     }

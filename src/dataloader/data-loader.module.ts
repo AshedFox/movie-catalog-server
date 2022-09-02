@@ -18,6 +18,7 @@ import { VideoModule } from '../video/video.module';
 import { ImageModule } from '../image/image.module';
 import { MovieImageModule } from '../movie-image/movie-image.module';
 import { MovieModule } from '../movie/movie.module';
+import { MovieCountryModule } from '../movie-country/movie-country.module';
 import { ReviewModule } from '../review/review.module';
 import { TrailerModule } from '../trailer/trailer.module';
 
@@ -33,6 +34,7 @@ import { TrailerModule } from '../trailer/trailer.module';
     MovieGenreModule,
     MovieImageModule,
     MovieModule,
+    MovieCountryModule,
     MoviePersonModule,
     MovieStudioModule,
     PersonModule,

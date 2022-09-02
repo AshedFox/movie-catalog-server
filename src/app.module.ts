@@ -35,6 +35,7 @@ import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
 import { TrailerModule } from './trailer/trailer.module';
 import { ReviewModule } from './review/review.module';
+import { MovieCountryModule } from './movie-country/movie-country.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -98,6 +99,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     FilmModule,
     GenreModule,
     ImageModule,
+    MovieCountryModule,
     MovieGenreModule,
     MovieImageModule,
     MovieModule,

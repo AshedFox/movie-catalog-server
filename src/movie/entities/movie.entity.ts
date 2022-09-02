@@ -20,6 +20,8 @@ import { MoviePersonEntity } from '../../movie-person/entities/movie-person.enti
 import { ImageEntity } from '../../image/entities/image.entity';
 import { TrailerEntity } from '../../trailer/entities/trailer.entity';
 import { ReviewEntity } from '../../review/entities/review.entity';
+import { CountryEntity } from '../../country/entities/country.entity';
+import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
 
 @ObjectType()
 @Entity('movies')
@@ -90,6 +92,13 @@ export class MovieEntity {
   @HideField()
   @OneToMany(() => MovieStudioEntity, (filmStudio) => filmStudio.movie)
   studiosConnection: MovieStudioEntity[];
+
+  @Field(() => [CountryEntity])
+  countries: CountryEntity[];
+
+  @HideField()
+  @OneToMany(() => MovieCountryEntity, (movieCountry) => movieCountry.movie)
+  countriesConnection: MovieCountryEntity[];
 
   @Field(() => [MovieImageEntity])
   @OneToMany(() => MovieImageEntity, (movieImage) => movieImage.movie)
