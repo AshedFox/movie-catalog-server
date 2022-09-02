@@ -48,84 +48,80 @@ export class DataLoaderService {
     private readonly videoService: VideoService,
   ) {}
 
-  private mapSingleData = <I extends IndexType, D extends { id: I }>(
+  private mapSingleData = <I extends IndexType, D>(
     ids: I[],
     data: D[],
   ): D[] => {
     const map: { [key: IndexType]: D } = {};
     data.forEach((value) => {
-      map[value.id] = value;
+      map[value['id']] = value;
     });
     return ids.map((id) => map[id] ?? null);
   };
 
-  private mapMultipleData = <I extends IndexType, D extends object>(
+  private mapMultipleData = <I extends IndexType, D>(
     ids: I[],
     data: D[],
-    keyFieldName: IndexType,
+    keyFieldName: keyof D,
   ): D[][] => {
     const map: { [key: IndexType]: D[] } = {};
     data.forEach((value) => {
-      if (map[value[keyFieldName]]) {
-        map[value[keyFieldName]].push(value);
+      if (map[value[keyFieldName as string]]) {
+        map[value[keyFieldName as string]].push(value);
       } else {
-        map[value[keyFieldName]] = [value];
+        map[value[keyFieldName as string]] = [value];
       }
     });
     return ids.map((id) => map[id] ?? []);
   };
 
-  private mapMultipleDataConcrete = <
-    I extends IndexType,
-    D extends object,
-    R extends object,
-  >(
+  private mapMultipleDataConcrete = <I extends IndexType, D, R>(
     ids: I[],
     data: D[],
-    keyFieldName: IndexType,
-    relationFieldName: IndexType,
+    keyFieldName: keyof D,
+    relationFieldName: keyof D,
   ): R[][] => {
     const map: { [key: IndexType]: R[] } = {};
     data.forEach((value) => {
-      if (map[value[keyFieldName]]) {
-        map[value[keyFieldName]].push(value[relationFieldName]);
+      if (map[value[keyFieldName as string]]) {
+        map[value[keyFieldName as string]].push(
+          value[relationFieldName as string],
+        );
       } else {
-        map[value[keyFieldName]] = [value[relationFieldName]];
+        map[value[keyFieldName as string]] = [
+          value[relationFieldName as string],
+        ];
       }
     });
     return ids.map((id) => map[id] ?? []);
   };
 
-  private createSingleLoader = <I extends IndexType, D extends { id: I }>(
-    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+  private createSingleLoader = <I extends IndexType, D>(
+    readByIdsFn: (ids: I[]) => Promise<D[]>,
   ) => {
     return new DataLoader<I, D>(async (ids: I[]) =>
-      this.mapSingleData(ids, await readByIdsMethod(ids)),
+      this.mapSingleData(ids, await readByIdsFn(ids)),
     );
   };
 
-  private createMultipleLoader = <I extends IndexType, D extends object>(
-    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+  private createMultipleLoader = <I extends IndexType, D>(
+    readByIdsFn: (ids: I[]) => Promise<D[]>,
     keyFieldName: keyof D,
   ) => {
     return new DataLoader<I, D[]>(async (ids: I[]) =>
-      this.mapMultipleData(ids, await readByIdsMethod(ids), keyFieldName),
+      this.mapMultipleData(ids, await readByIdsFn(ids), keyFieldName),
     );
   };
 
-  private createMultipleRelationLoader = <
-    I extends IndexType,
-    D extends object,
-    R extends object,
-  >(
-    readByIdsMethod: (ids: I[]) => Promise<D[]>,
+  private createMultipleRelationLoader = <I extends IndexType, D, R>(
+    readByIdsFn: (ids: I[]) => Promise<D[]>,
     keyFieldName: keyof D,
     relationFieldName: keyof D,
   ) => {
     return new DataLoader<I, R[]>(async (ids: I[]) =>
       this.mapMultipleDataConcrete<I, D, R>(
         ids,
-        await readByIdsMethod(ids),
+        await readByIdsFn(ids),
         keyFieldName,
         relationFieldName,
       ),
