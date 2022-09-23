@@ -1,6 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
-import { Paginated } from '../../utils/paginated.helper';
 import { EpisodeEntity } from '../entities/episode.entity';
+import { Paginated } from '../../common/pagination';
 
 @ObjectType()
 export class PaginatedEpisodes extends Paginated(EpisodeEntity) {}

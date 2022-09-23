@@ -1,9 +1,9 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { PaginatedArgs } from '../../utils/paginated.args';
+import { GqlOffsetPagination } from '../../common/pagination';
 import { IsOptional, IsUUID, Length } from 'class-validator';
 
 @ArgsType()
-export class GetSeasonsArgs extends PaginatedArgs {
+export class GetSeasonsArgs extends GqlOffsetPagination {
   @Field({ nullable: true })
   @Length(1, 200)
   @IsOptional()

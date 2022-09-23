@@ -1,9 +1,9 @@
 import { ArgsType, Field, Int } from '@nestjs/graphql';
-import { PaginatedArgs } from '../../utils/paginated.args';
+import { GqlOffsetPagination } from '../../common/pagination';
 import { ArrayNotEmpty, IsArray, IsOptional, Length } from 'class-validator';
 
 @ArgsType()
-export class GetPersonsArgs extends PaginatedArgs {
+export class GetPersonsArgs extends GqlOffsetPagination {
   @Field({ nullable: true })
   @Length(1, 200)
   @IsOptional()

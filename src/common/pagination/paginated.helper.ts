@@ -1,10 +1,10 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { IPaginated } from './paginated.interface';
 import { Type } from '@nestjs/common';
+import { PaginatedType } from './paginated.type';
 
 export function Paginated<T>(classRef: Type<T>) {
   @ObjectType({ isAbstract: true })
-  abstract class PaginatedType implements IPaginated<T> {
+  abstract class GqlPaginatedType implements PaginatedType<T> {
     @Field(() => Int)
     count: number;
 
@@ -15,5 +15,5 @@ export function Paginated<T>(classRef: Type<T>) {
     hasNext: boolean;
   }
 
-  return PaginatedType as Type<IPaginated<T>>;
+  return GqlPaginatedType as Type<PaginatedType<T>>;
 }
