@@ -29,6 +29,8 @@ import { CollectionMovieService } from '../collection-movie/collection-movie.ser
 @Injectable()
 export class DataLoaderService {
   constructor(
+    private readonly collectionService: CollectionService,
+    private readonly collectionMovieService: CollectionMovieService,
     private readonly countryService: CountryService,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly episodeService: EpisodeService,
@@ -133,6 +135,9 @@ export class DataLoaderService {
   };
 
   createLoaders = (): IDataLoaders => ({
+    collectionLoader: this.createSingleLoader(
+      this.collectionService.readManyByIds,
+    ),
     countriesByStudioLoader: this.createMultipleRelationLoader(
       this.studioCountryService.readManyByStudios,
       'studioId',
@@ -164,6 +169,11 @@ export class DataLoaderService {
       'genre',
     ),
     imageLoader: this.createSingleLoader(this.imageService.readManyByIds),
+    moviesByCollectionLoader: this.createMultipleRelationLoader(
+      this.collectionMovieService.readManyByCollections,
+      'collectionId',
+      'movie',
+    ),
     movieImagesByMovieLoader: this.createMultipleLoader(
       this.movieImageService.readManyByMovies,
       'movieId',

@@ -19,6 +19,7 @@ import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 
 export interface IDataLoaders {
+  collectionLoader: DataLoader<number, CollectionEntity>;
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
   countryLoader: DataLoader<number, CountryEntity>;
@@ -33,6 +34,7 @@ export interface IDataLoaders {
   movieImagesByMovieLoader: DataLoader<string, MovieImageEntity[]>;
   movieLoader: DataLoader<string, MovieEntity>;
   moviePersonsByMovieLoader: DataLoader<string, MoviePersonEntity[]>;
+  moviesByCollectionLoader: DataLoader<number, MovieEntity[]>;
   personLoader: DataLoader<number, PersonEntity>;
   movieReviewLoader: DataLoader<number, MovieReviewEntity>;
   movieReviewsByMovieLoader: DataLoader<string, MovieReviewEntity[]>;

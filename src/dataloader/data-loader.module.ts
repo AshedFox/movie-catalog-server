@@ -21,10 +21,14 @@ import { MovieModule } from '../movie/movie.module';
 import { MovieCountryModule } from '../movie-country/movie-country.module';
 import { MovieReviewModule } from '../movie-review/movie-review.module';
 import { TrailerModule } from '../trailer/trailer.module';
+import { CollectionModule } from '../collection/collection.module';
+import { CollectionMovieModule } from '../collection-movie/collection-movie.module';
 
 @Global()
 @Module({
   imports: [
+    CollectionModule,
+    CollectionMovieModule,
     CountryModule,
     EmailModule,
     EpisodeModule,

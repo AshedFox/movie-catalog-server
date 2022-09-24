@@ -35,8 +35,11 @@ import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
 import { TrailerModule } from './trailer/trailer.module';
 import { MovieReviewModule } from './movie-review/movie-review.module';
+import { MovieUserModule } from './movie-user/movie-user.module';
 import { MovieCountryModule } from './movie-country/movie-country.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CollectionModule } from './collection/collection.module';
+import { CollectionMovieModule } from './collection-movie/collection-movie.module';
 
 @Module({
   imports: [
@@ -92,6 +95,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
     AuthModule,
     CloudinaryModule,
+    CollectionModule,
+    CollectionMovieModule,
     CountryModule,
     DataLoaderModule,
     EmailModule,
