@@ -9,13 +9,14 @@ import { CountryEntity } from '../country/entities/country.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
 import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
 import { GenreEntity } from '../genre/entities/genre.entity';
+import { CollectionEntity } from '../collection/entities/collection.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { VideoEntity } from '../video/entities/video.entity';
 import { ImageEntity } from '../image/entities/image.entity';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
-import { ReviewEntity } from '../review/entities/review.entity';
+import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 
 export interface IDataLoaders {
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
@@ -33,9 +34,9 @@ export interface IDataLoaders {
   movieLoader: DataLoader<string, MovieEntity>;
   moviePersonsByMovieLoader: DataLoader<string, MoviePersonEntity[]>;
   personLoader: DataLoader<number, PersonEntity>;
-  reviewLoader: DataLoader<number, ReviewEntity>;
-  reviewsByMovieLoader: DataLoader<string, ReviewEntity[]>;
-  reviewsByUserLoader: DataLoader<string, ReviewEntity[]>;
+  movieReviewLoader: DataLoader<number, MovieReviewEntity>;
+  movieReviewsByMovieLoader: DataLoader<string, MovieReviewEntity[]>;
+  movieReviewsByUserLoader: DataLoader<string, MovieReviewEntity[]>;
   seasonLoader: DataLoader<string, SeasonEntity>;
   seasonsBySeriesLoader: DataLoader<string, SeasonEntity[]>;
   seriesLoader: DataLoader<string, SeriesEntity>;

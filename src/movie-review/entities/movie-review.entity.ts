@@ -5,18 +5,33 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 
 @ObjectType()
-@Entity('reviews')
-@Unique(['userId', 'movieId'])
-export class ReviewEntity {
+@Entity('movies_reviews')
+export class MovieReviewEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Field(() => ID)
+  @Column()
+  userId: string;
+
+  @Field(() => UserEntity)
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  user: UserEntity;
+
+  @Field(() => ID)
+  @Column()
+  movieId: string;
+
+  @Field(() => MovieEntity)
+  @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  movie: MovieEntity;
 
   @Field(() => Int)
   @Column({ type: 'int2' })
@@ -31,18 +46,6 @@ export class ReviewEntity {
   createdAt: Date;
 
   @Field()
-  @Column()
-  userId: string;
-
-  @Field(() => UserEntity)
-  @ManyToOne(() => UserEntity)
-  user: UserEntity;
-
-  @Field()
-  @Column()
-  movieId: string;
-
-  @Field(() => MovieEntity)
-  @ManyToOne(() => MovieEntity)
-  movie: MovieEntity;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

@@ -19,7 +19,7 @@ import { MovieStudioEntity } from '../../movie-studio/entities/movie-studio.enti
 import { MoviePersonEntity } from '../../movie-person/entities/movie-person.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
 import { TrailerEntity } from '../../trailer/entities/trailer.entity';
-import { ReviewEntity } from '../../review/entities/review.entity';
+import { MovieReviewEntity } from '../../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
 
@@ -75,9 +75,9 @@ export class MovieEntity {
   @OneToMany(() => TrailerEntity, (trailer) => trailer.movie)
   trailers: TrailerEntity[];
 
-  @Field(() => [ReviewEntity])
-  @OneToMany(() => ReviewEntity, (review) => review.movie)
-  reviews: ReviewEntity[];
+  @Field(() => [MovieReviewEntity])
+  @OneToMany(() => MovieReviewEntity, (review) => review.movie)
+  reviews: MovieReviewEntity[];
 
   @Field(() => [GenreEntity])
   genres: GenreEntity[];

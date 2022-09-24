@@ -34,7 +34,7 @@ import { v2 } from 'cloudinary';
 import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
 import { TrailerModule } from './trailer/trailer.module';
-import { ReviewModule } from './review/review.module';
+import { MovieReviewModule } from './movie-review/movie-review.module';
 import { MovieCountryModule } from './movie-country/movie-country.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -107,7 +107,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     MovieStudioModule,
     PersonModule,
     RefreshTokenModule,
-    ReviewModule,
+    MovieReviewModule,
     SeasonModule,
     SeriesModule,
     StudioCountryModule,

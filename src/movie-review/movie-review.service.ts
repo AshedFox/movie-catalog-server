@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateReviewInput } from './dto/create-review.input';
-import { UpdateReviewInput } from './dto/update-review.input';
+import { CreateMovieReviewInput } from './dto/create-movie-review.input';
+import { UpdateMovieReviewInput } from './dto/update-movie-review.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReviewEntity } from './entities/review.entity';
+import { MovieReviewEntity } from './entities/movie-review.entity';
 import { In, Repository } from 'typeorm';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 import { NotFoundError } from '../utils/errors/not-found.error';
 
 @Injectable()
-export class ReviewService {
+export class MovieReviewService {
   constructor(
-    @InjectRepository(ReviewEntity)
-    private readonly reviewRepository: Repository<ReviewEntity>,
+    @InjectRepository(MovieReviewEntity)
+    private readonly reviewRepository: Repository<MovieReviewEntity>,
   ) {}
 
-  create = async (createReviewInput: CreateReviewInput) => {
+  create = async (createReviewInput: CreateMovieReviewInput) => {
     const { userId, movieId } = createReviewInput;
     const review = await this.reviewRepository.findOneBy({ userId, movieId });
     if (review) {
@@ -62,7 +62,7 @@ export class ReviewService {
     return review;
   };
 
-  update = async (id: number, updateReviewInput: UpdateReviewInput) => {
+  update = async (id: number, updateReviewInput: UpdateMovieReviewInput) => {
     const review = await this.reviewRepository.findOneBy({ id });
     if (!review) {
       throw new NotFoundError(`Review with id "${id}" not found!`);

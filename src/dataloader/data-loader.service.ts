@@ -20,9 +20,11 @@ import { ImageService } from '../image/image.service';
 import { MovieImageService } from '../movie-image/movie-image.service';
 import { MovieCountryService } from '../movie-country/movie-country.service';
 import { MovieService } from '../movie/movie.service';
-import { ReviewService } from '../review/review.service';
+import { MovieReviewService } from '../movie-review/movie-review.service';
 import { TrailerService } from '../trailer/trailer.service';
 import { IndexType } from 'src/utils/types/index.type';
+import { CollectionService } from '../collection/collection.service';
+import { CollectionMovieService } from '../collection-movie/collection-movie.service';
 
 @Injectable()
 export class DataLoaderService {
@@ -40,7 +42,7 @@ export class DataLoaderService {
     private readonly movieService: MovieService,
     private readonly movieStudioService: MovieStudioService,
     private readonly personService: PersonService,
-    private readonly reviewService: ReviewService,
+    private readonly movieReviewService: MovieReviewService,
     private readonly seasonService: SeasonService,
     private readonly seriesService: SeriesService,
     private readonly studioCountryService: StudioCountryService,
@@ -172,13 +174,15 @@ export class DataLoaderService {
       'movieId',
     ),
     personLoader: this.createSingleLoader(this.personService.readManyByIds),
-    reviewLoader: this.createSingleLoader(this.reviewService.readManyByIds),
-    reviewsByMovieLoader: this.createMultipleLoader(
-      this.reviewService.readManyByMovies,
+    movieReviewLoader: this.createSingleLoader(
+      this.movieReviewService.readManyByIds,
+    ),
+    movieReviewsByMovieLoader: this.createMultipleLoader(
+      this.movieReviewService.readManyByMovies,
       'movieId',
     ),
-    reviewsByUserLoader: this.createMultipleLoader(
-      this.reviewService.readManyByUsers,
+    movieReviewsByUserLoader: this.createMultipleLoader(
+      this.movieReviewService.readManyByUsers,
       'userId',
     ),
     seasonLoader: this.createSingleLoader(this.seasonService.readManyByIds),

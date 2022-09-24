@@ -8,39 +8,39 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { ReviewService } from './review.service';
-import { ReviewEntity } from './entities/review.entity';
-import { CreateReviewInput } from './dto/create-review.input';
-import { UpdateReviewInput } from './dto/update-review.input';
-import { GetReviewsArgs } from './dto/get-reviews.args';
-import { PaginatedReviews } from './dto/paginated-reviews';
+import { MovieReviewService } from './movie-review.service';
+import { MovieReviewEntity } from './entities/movie-review.entity';
+import { CreateMovieReviewInput } from './dto/create-movie-review.input';
+import { UpdateMovieReviewInput } from './dto/update-movie-review.input';
+import { GetMoviesReviewsArgs } from './dto/get-movies-reviews.args';
+import { PaginatedMoviesReviews } from './dto/paginated-movies-reviews';
 import { UserEntity } from '../user/entities/user.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MovieEntity } from '../movie/entities/movie.entity';
 
-@Resolver(() => ReviewEntity)
-export class ReviewResolver {
-  constructor(private readonly reviewService: ReviewService) {}
+@Resolver(() => MovieReviewEntity)
+export class MovieReviewResolver {
+  constructor(private readonly reviewService: MovieReviewService) {}
 
-  @Mutation(() => ReviewEntity)
-  createReview(@Args('input') createReviewInput: CreateReviewInput) {
+  @Mutation(() => MovieReviewEntity)
+  createReview(@Args('input') createReviewInput: CreateMovieReviewInput) {
     return this.reviewService.create(createReviewInput);
   }
 
-  @Query(() => PaginatedReviews)
-  getReviews(@Args() { userId, movieId, take, skip }: GetReviewsArgs) {
+  @Query(() => PaginatedMoviesReviews)
+  getReviews(@Args() { userId, movieId, take, skip }: GetMoviesReviewsArgs) {
     return this.reviewService.readMany(take, skip, userId, movieId);
   }
 
-  @Query(() => ReviewEntity)
+  @Query(() => MovieReviewEntity)
   getReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.readOne(id);
   }
 
-  @Mutation(() => ReviewEntity)
+  @Mutation(() => MovieReviewEntity)
   updateReview(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') updateReviewInput: UpdateReviewInput,
+    @Args('input') updateReviewInput: UpdateMovieReviewInput,
   ) {
     return this.reviewService.update(id, updateReviewInput);
   }
@@ -52,7 +52,7 @@ export class ReviewResolver {
 
   @ResolveField(() => UserEntity)
   user(
-    @Parent() review: ReviewEntity,
+    @Parent() review: MovieReviewEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.userLoader.load(review.userId);
@@ -60,7 +60,7 @@ export class ReviewResolver {
 
   @ResolveField(() => MovieEntity)
   movie(
-    @Parent() review: ReviewEntity,
+    @Parent() review: MovieReviewEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.movieLoader.load(review.movieId);

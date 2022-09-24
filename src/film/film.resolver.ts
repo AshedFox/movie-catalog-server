@@ -27,7 +27,7 @@ import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
-import { ReviewEntity } from '../review/entities/review.entity';
+import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 
 @Resolver(FilmEntity)
 export class FilmResolver {
@@ -88,12 +88,12 @@ export class FilmResolver {
     return loaders.trailersByMovieLoader.load(movie.id);
   }
 
-  @ResolveField(() => [ReviewEntity])
+  @ResolveField(() => [MovieReviewEntity])
   reviews(
     @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.reviewsByMovieLoader.load(movie.id);
+    return loaders.movieReviewsByMovieLoader.load(movie.id);
   }
 
   @ResolveField(() => [MoviePersonEntity])

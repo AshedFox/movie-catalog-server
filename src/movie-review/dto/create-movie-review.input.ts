@@ -1,9 +1,9 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { ReviewEntity } from '../entities/review.entity';
+import { MovieReviewEntity } from '../entities/movie-review.entity';
 import { IsOptional, IsUUID, Length, Max, Min } from 'class-validator';
 
 @InputType()
-export class CreateReviewInput implements Partial<ReviewEntity> {
+export class CreateMovieReviewInput implements Partial<MovieReviewEntity> {
   @Field(() => Int)
   @Min(1)
   @Max(10)
