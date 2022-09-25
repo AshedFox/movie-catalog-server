@@ -4,7 +4,7 @@ import { ValidateNested } from 'class-validator';
 import { Type as TypeDecorator } from 'class-transformer';
 import { Filterable, FilterType } from '../filter';
 import { GqlOffsetPagination } from '../pagination';
-import { Sortable, SortType } from '../order';
+import { Sortable, SortType } from '../sort';
 import { ArgsType as AT } from './args.type';
 
 export function GqlArgs<T>(classRef: Type<T>) {
