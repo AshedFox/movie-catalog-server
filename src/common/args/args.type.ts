@@ -5,5 +5,5 @@ import { SortType } from '../sort';
 export type ArgsType<T> = {
   filter?: FilterType<T>;
   pagination?: GqlOffsetPagination;
-  order?: SortType<T>;
+  sort?: SortType<T>;
 };
