@@ -18,7 +18,10 @@ export function GqlArgs<T>(classRef: Type<T>) {
     @TypeDecorator(() => ST)
     sort?: SortType<T>;
     @ValidateNested()
-    @Field(() => GqlOffsetPagination, { nullable: true })
+    @Field(() => GqlOffsetPagination, {
+      nullable: true,
+      defaultValue: { take: 20, skip: 0 },
+    })
     @TypeDecorator(() => GqlOffsetPagination)
     pagination?: GqlOffsetPagination;
     @ValidateNested()
