@@ -14,14 +14,14 @@ export class StringFilter implements StringFilterType {
   @IsOptional()
   neq?: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
   @IsOptional()
   in?: string[];
 
-  @Field(() => String, { nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
