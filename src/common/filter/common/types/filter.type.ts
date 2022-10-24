@@ -5,11 +5,11 @@ import {
   StringFilterType,
 } from './primitive-filters.type';
 
-type FilterComparisonGroupType<T> = {
+export type FilterComparisonGroupType<T> = {
   [P in keyof T]?: FilterComparisonType<T[P]>;
 };
 
-type FilterComparisonType<T> = T extends undefined
+export type FilterComparisonType<T> = T extends undefined
   ? undefined
   : T extends Array<infer U>
   ? FilterComparisonType<U>
