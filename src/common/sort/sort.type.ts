@@ -1,13 +1,15 @@
-import { SortDirectionEnum } from './sort-direction.enum';
+import { SortOptionsType } from './sort-options.type';
 
 type SortVariant<T> = T extends undefined
   ? undefined
+  : T extends Promise<infer U>
+  ? SortType<U>
   : T extends Array<infer U>
   ? SortType<U>
   : T extends object
   ? SortType<T>
-  : SortDirectionEnum;
+  : SortOptionsType;
 
 export type SortType<T> = {
-  [P in keyof T]: SortVariant<T[P]>;
+  [P in keyof T]?: SortVariant<NonNullable<T[P]>>;
 };
