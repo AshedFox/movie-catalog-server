@@ -12,16 +12,23 @@ import { BetweenType, FilterType, UniversalFilter } from '../common';
 import { ReturnTypeFunc } from '@nestjs/graphql/dist/interfaces/return-type-func.interface';
 import { capitalize } from '../../../utils/capitalize.helper';
 import { hasName } from '../../../utils/has-name.helper';
+import { LazyMetadataStorage } from '@nestjs/graphql/dist/schema-builder/storages/lazy-metadata.storage';
 
 const getFilterName = (type: ReturnTypeFuncValue): string => {
   if (hasName(type)) {
     return `${capitalize(type.name)}Filter`;
   } else {
-    return `${capitalize(
-      TypeMetadataStorage.getEnumsMetadata().find((o) => o.ref === type).name,
-    )}Filter`;
+    if (typeof type === 'object') {
+      LazyMetadataStorage.load();
+      const enumMetadata = TypeMetadataStorage.getEnumsMetadata().find(
+        (o) => o.ref === type,
+      );
+      if (enumMetadata) {
+        return `${capitalize(enumMetadata.name)}Filter`;
+      }
+    }
+    throw new Error(`Unable to create filter type ${JSON.stringify(type)}`);
   }
-  //throw new Error('...');
 };
 
 export function createFilterComparisonType<T>(
