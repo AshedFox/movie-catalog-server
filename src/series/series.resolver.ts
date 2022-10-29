@@ -42,8 +42,8 @@ export class SeriesResolver {
   }
 
   @Query(() => PaginatedSeries)
-  getManySeries(@Args() { searchTitle, take, skip }: GetSeriesArgs) {
-    return this.seriesService.readMany(take, skip, searchTitle);
+  getManySeries(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+    return this.seriesService.readMany(pagination, sort, filter);
   }
 
   @Query(() => SeriesEntity, { nullable: true })

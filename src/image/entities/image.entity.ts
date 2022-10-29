@@ -1,22 +1,23 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { ID, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('images')
 export class ImageEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
+  @FilterableField()
   @Column({ unique: true })
   url: string;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   width?: number;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   height?: number;
 }

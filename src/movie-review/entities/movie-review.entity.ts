@@ -9,15 +9,16 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('movies_reviews')
 export class MovieReviewEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @Column()
   userId: string;
 
@@ -25,7 +26,7 @@ export class MovieReviewEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   user: UserEntity;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @Column()
   movieId: string;
 
@@ -33,19 +34,19 @@ export class MovieReviewEntity {
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   movie: MovieEntity;
 
-  @Field(() => Int)
+  @FilterableField(() => Int)
   @Column({ type: 'int2' })
   mark: number;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ type: 'text', nullable: true })
   text?: string;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
+  @FilterableField()
   @UpdateDateColumn()
   updatedAt: Date;
 }

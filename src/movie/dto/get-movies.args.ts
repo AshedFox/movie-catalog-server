@@ -1,11 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
-import { IsOptional, Length } from 'class-validator';
-import { GqlOffsetPagination } from '../../common/pagination';
+import { ArgsType } from '@nestjs/graphql';
+import { GqlArgs } from '../../common/args';
+import { MovieEntity } from '../entities/movie.entity';
 
 @ArgsType()
-export class GetMoviesArgs extends GqlOffsetPagination {
-  @Field({ nullable: true })
-  @Length(1, 200)
-  @IsOptional()
-  searchTitle?: string;
-}
+export class GetMoviesArgs extends GqlArgs(MovieEntity) {}

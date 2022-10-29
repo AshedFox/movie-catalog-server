@@ -35,16 +35,8 @@ export class EpisodeResolver {
   }
 
   @Query(() => PaginatedEpisodes)
-  getEpisodes(
-    @Args() { searchTitle, seasonId, seriesId, take, skip }: GetEpisodesArgs,
-  ) {
-    return this.episodeService.readMany(
-      take,
-      skip,
-      searchTitle,
-      seasonId,
-      seriesId,
-    );
+  getEpisodes(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
+    return this.episodeService.readMany(pagination, sort, filter);
   }
 
   @Query(() => EpisodeEntity, { nullable: true })

@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateEpisodeInput } from './dto/create-episode.input';
 import { UpdateEpisodeInput } from './dto/update-episode.input';
 import { EpisodeEntity } from './entities/episode.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PaginatedEpisodes } from './dto/paginated-episodes';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
 
 @Injectable()
 export class EpisodeService {
@@ -19,27 +23,19 @@ export class EpisodeService {
   ): Promise<EpisodeEntity> => this.episodeRepository.save(createEpisodeInput);
 
   readMany = async (
-    take: number,
-    skip: number,
-    title?: string,
-    seasonId?: string,
-    seriesId?: string,
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<EpisodeEntity>,
+    filter?: FilterType<EpisodeEntity>,
   ): Promise<PaginatedEpisodes> => {
-    const [data, count] = await this.episodeRepository.findAndCount({
-      where: {
-        title: title ? ILike(`%${title}%`) : undefined,
-        seasonId,
-        seriesId,
-      },
-      take,
-      skip,
-      order: {
-        publicationDate: 'DESC',
-        title: 'ASC',
-      },
-    });
+    const qb = parseArgs(
+      this.episodeRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
 
-    return { data, count, hasNext: count > take + skip };
+    const [data, count] = await qb.getManyAndCount();
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: string[]): Promise<EpisodeEntity[]> =>

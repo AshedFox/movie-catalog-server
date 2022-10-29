@@ -7,4 +7,8 @@ export class CreateCountryInput implements Partial<CountryEntity> {
   @Field()
   @MinLength(2)
   name: string;
+
+  @Field()
+  @MinLength(1)
+  code: string;
 }

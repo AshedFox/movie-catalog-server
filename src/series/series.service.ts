@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
 import { SeriesEntity } from './entities/series.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PaginatedSeries } from './dto/paginated-series';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
 import { MovieGenreService } from '../movie-genre/movie-genre.service';
 import { MovieStudioService } from '../movie-studio/movie-studio.service';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
 
 @Injectable()
 export class SeriesService {
@@ -33,23 +37,19 @@ export class SeriesService {
   };
 
   readMany = async (
-    take: number,
-    skip: number,
-    title?: string,
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<SeriesEntity>,
+    filter?: FilterType<SeriesEntity>,
   ): Promise<PaginatedSeries> => {
-    const [data, count] = await this.seriesRepository.findAndCount({
-      where: {
-        title: title ? ILike(`%${title}%`) : undefined,
-      },
-      take,
-      skip,
-      order: {
-        createdAt: 'DESC',
-        title: 'ASC',
-      },
-    });
+    const qb = parseArgs(
+      this.seriesRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
 
-    return { data, count, hasNext: count > take + skip };
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: string[]): Promise<SeriesEntity[]> =>

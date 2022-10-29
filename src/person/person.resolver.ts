@@ -34,8 +34,8 @@ export class PersonResolver {
   }
 
   @Query(() => PaginatedPersons)
-  getPersons(@Args() { searchName, countriesIds, take, skip }: GetPersonsArgs) {
-    return this.personService.readMany(take, skip, searchName, countriesIds);
+  getPersons(@Args() { pagination, sort, filter }: GetPersonsArgs) {
+    return this.personService.readMany(pagination, sort, filter);
   }
 
   @Query(() => PersonEntity, { nullable: true })

@@ -15,8 +15,8 @@ import { UpdateCollectionInput } from './dto/update-collection.input';
 import { ImageEntity } from '../image/entities/image.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { PaginatedCollections } from './dto/paginated-collections';
-import { GetMoviesArgs } from '../movie/dto/get-movies.args';
 import { MovieEntity } from '../movie/entities/movie.entity';
+import { GetCollectionsArgs } from './dto/get-collections.args';
 
 @Resolver(() => CollectionEntity)
 export class CollectionResolver {
@@ -28,8 +28,8 @@ export class CollectionResolver {
   }
 
   @Query(() => PaginatedCollections)
-  getCollections(@Args() { searchTitle, take, skip }: GetMoviesArgs) {
-    return this.collectionService.readMany(take, skip, searchTitle);
+  getCollections(@Args() { sort, filter, pagination }: GetCollectionsArgs) {
+    return this.collectionService.readMany(pagination, sort, filter);
   }
 
   @Query(() => CollectionEntity)

@@ -1,15 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
-import { GqlOffsetPagination } from '../../common/pagination';
-import { IsOptional, IsUUID, Length } from 'class-validator';
+import { ArgsType } from '@nestjs/graphql';
+import { GqlArgs } from '../../common/args';
+import { SeasonEntity } from '../entities/season.entity';
 
 @ArgsType()
-export class GetSeasonsArgs extends GqlOffsetPagination {
-  @Field({ nullable: true })
-  @Length(1, 200)
-  @IsOptional()
-  searchTitle?: string;
-
-  @Field({ nullable: true })
-  @IsUUID('4')
-  seriesId?: string;
-}
+export class GetSeasonsArgs extends GqlArgs(SeasonEntity) {}

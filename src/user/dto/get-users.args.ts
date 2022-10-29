@@ -1,5 +1,6 @@
 import { ArgsType } from '@nestjs/graphql';
-import { GqlOffsetPagination } from '../../common/pagination';
+import { GqlArgs } from '../../common/args';
+import { UserEntity } from '../entities/user.entity';
 
 @ArgsType()
-export class GetUsersArgs extends GqlOffsetPagination {}
+export class GetUsersArgs extends GqlArgs(UserEntity) {}

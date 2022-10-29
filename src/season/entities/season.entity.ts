@@ -12,44 +12,45 @@ import { SeriesEntity } from '../../series/entities/series.entity';
 import { EpisodeEntity } from '../../episode/entities/episode.entity';
 import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
 import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity({ name: 'seasons' })
 @Unique(['numberInSeries', 'seriesId'])
 export class SeasonEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => Int)
+  @FilterableField(() => Int)
   @Column({ type: 'int' })
   numberInSeries: number;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   title?: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
   @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
   ageRestriction?: AgeRestrictionEnum;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   startReleaseDate?: Date;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   endReleaseDate?: Date;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   publicationDate: Date;
 
-  @Field(() => AccessModeEnum)
+  @FilterableField(() => AccessModeEnum)
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
@@ -60,7 +61,7 @@ export class SeasonEntity {
   @Field(() => Int)
   episodesCount: number;
 
-  @Field()
+  @FilterableField()
   @Column()
   seriesId: string;
 

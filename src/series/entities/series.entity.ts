@@ -4,15 +4,16 @@ import { SeasonEntity } from '../../season/entities/season.entity';
 import { EpisodeEntity } from '../../episode/entities/episode.entity';
 import { MovieTypeEnum } from '../../utils/enums/movie-type.enum';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @ChildEntity(MovieTypeEnum.Series)
 export class SeriesEntity extends MovieEntity {
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   startReleaseDate?: Date;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   endReleaseDate?: Date;
 

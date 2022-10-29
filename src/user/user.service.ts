@@ -7,6 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
 
 @Injectable()
 export class UserService {
@@ -28,16 +32,20 @@ export class UserService {
     return this.userRepository.save(createUserInput);
   };
 
-  readMany = async (take: number, skip: number): Promise<PaginatedUsers> => {
-    const [data, count] = await this.userRepository.findAndCount({
-      take,
-      skip,
-      order: {
-        email: 'ASC',
-      },
-    });
+  readMany = async (
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<UserEntity>,
+    filter?: FilterType<UserEntity>,
+  ): Promise<PaginatedUsers> => {
+    const qb = parseArgs(
+      this.userRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
 
-    return { data, count, hasNext: count > take + skip };
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: string[]): Promise<UserEntity[]> =>

@@ -5,6 +5,11 @@ import { NotFoundError } from '../utils/errors/not-found.error';
 import { CreateVideoInput } from './dto/create-video.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
+import { PaginatedVideos } from './dto/paginated-videos';
 
 @Injectable()
 export class VideoService {
@@ -32,7 +37,21 @@ export class VideoService {
     return video;
   };
 
-  readMany = async (): Promise<VideoEntity[]> => this.videoRepository.find();
+  readMany = async (
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<VideoEntity>,
+    filter?: FilterType<VideoEntity>,
+  ): Promise<PaginatedVideos> => {
+    const qb = parseArgs(
+      this.videoRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
+
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
+  };
 
   readManyByIds = async (ids: string[]): Promise<VideoEntity[]> =>
     this.videoRepository.findBy({ id: In(ids) });

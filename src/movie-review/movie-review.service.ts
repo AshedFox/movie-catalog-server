@@ -6,6 +6,11 @@ import { MovieReviewEntity } from './entities/movie-review.entity';
 import { In, Repository } from 'typeorm';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 import { NotFoundError } from '../utils/errors/not-found.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
+import { PaginatedMoviesReviews } from './dto/paginated-movies-reviews';
 
 @Injectable()
 export class MovieReviewService {
@@ -26,23 +31,19 @@ export class MovieReviewService {
   };
 
   readMany = async (
-    take: number,
-    skip: number,
-    userId?: string,
-    movieId?: string,
-  ) => {
-    const [data, count] = await this.reviewRepository.findAndCount({
-      where: {
-        userId,
-        movieId,
-      },
-      take,
-      skip,
-      order: {
-        createdAt: 'ASC',
-      },
-    });
-    return { data, count, hasNext: count > take + skip };
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<MovieReviewEntity>,
+    filter?: FilterType<MovieReviewEntity>,
+  ): Promise<PaginatedMoviesReviews> => {
+    const qb = parseArgs(
+      this.reviewRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
+
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: number[]) =>

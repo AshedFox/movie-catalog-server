@@ -6,6 +6,11 @@ import { TrailerEntity } from './entities/trailer.entity';
 import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
+import { PaginatedTrailers } from './dto/paginated-trailers';
 
 @Injectable()
 export class TrailerService {
@@ -28,7 +33,21 @@ export class TrailerService {
     return this.trailerRepository.save(createTrailerInput);
   };
 
-  readMany = async () => this.trailerRepository.find();
+  readMany = async (
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<TrailerEntity>,
+    filter?: FilterType<TrailerEntity>,
+  ): Promise<PaginatedTrailers> => {
+    const qb = parseArgs(
+      this.trailerRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
+
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
+  };
 
   readManyByIds = async (ids: number[]) =>
     this.trailerRepository.findBy({ id: In(ids) });

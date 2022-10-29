@@ -9,6 +9,8 @@ import { RoleEnum } from '../utils/enums/role.enum';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { FileUpload } from 'graphql-upload';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { GetImagesArgs } from './dto/get-images.args';
+import { PaginatedImages } from './dto/paginated-images';
 
 @Resolver(() => ImageEntity)
 export class ImageResolver {
@@ -29,11 +31,9 @@ export class ImageResolver {
     return this.imageService.create({ height, width, url });
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Query(() => [ImageEntity])
-  getImages() {
-    return this.imageService.readMany();
+  @Query(() => PaginatedImages)
+  getImages(@Args() { pagination, sort, filter }: GetImagesArgs) {
+    return this.imageService.readMany(pagination, sort, filter);
   }
 
   @Query(() => ImageEntity)

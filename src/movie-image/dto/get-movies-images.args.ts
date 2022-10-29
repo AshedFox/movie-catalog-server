@@ -1,24 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
-import { GqlOffsetPagination } from '../../common/pagination';
-import { IsOptional, IsUUID } from 'class-validator';
+import { ArgsType } from '@nestjs/graphql';
 import { MovieImageEntity } from '../entities/movie-image.entity';
-import { MovieImageTypeEnum } from '../../utils/enums/movie-image-type.enum';
+import { GqlArgs } from '../../common/args';
 
 @ArgsType()
-export class GetMoviesImagesArgs
-  extends GqlOffsetPagination
-  implements Partial<MovieImageEntity>
-{
-  @Field()
-  @IsUUID()
-  @IsOptional()
-  movieId?: string;
-
-  @Field()
-  @IsOptional()
-  imageId?: string;
-
-  @Field(() => MovieImageTypeEnum)
-  @IsOptional()
-  type?: MovieImageTypeEnum;
-}
+export class GetMoviesImagesArgs extends GqlArgs(MovieImageEntity) {}

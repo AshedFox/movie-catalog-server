@@ -9,24 +9,25 @@ import {
 } from 'typeorm';
 import { VideoEntity } from '../../video/entities/video.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('trailers')
 @Unique(['movieId', 'videoId'])
 export class TrailerEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   title?: string;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
+  @FilterableField()
   @Column()
   movieId: string;
 
@@ -34,7 +35,7 @@ export class TrailerEntity {
   @ManyToOne(() => MovieEntity)
   movie: MovieEntity;
 
-  @Field()
+  @FilterableField()
   @Column()
   videoId: string;
 

@@ -3,6 +3,8 @@ import { TrailerService } from './trailer.service';
 import { TrailerEntity } from './entities/trailer.entity';
 import { CreateTrailerInput } from './dto/create-trailer.input';
 import { UpdateTrailerInput } from './dto/update-trailer.input';
+import { GetTrailersArgs } from './dto/get-trailers.args';
+import { PaginatedTrailers } from './dto/paginated-trailers';
 
 @Resolver(() => TrailerEntity)
 export class TrailerResolver {
@@ -13,9 +15,9 @@ export class TrailerResolver {
     return this.trailerService.create(createTrailerInput);
   }
 
-  @Query(() => [TrailerEntity])
-  getTrailers() {
-    return this.trailerService.readMany();
+  @Query(() => PaginatedTrailers)
+  getTrailers(@Args() { pagination, sort, filter }: GetTrailersArgs) {
+    return this.trailerService.readMany(pagination, sort, filter);
   }
 
   @Query(() => TrailerEntity)

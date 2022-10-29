@@ -35,8 +35,8 @@ export class UserResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedUsers)
-  getUsers(@Args() { take, skip }: GetUsersArgs) {
-    return this.userService.readMany(take, skip);
+  getUsers(@Args() { pagination, sort, filter }: GetUsersArgs) {
+    return this.userService.readMany(pagination, sort, filter);
   }
 
   @Query(() => UserEntity, { nullable: true })

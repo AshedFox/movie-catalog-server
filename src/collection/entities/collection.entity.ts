@@ -11,31 +11,36 @@ import {
 import { ImageEntity } from '../../image/entities/image.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('collections')
 export class CollectionEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @FilterableField()
   @Column()
   name: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Field()
+  @FilterableField()
+  @Column({ default: false })
+  isSystem: boolean;
+
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
+  @FilterableField()
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   coverId?: string;
 

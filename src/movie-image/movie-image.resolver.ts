@@ -37,10 +37,8 @@ export class MovieImageResolver {
   }
 
   @Query(() => PaginatedMoviesImages)
-  getMoviesImages(
-    @Args() { movieId, imageId, type, take, skip }: GetMoviesImagesArgs,
-  ) {
-    return this.movieImageService.readMany(take, skip, movieId, imageId, type);
+  getMoviesImages(@Args() { pagination, sort, filter }: GetMoviesImagesArgs) {
+    return this.movieImageService.readMany(pagination, sort, filter);
   }
 
   @Query(() => MovieImageEntity, { nullable: true })

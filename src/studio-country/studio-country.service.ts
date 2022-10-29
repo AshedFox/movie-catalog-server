@@ -44,9 +44,8 @@ export class StudioCountryService {
       countriesIds.map((countryId) => ({ countryId, studioId })),
     );
 
-  async readMany(): Promise<StudioCountryEntity[]> {
-    return this.studioCountryRepository.find();
-  }
+  readMany = async (): Promise<StudioCountryEntity[]> =>
+    this.studioCountryRepository.find();
 
   readManyByStudios = async (
     studiosIds: number[],

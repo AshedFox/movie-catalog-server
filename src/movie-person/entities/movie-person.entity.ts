@@ -3,11 +3,12 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { PersonEntity } from '../../person/entities/person.entity';
 import { MoviePersonTypeEnum } from '../../utils/enums/movie-person-type.enum';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity({ name: 'movies_persons' })
 export class MoviePersonEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,19 +20,19 @@ export class MoviePersonEntity {
   @ManyToOne(() => PersonEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   person: PersonEntity;
 
-  @Field()
+  @FilterableField()
   @Column()
   movieId: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   personId: number;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   role?: string;
 
-  @Field(() => MoviePersonTypeEnum)
+  @FilterableField(() => MoviePersonTypeEnum)
   @Column({ type: 'enum', enum: MoviePersonTypeEnum })
   type: MoviePersonTypeEnum;
 }

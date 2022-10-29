@@ -1,14 +1,19 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('countries')
 export class CountryEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
-  @Column({ unique: true })
+  @FilterableField()
+  @Column()
   name: string;
+
+  @FilterableField()
+  @Column({ unique: true })
+  code: string;
 }

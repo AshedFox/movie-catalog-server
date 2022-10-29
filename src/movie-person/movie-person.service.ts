@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMoviePersonInput } from './dto/create-movie-person.input';
 import { UpdateMoviePersonInput } from './dto/update-movie-person.input';
-import { MoviePersonTypeEnum } from '../utils/enums/movie-person-type.enum';
 import { MoviePersonEntity } from './entities/movie-person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -9,6 +8,11 @@ import { NotFoundError } from '../utils/errors/not-found.error';
 import { MovieService } from '../movie/movie.service';
 import { PersonService } from '../person/person.service';
 import { AlreadyExistsError } from '../utils/errors/already-exists.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
+import { PaginatedMoviesPersons } from './dto/paginated-movies-persons';
 
 @Injectable()
 export class MoviePersonService {
@@ -36,23 +40,19 @@ export class MoviePersonService {
   };
 
   readMany = async (
-    take: number,
-    skip: number,
-    movieId?: string,
-    personId?: number,
-    type?: MoviePersonTypeEnum,
-  ) => {
-    const [data, count] = await this.moviePersonRepository.findAndCount({
-      where: {
-        movieId,
-        personId,
-        type,
-      },
-      take,
-      skip,
-    });
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<MoviePersonEntity>,
+    filter?: FilterType<MoviePersonEntity>,
+  ): Promise<PaginatedMoviesPersons> => {
+    const qb = parseArgs(
+      this.moviePersonRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
 
-    return { data, count, hasNext: count > take + skip };
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: number[]): Promise<MoviePersonEntity[]> =>

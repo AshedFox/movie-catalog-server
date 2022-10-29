@@ -37,16 +37,8 @@ export class MoviePersonResolver {
   }
 
   @Query(() => PaginatedMoviesPersons)
-  getMoviesPersons(
-    @Args() { movieId, personId, type, take, skip }: GetMoviesPersonsArgs,
-  ) {
-    return this.moviePersonService.readMany(
-      take,
-      skip,
-      movieId,
-      personId,
-      type,
-    );
+  getMoviesPersons(@Args() { pagination, sort, filter }: GetMoviesPersonsArgs) {
+    return this.moviePersonService.readMany(pagination, sort, filter);
   }
 
   @Query(() => MoviePersonEntity, { nullable: true })

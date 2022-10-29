@@ -9,23 +9,24 @@ import {
 import { ImageEntity } from '../../image/entities/image.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { MovieImageTypeEnum } from '../../utils/enums/movie-image-type.enum';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('movies_images')
 export class MovieImageEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => MovieImageTypeEnum)
+  @FilterableField(() => MovieImageTypeEnum)
   @Column({ type: 'enum', enum: MovieImageTypeEnum })
   type: MovieImageTypeEnum;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn()
   imageId: string;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn()
   movieId: string;
 

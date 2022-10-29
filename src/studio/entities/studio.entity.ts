@@ -2,15 +2,16 @@ import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { StudioCountryEntity } from '../../studio-country/entities/studio-country.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity({ name: 'studios' })
 export class StudioEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @FilterableField()
   @Column()
   name: string;
 

@@ -1,31 +1,32 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { ImageEntity } from '../../image/entities/image.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('videos')
 export class VideoEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   url: string;
 
-  @Field(() => Int)
+  @FilterableField(() => Int)
   @Column({ type: 'int' })
   duration: number;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   width?: number;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   height?: number;
 
-  @Field()
+  @FilterableField()
   @Column()
   previewId: string;
 

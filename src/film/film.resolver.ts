@@ -41,8 +41,8 @@ export class FilmResolver {
   }
 
   @Query(() => PaginatedFilms)
-  getFilms(@Args() { searchTitle, take, skip }: GetFilmsArgs) {
-    return this.filmService.readMany(take, skip, searchTitle);
+  getFilms(@Args() { pagination, sort, filter }: GetFilmsArgs) {
+    return this.filmService.readMany(pagination, sort, filter);
   }
 
   @Query(() => FilmEntity, { nullable: true })

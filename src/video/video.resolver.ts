@@ -19,6 +19,8 @@ import { FileUpload } from 'graphql-upload';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { ImageEntity } from '../image/entities/image.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { GetVideosArgs } from './dto/get-videos.args';
+import { PaginatedVideos } from './dto/paginated-videos';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -41,9 +43,9 @@ export class VideoResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Query(() => [VideoEntity])
-  getVideos() {
-    return this.videoService.readMany();
+  @Query(() => PaginatedVideos)
+  getVideos(@Args() { pagination, sort, filter }: GetVideosArgs) {
+    return this.videoService.readMany(pagination, sort, filter);
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)

@@ -1,11 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
-import { IsOptional, Length } from 'class-validator';
-import { GetMoviesArgs } from '../../movie/dto/get-movies.args';
+import { ArgsType } from '@nestjs/graphql';
+import { GqlArgs } from '../../common/args';
+import { FilmEntity } from '../entities/film.entity';
 
 @ArgsType()
-export class GetFilmsArgs extends GetMoviesArgs {
-  @Field({ nullable: true })
-  @Length(1, 200)
-  @IsOptional()
-  searchTitle?: string;
-}
+export class GetFilmsArgs extends GqlArgs(FilmEntity) {}

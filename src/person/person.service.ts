@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonInput } from './dto/create-person.input';
 import { UpdatePersonInput } from './dto/update-person.input';
 import { PersonEntity } from './entities/person.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PaginatedPersons } from './dto/paginated-persons';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
 
 @Injectable()
 export class PersonService {
@@ -19,24 +23,19 @@ export class PersonService {
   ): Promise<PersonEntity> => this.personRepository.save(createPersonInput);
 
   readMany = async (
-    take: number,
-    skip: number,
-    name?: string,
-    countriesIds?: number[],
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<PersonEntity>,
+    filter?: FilterType<PersonEntity>,
   ): Promise<PaginatedPersons> => {
-    const [data, count] = await this.personRepository.findAndCount({
-      where: {
-        name: name ? ILike(`%${name}%`) : undefined,
-        countryId: countriesIds ? In(countriesIds) : undefined,
-      },
-      take,
-      skip,
-      order: {
-        name: 'ASC',
-      },
-    });
+    const qb = parseArgs(
+      this.personRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
+    const [data, count] = await qb.getManyAndCount();
 
-    return { data, count, hasNext: count > take + skip };
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: number[]): Promise<PersonEntity[]> =>

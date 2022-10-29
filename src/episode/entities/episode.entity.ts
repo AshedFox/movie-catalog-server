@@ -13,36 +13,37 @@ import { SeriesEntity } from '../../series/entities/series.entity';
 import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
 import { VideoEntity } from '../../video/entities/video.entity';
 import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity({ name: 'episodes' })
 @Unique(['numberInSeries', 'seriesId'])
 export class EpisodeEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   title?: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
   @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
   ageRestriction?: AgeRestrictionEnum;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   releaseDate?: Date;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   publicationDate: Date;
 
-  @Field(() => AccessModeEnum)
+  @FilterableField(() => AccessModeEnum)
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
@@ -50,15 +51,15 @@ export class EpisodeEntity {
   })
   accessMode: AccessModeEnum;
 
-  @Field(() => Int)
+  @FilterableField(() => Int)
   @Column({ type: 'int' })
   numberInSeries: number;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   numberInSeason?: number;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   seasonId?: string;
 
@@ -66,7 +67,7 @@ export class EpisodeEntity {
   @ManyToOne(() => SeasonEntity, { nullable: true })
   season?: SeasonEntity;
 
-  @Field()
+  @FilterableField()
   @Column()
   seriesId: string;
 
@@ -74,7 +75,7 @@ export class EpisodeEntity {
   @ManyToOne(() => SeriesEntity)
   series: SeriesEntity;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   videoId?: string;
 

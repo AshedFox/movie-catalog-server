@@ -23,8 +23,8 @@ export class GenreResolver {
   }
 
   @Query(() => PaginatedGenres)
-  getGenres(@Args() { searchName, take, skip }: GetGenresArgs) {
-    return this.genreService.readMany(take, skip, searchName);
+  getGenres(@Args() { pagination, sort, filter }: GetGenresArgs) {
+    return this.genreService.readMany(pagination, sort, filter);
   }
 
   @Query(() => GenreEntity, { nullable: true })

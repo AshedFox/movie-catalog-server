@@ -34,8 +34,8 @@ export class StudioResolver {
   }
 
   @Query(() => PaginatedStudios)
-  getStudios(@Args() { searchName, take, skip }: GetStudiosArgs) {
-    return this.studioService.readMany(take, skip, searchName);
+  getStudios(@Args() { pagination, sort, filter }: GetStudiosArgs) {
+    return this.studioService.readMany(pagination, sort, filter);
   }
 
   @Query(() => StudioEntity, { nullable: true })

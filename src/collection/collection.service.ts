@@ -2,11 +2,15 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionInput } from './dto/update-collection.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NotFoundError } from '../utils/errors/not-found.error';
 import { CollectionEntity } from './entities/collection.entity';
 import { PaginatedCollections } from './dto/paginated-collections';
 import { CollectionMovieService } from '../collection-movie/collection-movie.service';
+import { GqlOffsetPagination } from '../common/pagination';
+import { SortType } from '../common/sort';
+import { FilterType } from '../common/filter';
+import { parseArgs } from '../common/typeorm-query-parser';
 
 @Injectable()
 export class CollectionService {
@@ -34,23 +38,19 @@ export class CollectionService {
   };
 
   readMany = async (
-    take: number,
-    skip: number,
-    name?: string,
+    pagination?: GqlOffsetPagination,
+    sort?: SortType<CollectionEntity>,
+    filter?: FilterType<CollectionEntity>,
   ): Promise<PaginatedCollections> => {
-    const [data, count] = await this.collectionRepository.findAndCount({
-      where: {
-        name: name ? ILike(`%${name}%`) : undefined,
-      },
-      take,
-      skip,
-      order: {
-        createdAt: 'DESC',
-        name: 'ASC',
-      },
-    });
+    const qb = parseArgs(
+      this.collectionRepository.createQueryBuilder(),
+      pagination,
+      sort,
+      filter,
+    );
 
-    return { data, count, hasNext: count > take + skip };
+    const [data, count] = await qb.getManyAndCount();
+    return { data, count, hasNext: count > pagination.take + pagination.skip };
   };
 
   readManyByIds = async (ids: number[]): Promise<CollectionEntity[]> =>

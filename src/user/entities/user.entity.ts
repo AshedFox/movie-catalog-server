@@ -10,19 +10,20 @@ import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import { RoleEnum } from '../../utils/enums/role.enum';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity({ name: 'users' })
 export class UserEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
+  @FilterableField()
   @Column({ unique: true })
   email: string;
 
-  @Field()
+  @FilterableField()
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
@@ -30,19 +31,19 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
+  @FilterableField()
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field(() => RoleEnum)
+  @FilterableField(() => RoleEnum)
   @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.User })
   role: RoleEnum;
 
-  @Field(() => Int, { nullable: true })
+  @FilterableField(() => Int, { nullable: true })
   @Column({ nullable: true })
   countryId?: number;
 
@@ -50,7 +51,7 @@ export class UserEntity {
   @ManyToOne(() => CountryEntity, { nullable: true })
   country?: CountryEntity;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   avatarId?: string;
 

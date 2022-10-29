@@ -28,8 +28,8 @@ export class MovieReviewResolver {
   }
 
   @Query(() => PaginatedMoviesReviews)
-  getReviews(@Args() { userId, movieId, take, skip }: GetMoviesReviewsArgs) {
-    return this.reviewService.readMany(take, skip, userId, movieId);
+  getReviews(@Args() { pagination, sort, filter }: GetMoviesReviewsArgs) {
+    return this.reviewService.readMany(pagination, sort, filter);
   }
 
   @Query(() => MovieReviewEntity)

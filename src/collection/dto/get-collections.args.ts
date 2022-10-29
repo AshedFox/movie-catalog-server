@@ -1,10 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
-import { IsOptional, Length } from 'class-validator';
+import { ArgsType } from '@nestjs/graphql';
+import { GqlArgs } from '../../common/args';
+import { CollectionEntity } from '../entities/collection.entity';
 
 @ArgsType()
-export class GetCollectionsArgs {
-  @Field({ nullable: true })
-  @Length(1, 200)
-  @IsOptional()
-  searchName?: string;
-}
+export class GetCollectionsArgs extends GqlArgs(CollectionEntity) {}

@@ -22,40 +22,41 @@ import { TrailerEntity } from '../../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
+import { FilterableField } from '../../common/filter';
 
 @ObjectType()
 @Entity('movies')
 @TableInheritance({ column: { name: 'type', type: 'varchar' } })
 export class MovieEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   readonly type: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   title: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Field()
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
+  @FilterableField()
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field(() => AgeRestrictionEnum)
+  @FilterableField(() => AgeRestrictionEnum)
   @Column({ type: 'enum', enum: AgeRestrictionEnum })
   ageRestriction: AgeRestrictionEnum;
 
-  @Field(() => AccessModeEnum)
+  @FilterableField(() => AccessModeEnum)
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
@@ -63,7 +64,7 @@ export class MovieEntity {
   })
   accessMode: AccessModeEnum;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
   coverId?: string;
 
