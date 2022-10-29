@@ -1,7 +1,6 @@
-import { ArgsType, Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { Min } from 'class-validator';
 
-@ArgsType()
 @InputType()
 export class GqlOffsetPagination {
   @Field(() => Int, { defaultValue: 0 })

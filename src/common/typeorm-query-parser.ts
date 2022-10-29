@@ -156,7 +156,7 @@ export const parseFilter = <T>(
 
 export const parsePagination = <T>(
   query: SelectQueryBuilder<T>,
-  pagination: GqlOffsetPagination,
+  pagination?: GqlOffsetPagination,
 ) => {
   query.take(pagination.take);
   query.skip(pagination.skip);
@@ -200,11 +200,13 @@ export const parseSort = <T>(
 
 export const parseArgs = <T>(
   query: SelectQueryBuilder<T>,
-  pagination: GqlOffsetPagination,
+  pagination?: GqlOffsetPagination,
   sort?: SortType<T>,
   filter?: FilterType<T>,
 ) => {
-  parsePagination(query, pagination);
+  if (pagination) {
+    parsePagination(query, pagination);
+  }
   if (filter) {
     parseFilter(query, filter);
   }
