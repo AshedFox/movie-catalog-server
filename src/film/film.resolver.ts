@@ -28,6 +28,7 @@ import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
+import { CountryEntity } from '../country/entities/country.entity';
 
 @Resolver(FilmEntity)
 export class FilmResolver {
@@ -118,6 +119,14 @@ export class FilmResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.genresByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => [CountryEntity])
+  countries(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.countriesByMovieLoader.load(movie.id);
   }
 
   @ResolveField(() => [StudioEntity])
