@@ -41,7 +41,7 @@ export class MoviePersonResolver {
     return this.moviePersonService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => MoviePersonEntity, { nullable: true })
+  @Query(() => MoviePersonEntity)
   getMoviePerson(@Args('id', { type: () => Int }) id: number) {
     return this.moviePersonService.readOne(id);
   }

@@ -38,7 +38,7 @@ export class PersonResolver {
     return this.personService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => PersonEntity, { nullable: true })
+  @Query(() => PersonEntity)
   getPerson(@Args('id', { type: () => Int }) id: number) {
     return this.personService.readOne(id);
   }

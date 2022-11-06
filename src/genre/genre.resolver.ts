@@ -27,7 +27,7 @@ export class GenreResolver {
     return this.genreService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => GenreEntity, { nullable: true })
+  @Query(() => GenreEntity)
   getGenre(@Args('id', ParseUUIDPipe) id: string) {
     return this.genreService.readOne(id);
   }

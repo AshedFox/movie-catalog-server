@@ -38,7 +38,7 @@ export class StudioResolver {
     return this.studioService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => StudioEntity, { nullable: true })
+  @Query(() => StudioEntity)
   getStudio(@Args('id', { type: () => Int }) id: number) {
     return this.studioService.readOne(id);
   }

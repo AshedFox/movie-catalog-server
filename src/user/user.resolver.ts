@@ -39,7 +39,7 @@ export class UserResolver {
     return this.userService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => UserEntity, { nullable: true })
+  @Query(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
   getUser(@Args('id', ParseUUIDPipe) id: string) {
     return this.userService.readOneById(id);

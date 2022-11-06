@@ -38,7 +38,7 @@ export class SeasonResolver {
     return this.seasonService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => SeasonEntity, { nullable: true })
+  @Query(() => SeasonEntity)
   getSeason(@Args('id', ParseUUIDPipe) id: string) {
     return this.seasonService.readOne(id);
   }

@@ -46,7 +46,7 @@ export class SeriesResolver {
     return this.seriesService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => SeriesEntity, { nullable: true })
+  @Query(() => SeriesEntity)
   getOneSeries(@Args('id', ParseUUIDPipe) id: string) {
     return this.seriesService.readOne(id);
   }

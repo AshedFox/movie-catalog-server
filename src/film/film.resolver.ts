@@ -45,7 +45,7 @@ export class FilmResolver {
     return this.filmService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => FilmEntity, { nullable: true })
+  @Query(() => FilmEntity)
   getFilm(@Args('id', ParseUUIDPipe) id: string) {
     return this.filmService.readOne(id);
   }

@@ -39,7 +39,7 @@ export class EpisodeResolver {
     return this.episodeService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => EpisodeEntity, { nullable: true })
+  @Query(() => EpisodeEntity)
   getEpisode(@Args('id', ParseUUIDPipe) id: string) {
     return this.episodeService.readOne(id);
   }

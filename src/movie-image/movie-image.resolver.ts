@@ -41,7 +41,7 @@ export class MovieImageResolver {
     return this.movieImageService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => MovieImageEntity, { nullable: true })
+  @Query(() => MovieImageEntity)
   getMovieImage(@Args('id', { type: () => Int }) id: number) {
     return this.movieImageService.readOne(id);
   }

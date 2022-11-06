@@ -44,7 +44,7 @@ export class MovieResolver {
     return this.movieService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => MovieEntity, { nullable: true })
+  @Query(() => MovieEntity)
   getMovie(@Args('id', ParseUUIDPipe) id: string) {
     return this.movieService.readOne(id);
   }
