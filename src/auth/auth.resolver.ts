@@ -35,6 +35,13 @@ export class AuthResolver {
       sameSite: 'none',
       maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
+    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
+      httpOnly: true,
+      secure: true,
+      signed: true,
+      sameSite: 'none',
+      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
+    });
     return result;
   }
 
@@ -50,6 +57,13 @@ export class AuthResolver {
       signed: true,
       sameSite: 'none',
       maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
+    });
+    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
+      httpOnly: true,
+      secure: true,
+      signed: true,
+      sameSite: 'none',
+      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
     });
     return result;
   }
@@ -68,12 +82,21 @@ export class AuthResolver {
       sameSite: 'none',
       maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
+    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
+      httpOnly: true,
+      secure: true,
+      signed: true,
+      sameSite: 'none',
+      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
+    });
     return result;
   }
 
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard, RefreshTokenGuard)
   logout(@Context('req') request: Request) {
+    request.res.clearCookie('X-ACCESS-TOKEN');
     request.res.clearCookie('X-REFRESH-TOKEN');
+    return true;
   }
 }
