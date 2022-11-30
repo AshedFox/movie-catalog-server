@@ -4,13 +4,13 @@ import { RoomParticipantResolver } from './room-participant.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomParticipantEntity } from './entities/room-participant.entity';
 import { RoomModule } from '../room/room.module';
-import { StudioModule } from '../studio/studio.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RoomParticipantEntity]),
     forwardRef(() => RoomModule),
-    forwardRef(() => StudioModule),
+    forwardRef(() => UserModule),
   ],
   providers: [RoomParticipantResolver, RoomParticipantService],
   exports: [RoomParticipantService],

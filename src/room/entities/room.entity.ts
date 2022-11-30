@@ -9,23 +9,24 @@ import {
 import { UserEntity } from '../../user/entities/user.entity';
 import { RoomParticipantEntity } from '../../room-participant/entities/room-participant.entity';
 import { VideoEntity } from '../../video/entities/video.entity';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @Entity('rooms')
 export class RoomEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field({ nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ unique: true, nullable: true })
   inviteKey?: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   name: string;
 
-  @Field()
+  @FilterableField()
   @Column()
   ownerId: string;
 
@@ -33,7 +34,7 @@ export class RoomEntity {
   @ManyToOne(() => UserEntity)
   owner: UserEntity;
 
-  @Field()
+  @FilterableField()
   @Column()
   currentVideoId?: string;
 
