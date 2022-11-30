@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { ImageEntity } from '../../image/entities/image.entity';
-import { FilterableField } from '../../common/filter';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @Entity('videos')

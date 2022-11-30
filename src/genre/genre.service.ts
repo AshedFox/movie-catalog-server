@@ -5,11 +5,11 @@ import { GenreEntity } from './entities/genre.entity';
 import { In, Repository } from 'typeorm';
 import { PaginatedGenres } from './dto/paginated-genres';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { NotFoundError } from '@utils/errors';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 @Injectable()
 export class GenreService {
@@ -26,15 +26,15 @@ export class GenreService {
     sort?: SortType<GenreEntity>,
     filter?: FilterType<GenreEntity>,
   ): Promise<PaginatedGenres> => {
-    const qb = parseArgs(
-      this.genreRepository.createQueryBuilder(),
-      pagination,
-      sort,
-      filter,
-    );
+    const qb = parseArgsToQuery(this.genreRepository, pagination, sort, filter);
 
-    const [data, count] = await qb.getManyAndCount();
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: string[]): Promise<GenreEntity[]> =>

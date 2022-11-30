@@ -6,10 +6,10 @@ export function Paginated<T>(classRef: Type<T>) {
   @ObjectType({ isAbstract: true })
   abstract class GqlPaginatedType implements PaginatedType<T> {
     @Field(() => Int)
-    count: number;
+    totalCount: number;
 
     @Field(() => [classRef])
-    data: T[];
+    edges: T[];
 
     @Field()
     hasNext: boolean;

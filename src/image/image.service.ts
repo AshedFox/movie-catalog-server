@@ -3,12 +3,11 @@ import { CreateImageInput } from './dto/create-image.input';
 import { In, Repository } from 'typeorm';
 import { ImageEntity } from './entities/image.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { PaginatedImages } from './dto/paginated-images';
 
 @Injectable()
@@ -35,16 +34,16 @@ export class ImageService {
     sort?: SortType<ImageEntity>,
     filter?: FilterType<ImageEntity>,
   ): Promise<PaginatedImages> => {
-    const qb = parseArgs(
-      this.imageRepository.createQueryBuilder(),
-      pagination,
-      sort,
-      filter,
-    );
+    const qb = parseArgsToQuery(this.imageRepository, pagination, sort, filter);
 
-    const [data, count] = await qb.getManyAndCount();
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
 
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readOne = async (id: string): Promise<ImageEntity> => {

@@ -16,7 +16,7 @@ import { PaginatedFilms } from './dto/paginated-films';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
@@ -29,6 +29,7 @@ import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
+import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 
 @Resolver(FilmEntity)
 export class FilmResolver {

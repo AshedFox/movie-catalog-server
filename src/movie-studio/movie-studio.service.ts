@@ -1,8 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { MovieStudioEntity } from './entities/movie-studio.entity';
 import { MovieService } from '../movie/movie.service';
 import { StudioService } from '../studio/studio.service';

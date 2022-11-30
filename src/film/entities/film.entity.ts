@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ChildEntity, Column, OneToOne } from 'typeorm';
 import { VideoEntity } from '../../video/entities/video.entity';
-import { MovieTypeEnum } from '../../utils/enums/movie-type.enum';
+import { MovieTypeEnum } from '@utils/enums';
 import { MovieEntity } from '../../movie/entities/movie.entity';
-import { FilterableField } from '../../common/filter';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @ChildEntity(MovieTypeEnum.Film)

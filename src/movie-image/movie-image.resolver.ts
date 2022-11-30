@@ -21,7 +21,7 @@ import { ImageEntity } from '../image/entities/image.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(MovieImageEntity)
 export class MovieImageResolver {

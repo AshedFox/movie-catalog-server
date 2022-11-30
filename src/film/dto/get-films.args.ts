@@ -1,5 +1,5 @@
 import { ArgsType } from '@nestjs/graphql';
-import { GqlArgs } from '../../common/args';
+import { GqlArgs } from '@common/args';
 import { FilmEntity } from '../entities/film.entity';
 
 @ArgsType()

@@ -18,7 +18,7 @@ import { GetStudiosArgs } from './dto/get-studios.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
@@ -29,7 +29,7 @@ export class StudioResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => StudioEntity)
-  async createStudio(@Args('input') createStudioInput: CreateStudioInput) {
+  createStudio(@Args('input') createStudioInput: CreateStudioInput) {
     return this.studioService.create(createStudioInput);
   }
 

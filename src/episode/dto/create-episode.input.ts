@@ -1,8 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { EpisodeEntity } from '../entities/episode.entity';
 import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
-import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
-import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 
 @InputType()
 export class CreateEpisodeInput implements Partial<EpisodeEntity> {

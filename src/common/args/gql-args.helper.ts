@@ -43,10 +43,6 @@ export function GqlArgs<T>(
       defaultValue: { take: 20, skip: 0 },
     })(GqlArgs.prototype, paginationKey);
     TypeDecorator(() => GqlOffsetPagination)(GqlArgs.prototype, paginationKey);
-    Field(() => GqlOffsetPagination, { nullable: true })(
-      GqlArgs.prototype,
-      paginationKey,
-    );
   }
 
   return GqlArgs as Type<AT<T>>;

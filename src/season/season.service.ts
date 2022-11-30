@@ -5,11 +5,11 @@ import { SeasonEntity } from './entities/season.entity';
 import { PaginatedSeasons } from './dto/paginated-seasons';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { NotFoundError } from '@utils/errors';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 @Injectable()
 export class SeasonService {
@@ -27,15 +27,20 @@ export class SeasonService {
     sort?: SortType<SeasonEntity>,
     filter?: FilterType<SeasonEntity>,
   ): Promise<PaginatedSeasons> => {
-    const qb = parseArgs(
-      this.seasonRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.seasonRepository,
       pagination,
       sort,
       filter,
     );
-    const [data, count] = await qb.getManyAndCount();
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
 
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: string[]): Promise<SeasonEntity[]> =>

@@ -7,7 +7,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { ConfirmEmailInput } from './dto/confirm-email.input';
 import { EmailService } from './services/email.service';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { EmailConfirmationService } from './services/email-confirmation.service';
 import { Cron, CronExpression } from '@nestjs/schedule';

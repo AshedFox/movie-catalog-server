@@ -9,8 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { catchError, Observable, throwError } from 'rxjs';
-import { NotFoundError } from './errors/not-found.error';
-import { AlreadyExistsError } from './errors/already-exists.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 
 @Injectable()
 export class ErrorInterceptor implements NestInterceptor {
@@ -24,6 +23,7 @@ export class ErrorInterceptor implements NestInterceptor {
         } else if (err instanceof HttpException) {
           return throwError(() => err);
         }
+        console.log(err.stack);
         return throwError(() => new InternalServerErrorException());
       }),
     );

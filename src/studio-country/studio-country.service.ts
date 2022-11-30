@@ -2,10 +2,9 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { StudioCountryEntity } from './entities/studio-country.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { StudioService } from '../studio/studio.service';
 import { CountryService } from '../country/country.service';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
 
 @Injectable()
 export class StudioCountryService {

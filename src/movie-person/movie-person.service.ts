@@ -4,14 +4,13 @@ import { UpdateMoviePersonInput } from './dto/update-movie-person.input';
 import { MoviePersonEntity } from './entities/movie-person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { MovieService } from '../movie/movie.service';
 import { PersonService } from '../person/person.service';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { PaginatedMoviesPersons } from './dto/paginated-movies-persons';
 
 @Injectable()
@@ -44,15 +43,20 @@ export class MoviePersonService {
     sort?: SortType<MoviePersonEntity>,
     filter?: FilterType<MoviePersonEntity>,
   ): Promise<PaginatedMoviesPersons> => {
-    const qb = parseArgs(
-      this.moviePersonRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.moviePersonRepository,
       pagination,
       sort,
       filter,
     );
-    const [data, count] = await qb.getManyAndCount();
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
 
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: number[]): Promise<MoviePersonEntity[]> =>

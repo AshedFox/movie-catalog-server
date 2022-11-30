@@ -17,7 +17,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from './dto/current-user.dto';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';

@@ -6,10 +6,10 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MovieImageTypeEntity } from '../../movie-image-type/entities/movie-image-type.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
-import { MovieImageTypeEnum } from '../../utils/enums/movie-image-type.enum';
-import { FilterableField } from '../../common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
 
 @ObjectType()
 @Entity('movies_images')

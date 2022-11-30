@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EmailConfirmationEntity } from '../entities/email-confirmation.entity';
 import { In, LessThan, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../../utils/errors/not-found.error';
+import { NotFoundError } from '@utils/errors';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 

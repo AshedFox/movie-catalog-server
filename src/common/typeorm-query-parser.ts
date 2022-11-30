@@ -1,4 +1,9 @@
-import { Brackets, SelectQueryBuilder, WhereExpressionBuilder } from 'typeorm';
+import {
+  Brackets,
+  Repository,
+  SelectQueryBuilder,
+  WhereExpressionBuilder,
+} from 'typeorm';
 import { FilterComparisonType, FilterType } from './filter';
 import { GqlOffsetPagination } from './pagination';
 import {
@@ -7,211 +12,259 @@ import {
   SortOptionsType,
   SortType,
 } from './sort';
+import { snakeCase } from 'typeorm/util/StringUtils';
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 
-const handleFieldFilter = (
+const applyFieldFilter = (
   where: WhereExpressionBuilder,
   fieldName: string,
   filter: FilterComparisonType<any>,
   operator: 'and' | 'or',
+  alias?: string,
 ) => {
   const operatorProp = operator === 'and' ? 'andWhere' : 'orWhere';
+  const name = alias ? `${alias}_${fieldName}` : fieldName;
+  const snakeName = alias
+    ? `"${alias}"."${snakeCase(fieldName)}"`
+    : `"${snakeCase(fieldName)}"`;
 
   Object.entries(filter).forEach((filterProp) => {
     const [filterName, value] = filterProp;
 
     switch (filterName) {
       case 'eq': {
-        where[operatorProp](`"${fieldName}" = :${fieldName}EqValue`, {
-          [`${fieldName}EqValue`]: value,
+        where[operatorProp](`${snakeName} = :${name}EqValue`, {
+          [`${name}EqValue`]: value,
         });
         break;
       }
       case 'neq': {
-        where[operatorProp](`"${fieldName}" != :${fieldName}NEqValue`, {
-          [`${fieldName}NEqValue`]: value,
+        where[operatorProp](`${snakeName} != :${name}NEqValue`, {
+          [`${name}NEqValue`]: value,
         });
         break;
       }
       case 'gt': {
-        where[operatorProp](`"${fieldName}" > :${fieldName}GtValue`, {
-          [`${fieldName}GtValue`]: value,
+        where[operatorProp](`${snakeName} > :${name}GtValue`, {
+          [`${name}GtValue`]: value,
         });
         break;
       }
       case 'gte': {
-        where[operatorProp](`"${fieldName}" >= :${fieldName}GteValue`, {
-          [`${fieldName}GteValue`]: value,
+        where[operatorProp](`${snakeName} >= :${name}GteValue`, {
+          [`${name}GteValue`]: value,
         });
         break;
       }
       case 'lt': {
-        where[operatorProp](`"${fieldName}" < :${fieldName}LtValue`, {
-          [`${fieldName}LtValue`]: value,
+        where[operatorProp](`${snakeName} < :${name}LtValue`, {
+          [`${name}LtValue`]: value,
         });
         break;
       }
       case 'lte': {
-        where[operatorProp](`"${fieldName}" <= :${fieldName}LteValue`, {
-          [`${fieldName}LteValue`]: value,
+        where[operatorProp](`${snakeName} <= :${name}LteValue`, {
+          [`${name}LteValue`]: value,
         });
         break;
       }
       case 'like': {
-        where[operatorProp](`"${fieldName}" LIKE :${fieldName}LikeValue`, {
-          [`${fieldName}LikeValue`]: `%${value}%`,
+        where[operatorProp](`${snakeName} LIKE :${name}LikeValue`, {
+          [`${name}LikeValue`]: `%${value}%`,
         });
         break;
       }
       case 'nlike': {
-        where[operatorProp](`"${fieldName}" NOT LIKE :${fieldName}NLikeValue`, {
-          [`${fieldName}NLikeValue`]: `%${value}%`,
+        where[operatorProp](`${snakeName} NOT LIKE :${name}NLikeValue`, {
+          [`${name}NLikeValue`]: `%${value}%`,
         });
         break;
       }
       case 'ilike': {
-        where[operatorProp](`"${fieldName}" ILIKE :${fieldName}ILikeValue`, {
-          [`${fieldName}ILikeValue`]: `%${value}%`,
+        where[operatorProp](`${snakeName} ILIKE :${name}ILikeValue`, {
+          [`${name}ILikeValue`]: `%${value}%`,
         });
         break;
       }
       case 'nilike': {
-        where[operatorProp](
-          `"${fieldName}" NOT ILIKE :${fieldName}NILikeValue`,
-          {
-            [`${fieldName}NILikeValue`]: `%${value}%`,
-          },
-        );
+        where[operatorProp](`${snakeName} NOT ILIKE :${name}NILikeValue`, {
+          [`${name}NILikeValue`]: `%${value}%`,
+        });
         break;
       }
       case 'in': {
-        where[operatorProp](`"${fieldName}" IN (:...${fieldName}InValue)`, {
-          [`${fieldName}InValue`]: value,
+        where[operatorProp](`${snakeName} IN (:...${name}InValue)`, {
+          [`${name}InValue`]: value,
         });
         break;
       }
       case 'nin': {
-        where[operatorProp](
-          `"${fieldName}" NOT IN (:...${fieldName}NInValue)`,
-          {
-            [`${fieldName}NInValue`]: value,
-          },
-        );
+        where[operatorProp](`${snakeName} NOT IN (:...${name}NInValue)`, {
+          [`${name}NInValue`]: value,
+        });
         break;
       }
       case 'btwn': {
         where[operatorProp](
-          `"${fieldName}" BETWEEN :${fieldName}BtwnStart AND :${fieldName}BtwnEnd`,
+          `${snakeName} BETWEEN :${name}BtwnStart AND :${name}BtwnEnd`,
           {
-            [`${fieldName}BtwnStart`]: value.start,
-            [`${fieldName}BtwnEnd`]: value.end,
+            [`${name}BtwnStart`]: value.start,
+            [`${name}BtwnEnd`]: value.end,
           },
         );
         break;
       }
       case 'nbtwn': {
         where[operatorProp](
-          `"${fieldName}" NOT BETWEEN :${fieldName}NBtwnStart AND :${fieldName}NBtwnEnd`,
+          `${snakeName} NOT BETWEEN :${name}NBtwnStart AND :${name}NBtwnEnd`,
           {
-            [`${fieldName}NBtwnStart`]: value.start,
-            [`${fieldName}NBtwnEnd`]: value.end,
+            [`${name}NBtwnStart`]: value.start,
+            [`${name}NBtwnEnd`]: value.end,
           },
         );
         break;
+      }
+      default: {
+        applyFieldFilter(
+          where,
+          filterName,
+          filter[filterName],
+          operator,
+          fieldName,
+        );
       }
     }
   });
 };
 
-const handleFilterTreeLevel = (
+const applyFilterTreeLevel = <T>(
   where: WhereExpressionBuilder,
-  filter: FilterType<any>,
+  filter: FilterType<T>,
   operator: 'or' | 'and',
 ) => {
   Object.keys(filter).forEach((key) => {
     if (key === 'and') {
       where.andWhere(
         new Brackets((qb) =>
-          filter[key].forEach((q) => handleFilterTreeLevel(qb, q, 'and')),
+          filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'and')),
         ),
       );
     } else if (key === 'or') {
       where.andWhere(
         new Brackets((qb) =>
-          filter[key].forEach((q) => handleFilterTreeLevel(qb, q, 'or')),
+          filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'or')),
         ),
       );
     } else {
-      handleFieldFilter(where, key, filter[key], operator);
+      applyFieldFilter(where, key, filter[key], operator);
     }
   });
 };
 
-export const parseFilter = <T>(
-  query: SelectQueryBuilder<T>,
+export const applyFilter = <T>(
+  qb: SelectQueryBuilder<T>,
   filter: FilterType<T>,
 ) => {
-  handleFilterTreeLevel(query, filter, 'and');
-  return query;
+  applyFilterTreeLevel(qb, filter, 'and');
 };
 
-export const parsePagination = <T>(
-  query: SelectQueryBuilder<T>,
-  pagination?: GqlOffsetPagination,
+export const applyPagination = <T>(
+  qb: SelectQueryBuilder<T>,
+  pagination: GqlOffsetPagination,
 ) => {
-  query.take(pagination.take);
-  query.skip(pagination.skip);
-  return query;
+  qb.take(pagination.take);
+  qb.skip(pagination.skip);
 };
 
-const handleFieldSort = (
-  query: SelectQueryBuilder<any>,
+const applyFieldSort = (
+  qb: SelectQueryBuilder<any>,
   fieldName: string,
-  sortOptions: SortOptionsType,
+  options: SortOptionsType,
+  alias?: string,
 ) => {
+  const snakeName = alias
+    ? `"${alias}"."${snakeCase(fieldName)}"`
+    : `"${snakeCase(fieldName)}"`;
+
+  if (!options?.direction && !options?.nulls) {
+    return Object.keys(options).forEach((key) => {
+      applyFieldSort(qb, key, options[key], fieldName);
+    });
+  }
+
   const direction =
-    sortOptions.direction === SortDirectionEnum.ASC ||
-    sortOptions.direction === SortDirectionEnum.asc
+    options.direction === SortDirectionEnum.ASC ||
+    options.direction === SortDirectionEnum.asc
       ? 'ASC'
-      : sortOptions.direction === SortDirectionEnum.DESC ||
-        sortOptions.direction === SortDirectionEnum.desc
+      : options.direction === SortDirectionEnum.DESC ||
+        options.direction === SortDirectionEnum.desc
       ? 'DESC'
       : undefined;
 
   const nulls =
-    sortOptions.nulls === SortNullsEnum.FIRST ||
-    sortOptions.nulls === SortNullsEnum.first
+    options.nulls === SortNullsEnum.FIRST ||
+    options.nulls === SortNullsEnum.first
       ? 'NULLS FIRST'
-      : sortOptions.nulls === SortNullsEnum.LAST ||
-        sortOptions.nulls === SortNullsEnum.last
+      : options.nulls === SortNullsEnum.LAST ||
+        options.nulls === SortNullsEnum.last
       ? 'NULLS LAST'
       : undefined;
 
-  query.addOrderBy(`"${fieldName}"`, direction, nulls);
+  qb.addOrderBy(snakeName, direction, nulls);
 };
 
-export const parseSort = <T>(
-  query: SelectQueryBuilder<T>,
-  sort: SortType<T>,
-) => {
+export const applySort = <T>(qb: SelectQueryBuilder<T>, sort: SortType<T>) => {
   Object.keys(sort).forEach((key) => {
-    handleFieldSort(query, key, sort[key]);
+    applyFieldSort(qb, key, sort[key]);
   });
 };
 
-export const parseArgs = <T>(
-  query: SelectQueryBuilder<T>,
+const applyJoins = <T>(
+  qb: SelectQueryBuilder<T>,
+  relations: RelationMetadata[],
+) => {
+  relations.forEach((r) => {
+    qb.leftJoinAndSelect(`${qb.alias}.${r.propertyName}`, r.propertyName);
+  });
+};
+
+const getRelations = <T>(
+  repo: Repository<T>,
+  filter: FilterType<T> = {},
+  sort: SortType<T> = {},
+) => {
+  const fields = [
+    ...Object.keys(filter).filter((key) => key !== 'and' && key !== 'or'),
+    ...Object.keys(sort).filter(
+      (key) => key !== 'direction' && key !== 'nulls',
+    ),
+  ];
+
+  return fields.length > 0
+    ? repo.metadata.relations.filter((r) => fields.includes(r.propertyName))
+    : [];
+};
+
+export const parseArgsToQuery = <T>(
+  repo: Repository<T>,
   pagination?: GqlOffsetPagination,
   sort?: SortType<T>,
   filter?: FilterType<T>,
 ) => {
+  const qb = repo.createQueryBuilder();
+  const relations = getRelations(repo, filter, sort);
+
+  applyJoins(qb, relations);
+
   if (pagination) {
-    parsePagination(query, pagination);
+    applyPagination(qb, pagination);
   }
   if (filter) {
-    parseFilter(query, filter);
+    applyFilter(qb, filter);
   }
   if (sort) {
-    parseSort(query, sort);
+    applySort(qb, sort);
   }
-  return query;
+
+  return qb;
 };

@@ -10,8 +10,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { MovieImageEntity } from '../../movie-image/entities/movie-image.entity';
-import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
-import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { FilterableField, FilterableRelation } from '@common/filter';
 import { GenreEntity } from '../../genre/entities/genre.entity';
 import { MovieGenreEntity } from '../../movie-genre/entities/movie-genre.entity';
 import { StudioEntity } from '../../studio/entities/studio.entity';
@@ -22,7 +22,7 @@ import { TrailerEntity } from '../../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
-import { FilterableField } from '../../common/filter';
+import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
 
 @ObjectType()
 @Entity('movies')

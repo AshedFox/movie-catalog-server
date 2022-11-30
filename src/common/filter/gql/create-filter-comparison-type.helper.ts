@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { FilterStorage } from './filter-storage.type';
+import { FilterStorage } from '@common/filter';
 import {
   Field,
   InputType,
@@ -10,8 +10,7 @@ import { IsOptional, ValidateNested } from 'class-validator';
 import { Type as TypeDecorator } from 'class-transformer';
 import { BetweenType, FilterType, UniversalFilter } from '../common';
 import { ReturnTypeFunc } from '@nestjs/graphql/dist/interfaces/return-type-func.interface';
-import { capitalize } from '../../../utils/capitalize.helper';
-import { hasName } from '../../../utils/has-name.helper';
+import { capitalize, hasName } from '@utils/helpers';
 import { LazyMetadataStorage } from '@nestjs/graphql/dist/schema-builder/storages/lazy-metadata.storage';
 
 const getFilterName = (type: ReturnTypeFuncValue): string => {

@@ -10,10 +10,10 @@ import {
 } from 'typeorm';
 import { SeasonEntity } from '../../season/entities/season.entity';
 import { SeriesEntity } from '../../series/entities/series.entity';
-import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { FilterableField, FilterableRelation } from '@common/filter';
 import { VideoEntity } from '../../video/entities/video.entity';
-import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
-import { FilterableField } from '../../common/filter';
+import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
 
 @ObjectType()
 @Entity({ name: 'episodes' })

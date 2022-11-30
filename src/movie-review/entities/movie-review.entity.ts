@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
-import { FilterableField } from '../../common/filter';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @Entity('movies_reviews')

@@ -1,9 +1,9 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { MoviePersonTypeEntity } from '../../movie-person-type/entities/movie-person-type.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { PersonEntity } from '../../person/entities/person.entity';
-import { MoviePersonTypeEnum } from '../../utils/enums/movie-person-type.enum';
-import { FilterableField } from '../../common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
 
 @ObjectType()
 @Entity({ name: 'movies_persons' })

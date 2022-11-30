@@ -16,7 +16,7 @@ import { PaginatedMovies } from './dto/paginated-movies';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';

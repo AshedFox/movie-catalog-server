@@ -1,6 +1,6 @@
 import { ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { FilterableField } from '../../common/filter';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { FilterableField, FilterableRelation } from '@common/filter';
 
 @ObjectType()
 @Entity('countries')

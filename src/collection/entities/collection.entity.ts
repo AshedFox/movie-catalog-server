@@ -11,7 +11,7 @@ import {
 import { ImageEntity } from '../../image/entities/image.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
-import { FilterableField } from '../../common/filter';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @Entity('collections')

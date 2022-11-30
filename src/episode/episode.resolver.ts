@@ -20,8 +20,10 @@ import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { VideoEntity } from '../video/entities/video.entity';
+import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
+import { MovieEntity } from '../movie/entities/movie.entity';
 
 @Resolver(EpisodeEntity)
 export class EpisodeResolver {
@@ -59,6 +61,16 @@ export class EpisodeResolver {
   @Mutation(() => Boolean)
   deleteEpisode(@Args('id', ParseUUIDPipe) id: string) {
     return this.episodeService.delete(id);
+  }
+
+  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
+  ageRestriction(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return movie.ageRestrictionId
+      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
+      : undefined;
   }
 
   @ResolveField(() => SeasonEntity)

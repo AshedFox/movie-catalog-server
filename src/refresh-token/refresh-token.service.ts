@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { NotFoundError } from '@utils/errors';
 
 @Injectable()
 export class RefreshTokenService {

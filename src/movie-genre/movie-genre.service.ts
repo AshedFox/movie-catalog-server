@@ -4,8 +4,7 @@ import { MovieGenreEntity } from './entities/movie-genre.entity';
 import { MovieService } from '../movie/movie.service';
 import { GenreService } from '../genre/genre.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 
 @Injectable()
 export class MovieGenreService {

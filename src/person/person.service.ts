@@ -5,11 +5,11 @@ import { PersonEntity } from './entities/person.entity';
 import { In, Repository } from 'typeorm';
 import { PaginatedPersons } from './dto/paginated-persons';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { NotFoundError } from '@utils/errors';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 @Injectable()
 export class PersonService {
@@ -27,15 +27,20 @@ export class PersonService {
     sort?: SortType<PersonEntity>,
     filter?: FilterType<PersonEntity>,
   ): Promise<PaginatedPersons> => {
-    const qb = parseArgs(
-      this.personRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.personRepository,
       pagination,
       sort,
       filter,
     );
-    const [data, count] = await qb.getManyAndCount();
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
 
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: number[]): Promise<PersonEntity[]> =>

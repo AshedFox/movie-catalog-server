@@ -1,5 +1,4 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -8,7 +7,7 @@ import {
   IsUUID,
   Length,
 } from 'class-validator';
-import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MovieEntity } from '../entities/movie.entity';
 
 @InputType()

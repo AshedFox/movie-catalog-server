@@ -2,8 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { MovieService } from '../movie/movie.service';
-import { AlreadyExistsError } from '../utils/errors/already-exists.error';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { CollectionMovieEntity } from './entities/collection-movie.entity';
 import { CollectionService } from '../collection/collection.service';
 

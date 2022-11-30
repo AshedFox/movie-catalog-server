@@ -7,10 +7,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
-import { RoleEnum } from '../../utils/enums/role.enum';
+import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
-import { FilterableField } from '../../common/filter';
+import { FilterableField } from '@common/filter';
 
 @ObjectType()
 @Entity({ name: 'users' })

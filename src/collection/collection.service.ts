@@ -3,14 +3,14 @@ import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionInput } from './dto/update-collection.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { NotFoundError } from '@utils/errors';
 import { CollectionEntity } from './entities/collection.entity';
 import { PaginatedCollections } from './dto/paginated-collections';
 import { CollectionMovieService } from '../collection-movie/collection-movie.service';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 @Injectable()
 export class CollectionService {
@@ -42,15 +42,20 @@ export class CollectionService {
     sort?: SortType<CollectionEntity>,
     filter?: FilterType<CollectionEntity>,
   ): Promise<PaginatedCollections> => {
-    const qb = parseArgs(
-      this.collectionRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.collectionRepository,
       pagination,
       sort,
       filter,
     );
 
-    const [data, count] = await qb.getManyAndCount();
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: number[]): Promise<CollectionEntity[]> =>

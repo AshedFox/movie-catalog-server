@@ -5,12 +5,12 @@ import { StudioEntity } from './entities/studio.entity';
 import { In, Repository } from 'typeorm';
 import { PaginatedStudios } from './dto/paginated-studios';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { NotFoundError } from '@utils/errors';
 import { StudioCountryService } from '../studio-country/studio-country.service';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 @Injectable()
 export class StudioService {
@@ -39,15 +39,20 @@ export class StudioService {
     sort?: SortType<StudioEntity>,
     filter?: FilterType<StudioEntity>,
   ): Promise<PaginatedStudios> => {
-    const qb = parseArgs(
-      this.studioRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.studioRepository,
       pagination,
       sort,
       filter,
     );
-    const [data, count] = await qb.getManyAndCount();
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
 
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: number[]): Promise<StudioEntity[]> =>

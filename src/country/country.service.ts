@@ -3,12 +3,12 @@ import { CreateCountryInput } from './dto/create-country.input';
 import { UpdateCountryInput } from './dto/update-country.input';
 import { In, Repository } from 'typeorm';
 import { CountryEntity } from './entities/country.entity';
-import { NotFoundError } from '../utils/errors/not-found.error';
+import { NotFoundError } from '@utils/errors';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GqlOffsetPagination } from '../common/pagination';
-import { SortType } from '../common/sort';
-import { FilterType } from '../common/filter';
-import { parseArgs } from '../common/typeorm-query-parser';
+import { GqlOffsetPagination } from '@common/pagination';
+import { SortType } from '@common/sort';
+import { FilterType } from '@common/filter';
+import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { PaginatedCountries } from './dto/paginated-countries';
 
 @Injectable()
@@ -27,15 +27,20 @@ export class CountryService {
     sort?: SortType<CountryEntity>,
     filter?: FilterType<CountryEntity>,
   ): Promise<PaginatedCountries> => {
-    const qb = parseArgs(
-      this.countryRepository.createQueryBuilder(),
+    const qb = parseArgsToQuery(
+      this.countryRepository,
       pagination,
       sort,
       filter,
     );
 
-    const [data, count] = await qb.getManyAndCount();
-    return { data, count, hasNext: count > pagination.take + pagination.skip };
+    const { entities: data } = await qb.getRawAndEntities();
+    const count = await qb.getCount();
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   };
 
   readManyByIds = async (ids: number[]): Promise<CountryEntity[]> =>

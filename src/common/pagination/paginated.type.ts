@@ -1,5 +1,5 @@
 export type PaginatedType<T> = {
-  data: T[];
-  count: number;
+  edges: T[];
+  totalCount: number;
   hasNext: boolean;
 };

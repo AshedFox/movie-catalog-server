@@ -7,12 +7,13 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm';
+import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
 import { SeriesEntity } from '../../series/entities/series.entity';
 import { EpisodeEntity } from '../../episode/entities/episode.entity';
-import { AgeRestrictionEnum } from '../../utils/enums/age-restriction.enum';
-import { AccessModeEnum } from '../../utils/enums/access-mode.enum';
-import { FilterableField } from '../../common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 
 @ObjectType()
 @Entity({ name: 'seasons' })
@@ -65,7 +66,7 @@ export class SeasonEntity {
   @Column()
   seriesId: string;
 
-  @Field(() => SeriesEntity)
+  @FilterableRelation(() => SeriesEntity)
   @ManyToOne(() => SeriesEntity)
   series: SeriesEntity;
 
