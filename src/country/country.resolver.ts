@@ -1,10 +1,21 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { CountryService } from './country.service';
 import { CountryEntity } from './entities/country.entity';
 import { CreateCountryInput } from './dto/create-country.input';
 import { UpdateCountryInput } from './dto/update-country.input';
 import { GetCountriesArgs } from './dto/get-countries.args';
 import { PaginatedCountries } from './dto/paginated-countries';
+import { CurrencyEntity } from '../currency/entities/currency.entity';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
@@ -36,5 +47,13 @@ export class CountryResolver {
   @Mutation(() => Boolean)
   deleteCountry(@Args('id', { type: () => Int }) id: number) {
     return this.countryService.delete(id);
+  }
+
+  @ResolveField(() => CurrencyEntity)
+  currency(
+    @Parent() country: CountryEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.currencyLoader.load(country.currencyId);
   }
 }

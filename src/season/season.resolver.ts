@@ -62,6 +62,16 @@ export class SeasonResolver {
     return this.seasonService.delete(id);
   }
 
+  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
+  ageRestriction(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return movie.ageRestrictionId
+      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
+      : undefined;
+  }
+
   @ResolveField(() => SeriesEntity)
   series(
     @Parent() season: SeasonEntity,

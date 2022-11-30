@@ -27,6 +27,7 @@ import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
+import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 
 @Resolver(MovieEntity)
 export class MovieResolver {
@@ -64,6 +65,16 @@ export class MovieResolver {
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovie(@Args('id', ParseUUIDPipe) id: string) {
     return this.movieService.delete(id);
+  }
+
+  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
+  ageRestriction(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return movie.ageRestrictionId
+      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
+      : undefined;
   }
 
   @ResolveField(() => ImageEntity, { nullable: true })

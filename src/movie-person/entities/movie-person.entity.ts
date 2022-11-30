@@ -32,7 +32,11 @@ export class MoviePersonEntity {
   @Column({ nullable: true })
   role?: string;
 
-  @FilterableField(() => MoviePersonTypeEnum)
-  @Column({ type: 'enum', enum: MoviePersonTypeEnum })
-  type: MoviePersonTypeEnum;
+  @FilterableField()
+  @Column()
+  typeId: number;
+
+  @FilterableRelation(() => MoviePersonTypeEntity)
+  @ManyToOne(() => MoviePersonTypeEntity)
+  type: MoviePersonTypeEntity;
 }

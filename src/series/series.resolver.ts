@@ -70,6 +70,16 @@ export class SeriesResolver {
     return this.seriesService.delete(id);
   }
 
+  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
+  ageRestriction(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return movie.ageRestrictionId
+      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
+      : undefined;
+  }
+
   @ResolveField(() => ImageEntity, { nullable: true })
   cover(
     @Parent() movie: MovieEntity,

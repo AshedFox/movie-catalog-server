@@ -52,9 +52,13 @@ export class MovieEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @FilterableField(() => AgeRestrictionEnum)
-  @Column({ type: 'enum', enum: AgeRestrictionEnum })
-  ageRestriction: AgeRestrictionEnum;
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true })
+  ageRestrictionId?: number;
+
+  @FilterableRelation(() => AgeRestrictionEntity, { nullable: true })
+  @ManyToOne(() => AgeRestrictionEntity)
+  ageRestriction?: AgeRestrictionEntity;
 
   @FilterableField(() => AccessModeEnum)
   @Column({
@@ -68,7 +72,7 @@ export class MovieEntity {
   @Column({ nullable: true })
   coverId?: string;
 
-  @Field(() => ImageEntity, { nullable: true })
+  @FilterableRelation(() => ImageEntity, { nullable: true })
   @ManyToOne(() => ImageEntity, { nullable: true })
   cover?: ImageEntity;
 

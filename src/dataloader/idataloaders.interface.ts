@@ -17,12 +17,17 @@ import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
+import { CurrencyEntity } from '../currency/entities/currency.entity';
+import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
+import { RoomEntity } from '../room/entities/room.entity';
 
 export interface IDataLoaders {
+  ageRestrictionLoader: DataLoader<number, AgeRestrictionEntity>;
   collectionLoader: DataLoader<number, CollectionEntity>;
-  countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
+  countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countryLoader: DataLoader<number, CountryEntity>;
+  currencyLoader: DataLoader<number, CurrencyEntity>;
   emailConfirmationLoader: DataLoader<string, EmailConfirmationEntity>;
   episodeLoader: DataLoader<string, EpisodeEntity>;
   episodesBySeasonLoader: DataLoader<string, EpisodeEntity[]>;
@@ -34,11 +39,12 @@ export interface IDataLoaders {
   movieImagesByMovieLoader: DataLoader<string, MovieImageEntity[]>;
   movieLoader: DataLoader<string, MovieEntity>;
   moviePersonsByMovieLoader: DataLoader<string, MoviePersonEntity[]>;
-  moviesByCollectionLoader: DataLoader<number, MovieEntity[]>;
-  personLoader: DataLoader<number, PersonEntity>;
   movieReviewLoader: DataLoader<number, MovieReviewEntity>;
   movieReviewsByMovieLoader: DataLoader<string, MovieReviewEntity[]>;
   movieReviewsByUserLoader: DataLoader<string, MovieReviewEntity[]>;
+  moviesByCollectionLoader: DataLoader<number, MovieEntity[]>;
+  personLoader: DataLoader<number, PersonEntity>;
+  roomLoader: DataLoader<string, RoomEntity>;
   seasonLoader: DataLoader<string, SeasonEntity>;
   seasonsBySeriesLoader: DataLoader<string, SeasonEntity[]>;
   seriesLoader: DataLoader<string, SeriesEntity>;
@@ -47,5 +53,6 @@ export interface IDataLoaders {
   trailerLoader: DataLoader<number, TrailerEntity>;
   trailersByMovieLoader: DataLoader<string, TrailerEntity[]>;
   userLoader: DataLoader<string, UserEntity>;
+  usersByRoomLoader: DataLoader<string, UserEntity[]>;
   videoLoader: DataLoader<string, VideoEntity>;
 }

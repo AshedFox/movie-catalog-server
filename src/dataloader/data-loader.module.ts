@@ -23,26 +23,34 @@ import { MovieReviewModule } from '../movie-review/movie-review.module';
 import { TrailerModule } from '../trailer/trailer.module';
 import { CollectionModule } from '../collection/collection.module';
 import { CollectionMovieModule } from '../collection-movie/collection-movie.module';
+import { CurrencyModule } from '../currency/currency.module';
+import { AgeRestrictionModule } from '../age-restrictions/age-restriction.module';
+import { RoomModule } from '../room/room.module';
+import { RoomParticipantModule } from '../room-participant/room-participant.module';
 
 @Global()
 @Module({
   imports: [
+    AgeRestrictionModule,
     CollectionModule,
     CollectionMovieModule,
     CountryModule,
+    CurrencyModule,
     EmailModule,
     EpisodeModule,
     FilmModule,
     GenreModule,
     ImageModule,
+    MovieCountryModule,
     MovieGenreModule,
     MovieImageModule,
     MovieModule,
-    MovieCountryModule,
     MoviePersonModule,
+    MovieReviewModule,
     MovieStudioModule,
     PersonModule,
-    MovieReviewModule,
+    RoomModule,
+    RoomParticipantModule,
     SeasonModule,
     SeriesModule,
     StudioCountryModule,

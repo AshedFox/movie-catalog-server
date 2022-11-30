@@ -18,9 +18,13 @@ export class MovieImageEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @FilterableField(() => MovieImageTypeEnum)
-  @Column({ type: 'enum', enum: MovieImageTypeEnum })
-  type: MovieImageTypeEnum;
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true })
+  typeId?: number;
+
+  @FilterableRelation(() => MovieImageTypeEntity, { nullable: true })
+  @ManyToOne(() => MovieImageTypeEntity, { nullable: true })
+  type?: MovieImageTypeEntity;
 
   @FilterableField(() => ID)
   @PrimaryColumn()

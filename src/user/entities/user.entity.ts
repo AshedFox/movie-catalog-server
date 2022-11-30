@@ -32,6 +32,10 @@ export class UserEntity {
   password: string;
 
   @FilterableField()
+  @Column()
+  name: string;
+
+  @FilterableField()
   @CreateDateColumn()
   createdAt: Date;
 

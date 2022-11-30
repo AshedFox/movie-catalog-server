@@ -25,13 +25,19 @@ import { TrailerService } from '../trailer/trailer.service';
 import { IndexType } from 'src/utils/types/index.type';
 import { CollectionService } from '../collection/collection.service';
 import { CollectionMovieService } from '../collection-movie/collection-movie.service';
+import { CurrencyService } from '../currency/currency.service';
+import { AgeRestrictionService } from '../age-restrictions/age-restriction.service';
+import { RoomParticipantService } from '../room-participant/room-participant.service';
+import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class DataLoaderService {
   constructor(
-    private readonly collectionService: CollectionService,
+    private readonly ageRestrictionService: AgeRestrictionService,
     private readonly collectionMovieService: CollectionMovieService,
+    private readonly collectionService: CollectionService,
     private readonly countryService: CountryService,
+    private readonly currencyService: CurrencyService,
     private readonly emailConfirmationService: EmailConfirmationService,
     private readonly episodeService: EpisodeService,
     private readonly filmService: FilmService,
@@ -41,10 +47,12 @@ export class DataLoaderService {
     private readonly movieGenreService: MovieGenreService,
     private readonly movieImageService: MovieImageService,
     private readonly moviePersonService: MoviePersonService,
+    private readonly movieReviewService: MovieReviewService,
     private readonly movieService: MovieService,
     private readonly movieStudioService: MovieStudioService,
     private readonly personService: PersonService,
-    private readonly movieReviewService: MovieReviewService,
+    private readonly roomParticipantService: RoomParticipantService,
+    private readonly roomService: RoomService,
     private readonly seasonService: SeasonService,
     private readonly seriesService: SeriesService,
     private readonly studioCountryService: StudioCountryService,
@@ -135,6 +143,9 @@ export class DataLoaderService {
   };
 
   createLoaders = (): IDataLoaders => ({
+    ageRestrictionLoader: this.createSingleLoader(
+      this.ageRestrictionService.readManyByIds,
+    ),
     collectionLoader: this.createSingleLoader(
       this.collectionService.readManyByIds,
     ),
@@ -149,6 +160,7 @@ export class DataLoaderService {
       'country',
     ),
     countryLoader: this.createSingleLoader(this.countryService.readManyByIds),
+    currencyLoader: this.createSingleLoader(this.currencyService.readManyByIds),
     emailConfirmationLoader: this.createSingleLoader(
       this.emailConfirmationService.readManyByIds,
     ),
@@ -183,7 +195,6 @@ export class DataLoaderService {
       this.moviePersonService.readManyByMovies,
       'movieId',
     ),
-    personLoader: this.createSingleLoader(this.personService.readManyByIds),
     movieReviewLoader: this.createSingleLoader(
       this.movieReviewService.readManyByIds,
     ),
@@ -195,6 +206,8 @@ export class DataLoaderService {
       this.movieReviewService.readManyByUsers,
       'userId',
     ),
+    personLoader: this.createSingleLoader(this.personService.readManyByIds),
+    roomLoader: this.createSingleLoader(this.roomService.readManyByIds),
     seasonLoader: this.createSingleLoader(this.seasonService.readManyByIds),
     seasonsBySeriesLoader: this.createMultipleLoader(
       this.seasonService.readManyBySeries,
@@ -213,6 +226,11 @@ export class DataLoaderService {
       'movieId',
     ),
     userLoader: this.createSingleLoader(this.userService.readManyByIds),
+    usersByRoomLoader: this.createMultipleRelationLoader(
+      this.roomParticipantService.readManyByRooms,
+      'roomId',
+      'user',
+    ),
     videoLoader: this.createSingleLoader(this.videoService.readManyByIds),
   });
 }

@@ -16,7 +16,7 @@ import { VideoEntity } from '../../video/entities/video.entity';
 import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
 
 @ObjectType()
-@Entity({ name: 'episodes' })
+@Entity('episodes')
 @Unique(['numberInSeries', 'seriesId'])
 export class EpisodeEntity {
   @FilterableField(() => ID)
@@ -31,9 +31,13 @@ export class EpisodeEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
-  @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
-  ageRestriction?: AgeRestrictionEnum;
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true })
+  ageRestrictionId?: number;
+
+  @FilterableRelation(() => AgeRestrictionEntity, { nullable: true })
+  @ManyToOne(() => AgeRestrictionEntity)
+  ageRestriction?: AgeRestrictionEntity;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })

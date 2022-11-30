@@ -76,7 +76,6 @@ import { RoomModule } from './room/room.module';
         }),
         introspection: true,
         autoSchemaFile: 'src/schema.graphql',
-        installSubscriptionHandlers: true,
         cors: {
           credentials: true,
           origin: true,
@@ -128,6 +127,13 @@ import { RoomModule } from './room/room.module';
     TrailerModule,
     UserModule,
     VideoModule,
+    MovieUserModule,
+    AgeRestrictionModule,
+    MovieImageTypeModule,
+    MoviePersonTypeModule,
+    CurrencyModule,
+    RoomModule,
+    RoomParticipantModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },

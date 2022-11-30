@@ -35,9 +35,13 @@ export class SeasonEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
-  @Column({ type: 'enum', enum: AgeRestrictionEnum, nullable: true })
-  ageRestriction?: AgeRestrictionEnum;
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true })
+  ageRestrictionId?: number;
+
+  @FilterableRelation(() => AgeRestrictionEntity, { nullable: true })
+  @ManyToOne(() => AgeRestrictionEntity)
+  ageRestriction?: AgeRestrictionEntity;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
@@ -49,7 +53,11 @@ export class SeasonEntity {
 
   @FilterableField()
   @CreateDateColumn()
-  publicationDate: Date;
+  createdAt: Date;
+
+  @FilterableField()
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @FilterableField(() => AccessModeEnum)
   @Column({

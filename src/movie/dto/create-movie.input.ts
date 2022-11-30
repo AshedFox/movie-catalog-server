@@ -17,18 +17,17 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   title: string;
 
   @Field({ nullable: true })
-  @Length(1, 2000)
+  @Length(1, 20000)
   @IsOptional()
   description?: string;
 
-  @Field(() => AgeRestrictionEnum)
-  @IsEnum(AgeRestrictionEnum)
-  ageRestriction: AgeRestrictionEnum;
+  @Field(() => Int)
+  ageRestrictionId: number;
 
   @Field(() => AccessModeEnum, { nullable: true })
   @IsEnum(AccessModeEnum)
   @IsOptional()
-  accessMode?: AccessModeEnum;
+  accessMode: AccessModeEnum;
 
   @Field({ nullable: true })
   @IsUUID()

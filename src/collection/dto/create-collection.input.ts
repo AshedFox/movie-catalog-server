@@ -15,7 +15,7 @@ export class CreateCollectionInput implements Partial<CollectionEntity> {
   name: string;
 
   @Field({ nullable: true })
-  @Length(1, 2000)
+  @Length(1, 20000)
   @IsOptional()
   description?: string;
 
