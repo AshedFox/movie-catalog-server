@@ -23,22 +23,22 @@ export class MovieReviewResolver {
   constructor(private readonly reviewService: MovieReviewService) {}
 
   @Mutation(() => MovieReviewEntity)
-  createReview(@Args('input') createReviewInput: CreateMovieReviewInput) {
+  createMovieReview(@Args('input') createReviewInput: CreateMovieReviewInput) {
     return this.reviewService.create(createReviewInput);
   }
 
   @Query(() => PaginatedMoviesReviews)
-  getReviews(@Args() { pagination, sort, filter }: GetMoviesReviewsArgs) {
+  getMoviesReviews(@Args() { pagination, sort, filter }: GetMoviesReviewsArgs) {
     return this.reviewService.readMany(pagination, sort, filter);
   }
 
   @Query(() => MovieReviewEntity)
-  getReview(@Args('id', { type: () => Int }) id: number) {
+  getMovieReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.readOne(id);
   }
 
   @Mutation(() => MovieReviewEntity)
-  updateReview(
+  updateMovieReview(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') updateReviewInput: UpdateMovieReviewInput,
   ) {
@@ -46,7 +46,7 @@ export class MovieReviewResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteReview(@Args('id', { type: () => Int }) id: number) {
+  deleteMovieReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.delete(id);
   }
 
