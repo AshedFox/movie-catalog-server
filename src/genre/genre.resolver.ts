@@ -23,8 +23,18 @@ export class GenreResolver {
   }
 
   @Query(() => PaginatedGenres)
-  getGenres(@Args() { pagination, sort, filter }: GetGenresArgs) {
-    return this.genreService.readMany(pagination, sort, filter);
+  async getGenres(
+    @Args() { pagination, sort, filter }: GetGenresArgs,
+  ): Promise<PaginatedGenres> {
+    const [data, count] = await Promise.all([
+      this.genreService.readMany(pagination, sort, filter),
+      this.genreService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => GenreEntity)

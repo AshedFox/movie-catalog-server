@@ -1,86 +1,76 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFilmInput } from './dto/create-film.input';
-import { FilmEntity } from './entities/film.entity';
-import { In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UpdateFilmInput } from './dto/update-film.input';
-import { PaginatedFilms } from './dto/paginated-films';
-import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '@utils/errors';
-import { MovieGenreService } from '../movie-genre/movie-genre.service';
-import { MovieStudioService } from '../movie-studio/movie-studio.service';
-import { GqlOffsetPagination } from '@common/pagination';
-import { SortType } from '@common/sort';
-import { FilterType } from '@common/filter';
-import { parseArgsToQuery } from '@common/typeorm-query-parser';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { FilmEntity } from './entities/film.entity';
+import { MovieCountryEntity } from '../movie-country/entities/movie-country.entity';
+import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
+import { MovieGenreEntity } from '../movie-genre/entities/movie-genre.entity';
+import { BaseService } from '@common/services/base.service';
 
 @Injectable()
-export class FilmService {
+export class FilmService extends BaseService<
+  FilmEntity,
+  CreateFilmInput,
+  UpdateFilmInput
+> {
   constructor(
     @InjectRepository(FilmEntity)
     private readonly filmRepository: Repository<FilmEntity>,
-    private readonly movieGenreService: MovieGenreService,
-    private readonly movieStudioService: MovieStudioService,
-  ) {}
+    @InjectRepository(MovieCountryEntity)
+    private readonly movieCountryRepository: Repository<MovieCountryEntity>,
+    @InjectRepository(MovieStudioEntity)
+    private readonly movieStudioRepository: Repository<MovieStudioEntity>,
+    @InjectRepository(MovieGenreEntity)
+    private readonly movieGenreRepository: Repository<MovieGenreEntity>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+  ) {
+    super(filmRepository);
+  }
 
   create = async (createFilmInput: CreateFilmInput): Promise<FilmEntity> => {
-    const film = await this.filmRepository.save(createFilmInput);
-    const { genresIds, studiosIds } = createFilmInput;
-    if (genresIds) {
-      await this.movieGenreService.createManyForMovie(film.id, genresIds);
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.startTransaction();
+
+    try {
+      const film = await this.filmRepository.save(
+        {
+          ...createFilmInput,
+        },
+        { transaction: false },
+      );
+      const { genresIds, studiosIds, countriesIds } = createFilmInput;
+
+      if (countriesIds) {
+        film.countriesConnection = await this.movieCountryRepository.save(
+          countriesIds.map((countryId) => ({ movieId: film.id, countryId })),
+          { transaction: false },
+        );
+      }
+      if (genresIds) {
+        film.genresConnection = await this.movieGenreRepository.save(
+          genresIds.map((genreId) => ({ movieId: film.id, genreId })),
+          { transaction: false },
+        );
+      }
+      if (studiosIds) {
+        film.studiosConnection = await this.movieStudioRepository.save(
+          studiosIds.map((studioId) => ({
+            movieId: film.id,
+            genreId: studioId,
+          })),
+          { transaction: false },
+        );
+      }
+      await queryRunner.commitTransaction();
+      return film;
+    } catch {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
-    if (studiosIds) {
-      await this.movieStudioService.createManyForMovie(film.id, studiosIds);
-    }
-    return film;
-  };
-
-  readMany = async (
-    pagination?: GqlOffsetPagination,
-    sort?: SortType<FilmEntity>,
-    filter?: FilterType<FilmEntity>,
-  ): Promise<PaginatedFilms> => {
-    const qb = parseArgsToQuery(this.filmRepository, pagination, sort, filter);
-
-    const { entities: data } = await qb.getRawAndEntities();
-    const count = await qb.getCount();
-    return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
-    };
-  };
-
-  readManyByIds = async (ids: string[]): Promise<FilmEntity[]> =>
-    await this.filmRepository.findBy({ id: In(ids) });
-
-  readOne = async (id: string): Promise<FilmEntity> => {
-    const film = await this.filmRepository.findOneBy({ id });
-    if (!film) {
-      throw new NotFoundError(`Film with id "${id}" not found!`);
-    }
-    return film;
-  };
-
-  update = async (
-    id: string,
-    updateFilmInput: UpdateFilmInput,
-  ): Promise<FilmEntity> => {
-    const film = await this.filmRepository.findOneBy({ id });
-    if (!film) {
-      throw new NotFoundError(`Film with id "${id}" not found!`);
-    }
-    return this.filmRepository.save({
-      ...film,
-      ...updateFilmInput,
-    });
-  };
-
-  delete = async (id: string): Promise<boolean> => {
-    const film = await this.filmRepository.findOneBy({ id });
-    if (!film) {
-      throw new NotFoundError(`Film with id "${id}" not found!`);
-    }
-    await this.filmRepository.remove(film);
-    return true;
   };
 }

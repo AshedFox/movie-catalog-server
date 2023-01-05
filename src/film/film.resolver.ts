@@ -48,7 +48,16 @@ export class FilmResolver {
   async getFilmsProtected(
     @Args() { pagination, sort, filter }: GetFilmsArgs,
   ): Promise<PaginatedFilms> {
-    return this.filmService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.filmService.readMany(pagination, sort, filter),
+      this.filmService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => PaginatedFilms)
@@ -59,7 +68,16 @@ export class FilmResolver {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
     };
-    return this.filmService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.filmService.readMany(pagination, sort, filter),
+      this.filmService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => FilmEntity)
@@ -77,7 +95,7 @@ export class FilmResolver {
     return this.filmService.update(id, input);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => FilmEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteFilm(@Args('id', ParseUUIDPipe) id: string) {

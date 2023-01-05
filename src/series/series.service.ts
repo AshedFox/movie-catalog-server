@@ -1,93 +1,78 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSeriesInput } from './dto/create-series.input';
 import { UpdateSeriesInput } from './dto/update-series.input';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { SeriesEntity } from './entities/series.entity';
-import { In, Repository } from 'typeorm';
-import { PaginatedSeries } from './dto/paginated-series';
-import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from '@utils/errors';
-import { MovieGenreService } from '../movie-genre/movie-genre.service';
-import { MovieStudioService } from '../movie-studio/movie-studio.service';
-import { GqlOffsetPagination } from '@common/pagination';
-import { SortType } from '@common/sort';
-import { FilterType } from '@common/filter';
-import { parseArgsToQuery } from '@common/typeorm-query-parser';
+import { MovieCountryEntity } from '../movie-country/entities/movie-country.entity';
+import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
+import { MovieGenreEntity } from '../movie-genre/entities/movie-genre.entity';
+import { BaseService } from '@common/services/base.service';
 
 @Injectable()
-export class SeriesService {
+export class SeriesService extends BaseService<
+  SeriesEntity,
+  CreateSeriesInput,
+  UpdateSeriesInput
+> {
   constructor(
     @InjectRepository(SeriesEntity)
     private readonly seriesRepository: Repository<SeriesEntity>,
-    private readonly movieGenreService: MovieGenreService,
-    private readonly movieStudioService: MovieStudioService,
-  ) {}
+    @InjectRepository(MovieCountryEntity)
+    private readonly movieCountryRepository: Repository<MovieCountryEntity>,
+    @InjectRepository(MovieStudioEntity)
+    private readonly movieStudioRepository: Repository<MovieStudioEntity>,
+    @InjectRepository(MovieGenreEntity)
+    private readonly movieGenreRepository: Repository<MovieGenreEntity>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+  ) {
+    super(seriesRepository);
+  }
 
   create = async (
     createSeriesInput: CreateSeriesInput,
   ): Promise<SeriesEntity> => {
-    const series = await this.seriesRepository.save(createSeriesInput);
-    const { genresIds, studiosIds } = createSeriesInput;
-    if (genresIds) {
-      await this.movieGenreService.createManyForMovie(series.id, genresIds);
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.startTransaction();
+
+    try {
+      const { genresIds, studiosIds, countriesIds } = createSeriesInput;
+      const series = await this.seriesRepository.save(
+        {
+          ...createSeriesInput,
+        },
+        { transaction: false },
+      );
+
+      if (countriesIds) {
+        series.countriesConnection = await this.movieCountryRepository.save(
+          countriesIds.map((countryId) => ({ movieId: series.id, countryId })),
+          { transaction: false },
+        );
+      }
+      if (genresIds) {
+        series.genresConnection = await this.movieGenreRepository.save(
+          genresIds.map((genreId) => ({ movieId: series.id, genreId })),
+          { transaction: false },
+        );
+      }
+      if (studiosIds) {
+        series.studiosConnection = await this.movieStudioRepository.save(
+          studiosIds.map((studioId) => ({
+            movieId: series.id,
+            genreId: studioId,
+          })),
+          { transaction: false },
+        );
+      }
+      await queryRunner.commitTransaction();
+      return series;
+    } catch {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
-    if (studiosIds) {
-      await this.movieStudioService.createManyForMovie(series.id, studiosIds);
-    }
-    return series;
-  };
-
-  readMany = async (
-    pagination?: GqlOffsetPagination,
-    sort?: SortType<SeriesEntity>,
-    filter?: FilterType<SeriesEntity>,
-  ): Promise<PaginatedSeries> => {
-    const qb = parseArgsToQuery(
-      this.seriesRepository,
-      pagination,
-      sort,
-      filter,
-    );
-    const { entities: data } = await qb.getRawAndEntities();
-    const count = await qb.getCount();
-
-    return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
-    };
-  };
-
-  readManyByIds = async (ids: string[]): Promise<SeriesEntity[]> =>
-    await this.seriesRepository.findBy({ id: In(ids) });
-
-  readOne = async (id: string): Promise<SeriesEntity> => {
-    const series = await this.seriesRepository.findOneBy({ id });
-    if (!series) {
-      throw new NotFoundError(`Series with id "${id}" not found!`);
-    }
-    return series;
-  };
-
-  update = async (
-    id: string,
-    updateSeriesInput: UpdateSeriesInput,
-  ): Promise<SeriesEntity> => {
-    const series = await this.seriesRepository.findOneBy({ id });
-    if (!series) {
-      throw new NotFoundError(`Series with id "${id}" not found!`);
-    }
-    return this.seriesRepository.save({
-      ...series,
-      ...updateSeriesInput,
-    });
-  };
-
-  delete = async (id: string): Promise<boolean> => {
-    const series = await this.seriesRepository.findOneBy({ id });
-    if (!series) {
-      throw new NotFoundError(`Series with id "${id}" not found!`);
-    }
-    await this.seriesRepository.remove(series);
-    return true;
   };
 }

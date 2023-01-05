@@ -3,14 +3,18 @@ import { FilmResolver } from './film.resolver';
 import { FilmService } from './film.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilmEntity } from './entities/film.entity';
-import { MovieGenreModule } from '../movie-genre/movie-genre.module';
-import { MovieStudioModule } from '../movie-studio/movie-studio.module';
+import { MovieCountryEntity } from '../movie-country/entities/movie-country.entity';
+import { MovieGenreEntity } from '../movie-genre/entities/movie-genre.entity';
+import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FilmEntity]),
-    MovieGenreModule,
-    MovieStudioModule,
+    TypeOrmModule.forFeature([
+      FilmEntity,
+      MovieCountryEntity,
+      MovieGenreEntity,
+      MovieStudioEntity,
+    ]),
   ],
   providers: [FilmResolver, FilmService],
   exports: [FilmService],

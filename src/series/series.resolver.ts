@@ -49,7 +49,16 @@ export class SeriesResolver {
   async getManySeriesProtected(
     @Args() { pagination, sort, filter }: GetSeriesArgs,
   ) {
-    return this.seriesService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.seriesService.readMany(pagination, sort, filter),
+      this.seriesService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => PaginatedSeries)
@@ -58,7 +67,17 @@ export class SeriesResolver {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
     };
-    return this.seriesService.readMany(pagination, sort, filter);
+
+    const [data, count] = await Promise.all([
+      this.seriesService.readMany(pagination, sort, filter),
+      this.seriesService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => SeriesEntity)
@@ -78,7 +97,7 @@ export class SeriesResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => SeriesEntity)
   deleteSeries(@Args('id', ParseUUIDPipe) id: string) {
     return this.seriesService.delete(id);
   }
