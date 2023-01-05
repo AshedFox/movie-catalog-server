@@ -5,7 +5,7 @@ import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { UserEntity } from '../user/entities/user.entity';
 import { AuthResult } from './dto/auth.result';
-import { RegisterInput } from './dto/register.input';
+import { CreateUserInput } from '../user/dto/create-user.input';
 import { LoginInput } from './dto/login.input';
 import { Request } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
@@ -47,7 +47,7 @@ export class AuthResolver {
 
   @Mutation(() => AuthResult)
   async register(
-    @Args('input') registerInput: RegisterInput,
+    @Args('input') registerInput: CreateUserInput,
     @Context('req') request: Request,
   ) {
     const result = await this.authService.register(registerInput);

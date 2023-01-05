@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
-import { RegisterInput } from './dto/register.input';
+import { CreateUserInput } from '../user/dto/create-user.input';
 import { AuthResult } from './dto/auth.result';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
@@ -74,7 +74,7 @@ export class AuthService {
     accessToken: await this.generateAccessToken(user),
   });
 
-  register = async (registerInput: RegisterInput): Promise<AuthResult> => {
+  register = async (registerInput: CreateUserInput): Promise<AuthResult> => {
     const user = await this.userService.create({
       ...registerInput,
       password: await argon2.hash(registerInput.password),
