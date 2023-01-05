@@ -138,25 +138,25 @@ const applyFieldFilter = (
 };
 
 const applyFilterTreeLevel = <T>(
-  where: WhereExpressionBuilder,
+  qb: SelectQueryBuilder<T>,
   filter: FilterType<T>,
   operator: 'or' | 'and',
 ) => {
   Object.keys(filter).forEach((key) => {
     if (key === 'and') {
-      where.andWhere(
-        new Brackets((qb) =>
+      qb.andWhere(
+        new Brackets((where) =>
           filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'and')),
         ),
       );
     } else if (key === 'or') {
-      where.andWhere(
-        new Brackets((qb) =>
+      qb.andWhere(
+        new Brackets((where) =>
           filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'or')),
         ),
       );
     } else {
-      applyFieldFilter(where, key, filter[key], operator);
+      applyFieldFilter(qb, key, filter[key], operator, qb.alias);
     }
   });
 };
@@ -229,7 +229,7 @@ const applyJoins = <T>(
 };
 
 const getRelations = <T>(
-  repo: Repository<T>,
+  relationsMeta: RelationMetadata[],
   filter: FilterType<T> = {},
   sort: SortType<T> = {},
 ) => {
@@ -241,30 +241,31 @@ const getRelations = <T>(
   ];
 
   return fields.length > 0
-    ? repo.metadata.relations.filter((r) => fields.includes(r.propertyName))
+    ? relationsMeta.filter((r) => fields.includes(r.propertyName))
     : [];
 };
 
-export const parseArgsToQuery = <T>(
+export function parseArgsToQuery<T>(
   repo: Repository<T>,
   pagination?: GqlOffsetPagination,
   sort?: SortType<T>,
   filter?: FilterType<T>,
-) => {
+) {
+  const relations = getRelations(repo.metadata.relations, filter, sort);
+
   const qb = repo.createQueryBuilder();
-  const relations = getRelations(repo, filter, sort);
 
   applyJoins(qb, relations);
 
-  if (pagination) {
-    applyPagination(qb, pagination);
-  }
   if (filter) {
     applyFilter(qb, filter);
   }
   if (sort) {
     applySort(qb, sort);
   }
+  if (pagination) {
+    applyPagination(qb, pagination);
+  }
 
   return qb;
-};
+}
