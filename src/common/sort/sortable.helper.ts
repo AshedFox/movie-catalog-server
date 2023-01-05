@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, TypeMetadataStorage } from '@nestjs/graphql';
 import { capitalize } from '@utils/helpers';
 import {
   FilterableRelationMetadata,
@@ -12,9 +12,11 @@ import { SortOptions } from './sort-options.type';
 export function Sortable<T>(classRef: Type<T>) {
   const filterableRelations = getFilterableRelations(classRef);
 
+  const name = TypeMetadataStorage.getObjectTypeMetadataByTarget(classRef).name;
+
   return createSortableType(
     classRef,
-    `${capitalize(classRef.name)}Sort`,
+    `${capitalize(name)}Sort`,
     filterableRelations,
   );
 }
@@ -39,7 +41,7 @@ function createSortableType<T>(
       propertyKey,
     );
   });
-  relations?.forEach(({ returnTypeFunction, propertyKey }) => {
+  relations?.forEach(({ returnTypeFunction, propertyKey, advancedOptions }) => {
     if (!returnTypeFunction) {
       throw new Error(
         `No explicit type for sortable relation ${propertyKey} in ${classRef}`,
@@ -51,7 +53,10 @@ function createSortableType<T>(
       ? (returnType[0] as Type)
       : (returnType as Type);
 
-    const ST = createSortableType(type, `${capitalize(type.name)}_${name}`);
+    const ST = createSortableType(
+      type,
+      `${capitalize(advancedOptions?.name ?? type.name)}_${name}`,
+    );
 
     Field(() => ST, { nullable: true })(GqlSort.prototype, propertyKey);
   });

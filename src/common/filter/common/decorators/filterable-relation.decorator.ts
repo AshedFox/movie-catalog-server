@@ -9,6 +9,7 @@ export type FilterableRelationMetadata = {
   target: Type;
   propertyKey: string;
   returnTypeFunction: ReturnTypeFunc;
+  advancedOptions?: FieldOptions;
 };
 
 export function FilterableRelation(): PropertyDecorator;
@@ -36,10 +37,21 @@ export function FilterableRelation(
     const data: FilterableRelationMetadata[] =
       Reflect.getMetadata(FILTERABLE_RELATION_KEY, target.constructor) ?? [];
 
-    data.push({ target: Ctx, propertyKey, returnTypeFunction: returnTypeFn });
+    data.push({
+      target: Ctx,
+      propertyKey,
+      returnTypeFunction: returnTypeFn,
+      advancedOptions: options,
+    });
     Reflect.defineMetadata(FILTERABLE_RELATION_KEY, data, target.constructor);
 
-    return Field(returnTypeFn, options)(target, propertyKey, descriptor);
+    if (returnTypeFn) {
+      return Field(returnTypeFn, options)(target, propertyKey, descriptor);
+    } else if (options) {
+      return Field(options)(target, propertyKey, descriptor);
+    } else {
+      return Field()(target, propertyKey, descriptor);
+    }
   };
 }
 

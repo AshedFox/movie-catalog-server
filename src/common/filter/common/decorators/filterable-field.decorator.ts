@@ -8,7 +8,8 @@ import { getPrototypeChain } from '@utils/helpers';
 export type FilterableFieldMetadata = {
   target: Type;
   propertyKey: string;
-  returnTypeFunction: ReturnTypeFunc;
+  returnTypeFunction?: ReturnTypeFunc;
+  advancedOptions?: FieldOptions;
 };
 
 export function FilterableField(): PropertyDecorator;
@@ -36,10 +37,21 @@ export function FilterableField(
     const data: FilterableFieldMetadata[] =
       Reflect.getMetadata(FILTERABLE_FIELD_KEY, target.constructor) ?? [];
 
-    data.push({ target: Ctx, propertyKey, returnTypeFunction: returnTypeFn });
+    data.push({
+      target: Ctx,
+      propertyKey,
+      returnTypeFunction: returnTypeFn,
+      advancedOptions: options,
+    });
     Reflect.defineMetadata(FILTERABLE_FIELD_KEY, data, target.constructor);
 
-    return Field(returnTypeFn, options)(target, propertyKey, descriptor);
+    if (returnTypeFn) {
+      return Field(returnTypeFn, options)(target, propertyKey, descriptor);
+    } else if (options) {
+      return Field(options)(target, propertyKey, descriptor);
+    } else {
+      return Field()(target, propertyKey, descriptor);
+    }
   };
 }
 

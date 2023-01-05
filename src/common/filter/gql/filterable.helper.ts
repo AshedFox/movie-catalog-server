@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { Type as TypeDecorator } from 'class-transformer';
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, TypeMetadataStorage } from '@nestjs/graphql';
 import { ValidateNested } from 'class-validator';
 import {
   createFilterComparisonType,
@@ -14,9 +14,11 @@ import { capitalize } from '@utils/helpers';
 export function Filterable<T>(classRef: Type<T>) {
   const filterableRelations = getFilterableRelations(classRef);
 
+  const name = TypeMetadataStorage.getObjectTypeMetadataByTarget(classRef).name;
+
   return createFilterableType(
     classRef,
-    `${capitalize(classRef.name)}Filter`,
+    `${capitalize(name)}Filter`,
     filterableRelations,
   );
 }
@@ -52,7 +54,7 @@ function createFilterableType<T>(
     Field(() => FCT, { nullable: true })(GqlFilter.prototype, propertyKey);
     TypeDecorator(() => FCT)(GqlFilter.prototype, propertyKey);
   });
-  relations?.forEach(({ returnTypeFunction, propertyKey }) => {
+  relations?.forEach(({ returnTypeFunction, propertyKey, advancedOptions }) => {
     if (!returnTypeFunction) {
       throw new Error(
         `No explicit type for filterable relation ${propertyKey} in ${classRef}`,
@@ -64,7 +66,10 @@ function createFilterableType<T>(
       ? (returnType[0] as Type)
       : (returnType as Type);
 
-    const FT = createFilterableType(type, `${capitalize(type.name)}_${name}`);
+    const FT = createFilterableType(
+      type,
+      `${capitalize(advancedOptions?.name ?? type.name)}_${name}`,
+    );
 
     ValidateNested()(GqlFilter.prototype, propertyKey);
     Field(() => FT, { nullable: true })(GqlFilter.prototype, propertyKey);
