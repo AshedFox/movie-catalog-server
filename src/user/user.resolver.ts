@@ -33,15 +33,12 @@ export class UserResolver {
     return this.userService.readOneById(currentUser.id);
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedUsers)
   getUsers(@Args() { pagination, sort, filter }: GetUsersArgs) {
     return this.userService.readMany(pagination, sort, filter);
   }
 
   @Query(() => UserEntity)
-  @UseGuards(GqlJwtAuthGuard)
   getUser(@Args('id', ParseUUIDPipe) id: string) {
     return this.userService.readOneById(id);
   }

@@ -46,12 +46,14 @@ export class SeriesResolver {
   @Query(() => PaginatedSeries)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  getManySeriesProtected(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+  async getManySeriesProtected(
+    @Args() { pagination, sort, filter }: GetSeriesArgs,
+  ) {
     return this.seriesService.readMany(pagination, sort, filter);
   }
 
   @Query(() => PaginatedSeries)
-  getManySeries(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+  async getManySeries(@Args() { pagination, sort, filter }: GetSeriesArgs) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },

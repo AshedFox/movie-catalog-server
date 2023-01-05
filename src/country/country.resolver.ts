@@ -16,11 +16,18 @@ import { PaginatedCountries } from './dto/paginated-countries';
 import { CurrencyEntity } from '../currency/entities/currency.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { UseGuards } from '@nestjs/common';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
   constructor(private readonly countryService: CountryService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => CountryEntity)
   createCountry(@Args('input') input: CreateCountryInput) {
     return this.countryService.create(input);
@@ -36,6 +43,8 @@ export class CountryResolver {
     return this.countryService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => CountryEntity)
   updateCountry(
     @Args('id') id: string,
@@ -44,6 +53,8 @@ export class CountryResolver {
     return this.countryService.update(id, input);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
   deleteCountry(@Args('id') id: string) {
     return this.countryService.delete(id);

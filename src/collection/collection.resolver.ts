@@ -29,6 +29,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class CollectionResolver {
   constructor(private readonly collectionService: CollectionService) {}
 
+  @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => CollectionEntity)
   createCollection(
     @Args('input') input: CreateCollectionInput,
@@ -48,6 +49,7 @@ export class CollectionResolver {
     return this.collectionService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => CollectionEntity)
   updateCollection(
     @Args('id', { type: () => Int }) id: number,
@@ -58,7 +60,9 @@ export class CollectionResolver {
     return this.collectionService.update(id, input);
   }
 
-  @Mutation(() => CollectionEntity)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  @Mutation(() => Boolean)
   deleteCollection(@Args('id', { type: () => Int }) id: number) {
     return this.collectionService.delete(id);
   }

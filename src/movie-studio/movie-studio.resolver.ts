@@ -9,17 +9,23 @@ import {
 } from '@nestjs/graphql';
 import { MovieStudioService } from './movie-studio.service';
 import { MovieStudioEntity } from './entities/movie-studio.entity';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { StudioEntity } from '../studio/entities/studio.entity';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(() => MovieStudioEntity)
 export class MovieStudioResolver {
   constructor(private readonly movieStudioService: MovieStudioService) {}
 
   @Mutation(() => MovieStudioEntity)
-  async createMovieStudio(
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  createMovieStudio(
     @Args('movieId', ParseUUIDPipe) movieId: string,
     @Args('studioId', { type: () => Int }) studioId: number,
   ) {
@@ -27,6 +33,8 @@ export class MovieStudioResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovieStudio(
     @Args('movieId', ParseUUIDPipe) movieId: string,
     @Args('studioId', { type: () => Int }) studioId: number,

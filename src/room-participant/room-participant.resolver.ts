@@ -6,12 +6,16 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { RoomEntity } from '../room/entities/room.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { RoomParticipantEntity } from './entities/room-participant.entity';
 import { RoomParticipantService } from './room-participant.service';
 import { UserEntity } from '../user/entities/user.entity';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(() => RoomParticipantEntity)
 export class RoomParticipantResolver {
@@ -20,7 +24,9 @@ export class RoomParticipantResolver {
   ) {}
 
   @Mutation(() => RoomParticipantEntity)
-  async createRoomParticipant(
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  createRoomParticipant(
     @Args('roomId', ParseUUIDPipe) roomId: string,
     @Args('userId', ParseUUIDPipe) userId: string,
   ) {
@@ -28,6 +34,8 @@ export class RoomParticipantResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteRoomParticipant(
     @Args('roomId', ParseUUIDPipe) roomId: string,
     @Args('userId', ParseUUIDPipe) userId: string,

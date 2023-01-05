@@ -20,6 +20,9 @@ import { VideoEntity } from '../video/entities/video.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(() => RoomEntity)
 export class RoomResolver {
@@ -35,18 +38,41 @@ export class RoomResolver {
     return this.roomService.create(createRoomInput);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedRooms)
-  getRooms(@Args() { pagination, filter, sort }: GetRoomsArgs) {
+  getRoomsProtected(@Args() { pagination, filter, sort }: GetRoomsArgs) {
+    return this.roomService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => PaginatedRooms)
+  @UseGuards(GqlJwtAuthGuard)
+  getRooms(
+    @CurrentUser() currentUser: CurrentUserDto,
+    @Args() { pagination, filter, sort }: GetRoomsArgs,
+  ) {
+    filter.ownerId = { eq: currentUser.id };
     return this.roomService.readMany(pagination, sort, filter);
   }
 
   @Query(() => RoomEntity)
-  getRoom(@Args('id', ParseUUIDPipe) id: string) {
-    return this.roomService.readOne(id);
+  @UseGuards(GqlJwtAuthGuard)
+  async getRoom(
+    @CurrentUser() currentUser: CurrentUserDto,
+    @Args('id', ParseUUIDPipe) id: string,
+  ) {
+    const room = await this.roomService.readOne(id);
+
+    if (room.ownerId !== currentUser.id) {
+      return null;
+    }
+    return room;
   }
 
   @Mutation(() => RoomEntity)
-  updateRoom(
+  @UseGuards(GqlJwtAuthGuard)
+  async updateRoom(
+    @CurrentUser() currentUser: CurrentUserDto,
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') updateRoomInput: UpdateRoomInput,
   ) {
@@ -54,7 +80,11 @@ export class RoomResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteRoom(@Args('id', ParseUUIDPipe) id: string) {
+  @UseGuards(GqlJwtAuthGuard)
+  async deleteRoom(
+    @CurrentUser() currentUser: CurrentUserDto,
+    @Args('id', ParseUUIDPipe) id: string,
+  ) {
     return this.roomService.delete(id);
   }
 
@@ -78,6 +108,6 @@ export class RoomResolver {
 
   @ResolveField(() => UserEntity)
   owner(@Parent() room: RoomEntity, @Context('loaders') loaders: IDataLoaders) {
-    return room.ownerId ? loaders.userLoader.load(room.currentVideoId) : null;
+    return room.ownerId ? loaders.userLoader.load(room.ownerId) : null;
   }
 }

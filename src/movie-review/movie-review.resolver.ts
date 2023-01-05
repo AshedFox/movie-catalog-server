@@ -17,13 +17,22 @@ import { PaginatedMoviesReviews } from './dto/paginated-movies-reviews';
 import { UserEntity } from '../user/entities/user.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MovieEntity } from '../movie/entities/movie.entity';
+import { UseGuards } from '@nestjs/common';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUserDto } from '../user/dto/current-user.dto';
 
 @Resolver(() => MovieReviewEntity)
 export class MovieReviewResolver {
   constructor(private readonly reviewService: MovieReviewService) {}
 
   @Mutation(() => MovieReviewEntity)
-  createMovieReview(@Args('input') createReviewInput: CreateMovieReviewInput) {
+  @UseGuards(GqlJwtAuthGuard)
+  createMovieReview(
+    @CurrentUser() currentUser: CurrentUserDto,
+    @Args('input') createReviewInput: CreateMovieReviewInput,
+  ) {
+    createReviewInput.userId = currentUser.id;
     return this.reviewService.create(createReviewInput);
   }
 
@@ -38,6 +47,7 @@ export class MovieReviewResolver {
   }
 
   @Mutation(() => MovieReviewEntity)
+  @UseGuards(GqlJwtAuthGuard)
   updateMovieReview(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') updateReviewInput: UpdateMovieReviewInput,
@@ -46,6 +56,7 @@ export class MovieReviewResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
   deleteMovieReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.delete(id);
   }

@@ -36,7 +36,18 @@ export class EpisodeResolver {
   }
 
   @Query(() => PaginatedEpisodes)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  getEpisodesProtected(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
+    return this.episodeService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => PaginatedEpisodes)
   getEpisodes(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
+    if (!filter) {
+      filter = {};
+    }
+    filter.accessMode = { eq: AccessModeEnum.PUBLIC };
     return this.episodeService.readMany(pagination, sort, filter);
   }
 

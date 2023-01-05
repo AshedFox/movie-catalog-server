@@ -1,24 +1,29 @@
 import {
   Args,
   Context,
-  Int,
   Mutation,
   Parent,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
 import { MovieCountryService } from './movie-country.service';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MovieCountryEntity } from './entities/movie-country.entity';
 import { CountryEntity } from '../country/entities/country.entity';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
 
 @Resolver(() => MovieCountryEntity)
 export class MovieCountryResolver {
   constructor(private readonly movieCountryService: MovieCountryService) {}
 
   @Mutation(() => MovieCountryEntity)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   createMovieCountry(
     @Args('movieId', ParseUUIDPipe) movieId: string,
     @Args('countryId') countryId: string,
@@ -27,6 +32,8 @@ export class MovieCountryResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovieCountry(
     @Args('movieId', ParseUUIDPipe) movieId: string,
     @Args('countryId') countryId: string,

@@ -43,7 +43,22 @@ export class FilmResolver {
   }
 
   @Query(() => PaginatedFilms)
-  getFilms(@Args() { pagination, sort, filter }: GetFilmsArgs) {
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  async getFilmsProtected(
+    @Args() { pagination, sort, filter }: GetFilmsArgs,
+  ): Promise<PaginatedFilms> {
+    return this.filmService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => PaginatedFilms)
+  async getFilms(
+    @Args() { pagination, sort, filter }: GetFilmsArgs,
+  ): Promise<PaginatedFilms> {
+    filter = {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    };
     return this.filmService.readMany(pagination, sort, filter);
   }
 

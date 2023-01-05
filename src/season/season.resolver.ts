@@ -35,7 +35,18 @@ export class SeasonResolver {
   }
 
   @Query(() => PaginatedSeasons)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  getSeasonsProtected(@Args() { pagination, sort, filter }: GetSeasonsArgs) {
+    return this.seasonService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => PaginatedSeasons)
   getSeasons(@Args() { pagination, sort, filter }: GetSeasonsArgs) {
+    if (!filter) {
+      filter = {};
+    }
+    filter.accessMode = { eq: AccessModeEnum.PUBLIC };
     return this.seasonService.readMany(pagination, sort, filter);
   }
 
