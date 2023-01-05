@@ -48,4 +48,36 @@ export class CloudinaryService {
 
       file.createReadStream().pipe(upload);
     });
+
+  uploadSubtitles = async (
+    file: FileUpload,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> =>
+    new Promise((resolve, reject) => {
+      const upload = v2.uploader.upload_stream(
+        {
+          unique_filename: true,
+          resource_type: 'raw',
+          folder: 'movie-catalog/subtitles',
+        },
+        (err, callResult) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve(callResult);
+        },
+      );
+
+      file.createReadStream().pipe(upload);
+    });
+
+  delete = async (public_id: string) => {
+    return new Promise((resolve, reject) => {
+      v2.uploader.destroy(public_id, (err, callResult) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(callResult);
+      });
+    });
+  };
 }
