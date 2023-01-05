@@ -8,11 +8,13 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { MovieEntity } from './entities/movie.entity';
-import { CreateMovieInput } from './dto/create-movie.input';
 import { GetMoviesArgs } from './dto/get-movies.args';
 import { MovieService } from './movie.service';
-import { UpdateMovieInput } from './dto/update-movie.input';
-import { PaginatedMovies } from './dto/paginated-movies';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { GqlOffsetPagination } from '@common/pagination';
+import { MediaEntity } from '../media/entities/media.entity';
+import { MovieUnion } from './entities/movie.union';
+import { PaginatedMoviesUnion } from './dto/paginated-movies-union';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
@@ -23,7 +25,6 @@ import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity'
 import { GenreEntity } from '../genre/entities/genre.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
-import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
@@ -32,31 +33,30 @@ import { CountryEntity } from '../country/entities/country.entity';
 export class MovieResolver {
   constructor(private readonly movieService: MovieService) {}
 
-  @Mutation(() => MovieEntity)
+  @Query(() => PaginatedMoviesUnion)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  createMovie(@Args('input') input: CreateMovieInput) {
-    return this.movieService.create(input);
+  getMoviesProtected(@Args() { pagination, sort, filter }: GetMoviesArgs) {
+    return this.movieService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => PaginatedMovies)
+  @Query(() => PaginatedMoviesUnion)
   getMovies(@Args() { pagination, sort, filter }: GetMoviesArgs) {
+    filter = {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    };
     return this.movieService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => [MovieUnion])
+  getMostPopularMovies(@Args('pagination') pagination: GqlOffsetPagination) {
+    return this.movieService.readManyMostPopular(pagination);
   }
 
   @Query(() => MovieEntity)
   getMovie(@Args('id', ParseUUIDPipe) id: string) {
     return this.movieService.readOne(id);
-  }
-
-  @Mutation(() => MovieEntity)
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  updateMovie(
-    @Args('id', ParseUUIDPipe) id: string,
-    @Args('input') input: UpdateMovieInput,
-  ) {
-    return this.movieService.update(id, input);
   }
 
   @Mutation(() => Boolean)
