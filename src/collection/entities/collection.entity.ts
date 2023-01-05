@@ -14,15 +14,16 @@ import { CollectionMovieEntity } from '../../collection-movie/entities/collectio
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('Collection')
 @Entity('collections')
 export class CollectionEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int4' })
   id: number;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 255 })
+  @Index()
   name: string;
 
   @FilterableField({ nullable: true })
@@ -31,14 +32,17 @@ export class CollectionEntity {
 
   @FilterableField()
   @Column({ default: false })
+  @Index()
   isSystem: boolean;
 
   @FilterableField()
   @CreateDateColumn()
+  @Index()
   createdAt: Date;
 
   @FilterableField()
   @UpdateDateColumn()
+  @Index()
   updatedAt: Date;
 
   @FilterableField({ nullable: true })
@@ -54,7 +58,7 @@ export class CollectionEntity {
   })
   cover?: MediaEntity;
 
-  @Field(() => MovieEntity)
+  @Field(() => [MovieEntity])
   movies: MovieEntity[];
 
   @HideField()

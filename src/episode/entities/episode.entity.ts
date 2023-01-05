@@ -16,7 +16,7 @@ import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { FilterableField, FilterableRelation } from '@common/filter';
 import { VideoEntity } from '../../video/entities/video.entity';
 
-@ObjectType()
+@ObjectType('Episode')
 @Entity('episodes')
 @Unique(['numberInSeries', 'seriesId'])
 export class EpisodeEntity {
@@ -25,7 +25,7 @@ export class EpisodeEntity {
   id: string;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 255 })
   title?: string;
 
   @FilterableField({ nullable: true })
@@ -42,6 +42,7 @@ export class EpisodeEntity {
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
+  @Index({ where: 'release_date IS NOT NULL' })
   releaseDate?: Date;
 
   @FilterableField()
@@ -52,24 +53,31 @@ export class EpisodeEntity {
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
+    enumName: 'access_mode_enum',
     default: AccessModeEnum.PRIVATE,
   })
+  @Index({ where: "access_mode = 'PUBLIC'" })
   accessMode: AccessModeEnum;
 
   @FilterableField(() => Int)
-  @Column({ type: 'int' })
+  @Column({ type: 'int2' })
   numberInSeries: number;
 
   @FilterableField(() => Int, { nullable: true })
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int2', nullable: true })
   numberInSeason?: number;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
+  @Index({ where: 'season_id IS NOT NULL' })
   seasonId?: string;
 
   @Field(() => SeasonEntity, { nullable: true })
-  @ManyToOne(() => SeasonEntity, { nullable: true })
+  @ManyToOne(() => SeasonEntity, {
+    nullable: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   season?: SeasonEntity;
 
   @FilterableField()
@@ -77,7 +85,7 @@ export class EpisodeEntity {
   seriesId: string;
 
   @Field(() => SeriesEntity)
-  @ManyToOne(() => SeriesEntity)
+  @ManyToOne(() => SeriesEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   series: SeriesEntity;
 
   @FilterableField({ nullable: true })

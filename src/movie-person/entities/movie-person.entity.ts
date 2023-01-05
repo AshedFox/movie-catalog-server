@@ -1,15 +1,21 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { MoviePersonTypeEntity } from '../../movie-person-type/entities/movie-person-type.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { PersonEntity } from '../../person/entities/person.entity';
 import { FilterableField, FilterableRelation } from '@common/filter';
 
-@ObjectType()
-@Entity({ name: 'movies_persons' })
+@ObjectType('MoviePerson')
+@Entity('movies_persons')
 export class MoviePersonEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
   @Field(() => MovieEntity)
@@ -22,21 +28,27 @@ export class MoviePersonEntity {
 
   @FilterableField()
   @Column()
+  @Index()
   movieId: string;
 
   @FilterableField()
   @Column()
+  @Index()
   personId: number;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 255 })
   role?: string;
 
   @FilterableField()
   @Column()
+  @Index()
   typeId: number;
 
   @FilterableRelation(() => MoviePersonTypeEntity)
-  @ManyToOne(() => MoviePersonTypeEntity)
+  @ManyToOne(() => MoviePersonTypeEntity, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   type: MoviePersonTypeEntity;
 }

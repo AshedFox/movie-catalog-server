@@ -1,5 +1,5 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { GetCountriesArgs } from '../country/dto/get-countries.args';
+import { GetCurrenciesArgs } from './dto/get-currencies.args';
 import { CurrencyEntity } from './entities/currency.entity';
 import { CreateCurrencyInput } from './dto/create-currency.input';
 import { CurrencyService } from './currency.service';
@@ -16,7 +16,7 @@ export class CurrencyResolver {
   }
 
   @Query(() => PaginatedCurrencies)
-  getCurrencies(@Args() { sort, filter, pagination }: GetCountriesArgs) {
+  getCurrencies(@Args() { sort, filter, pagination }: GetCurrenciesArgs) {
     return this.currencyService.readMany(pagination, sort, filter);
   }
 

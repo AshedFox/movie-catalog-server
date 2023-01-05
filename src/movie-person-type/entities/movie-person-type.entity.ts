@@ -2,14 +2,14 @@ import { ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('MoviePersonType')
 @Entity('movie_person_types')
 export class MoviePersonTypeEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int2' })
   id: number;
 
   @FilterableField()
-  @Column({ unique: true })
+  @Column({ unique: true, length: 255 })
   name: string;
 }

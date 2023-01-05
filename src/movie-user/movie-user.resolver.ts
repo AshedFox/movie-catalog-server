@@ -65,7 +65,7 @@ export class MovieUserResolver {
     return loaders.movieLoader.load(movieUser.movieId);
   }
 
-  @ResolveField(() => PersonEntity)
+  @ResolveField(() => UserEntity)
   user(
     @Parent() movieUser: MovieUserEntity,
     @Context('loaders') loaders: IDataLoaders,

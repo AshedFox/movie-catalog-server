@@ -19,7 +19,7 @@ export class StudioCountryService {
 
   create = async (
     studioId: number,
-    countryId: number,
+    countryId: string,
   ): Promise<StudioCountryEntity> => {
     await this.studioService.readOne(studioId);
     await this.countryService.readOne(countryId);
@@ -37,7 +37,7 @@ export class StudioCountryService {
 
   createManyForStudio = async (
     studioId: number,
-    countriesIds: number[],
+    countriesIds: string[],
   ): Promise<StudioCountryEntity[]> =>
     this.studioCountryRepository.save(
       countriesIds.map((countryId) => ({ countryId, studioId })),
@@ -58,7 +58,7 @@ export class StudioCountryService {
 
   readOne = async (
     studioId: number,
-    countryId: number,
+    countryId: string,
   ): Promise<StudioCountryEntity> => {
     const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
@@ -72,7 +72,7 @@ export class StudioCountryService {
     return studioCountry;
   };
 
-  delete = async (studioId: number, countryId: number): Promise<boolean> => {
+  delete = async (studioId: number, countryId: string): Promise<boolean> => {
     const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,

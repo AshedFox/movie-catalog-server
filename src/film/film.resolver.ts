@@ -79,7 +79,7 @@ export class FilmResolver {
     @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return movie.coverId ? loaders.imageLoader.load(movie.coverId) : undefined;
+    return movie.coverId ? loaders.mediaLoader.load(movie.coverId) : undefined;
   }
 
   @ResolveField(() => [TrailerEntity])

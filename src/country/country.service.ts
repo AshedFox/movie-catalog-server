@@ -43,10 +43,10 @@ export class CountryService {
     };
   };
 
-  readManyByIds = async (ids: number[]): Promise<CountryEntity[]> =>
+  readManyByIds = async (ids: string[]): Promise<CountryEntity[]> =>
     this.countryRepository.findBy({ id: In(ids) });
 
-  readOne = async (id: number): Promise<CountryEntity> => {
+  readOne = async (id: string): Promise<CountryEntity> => {
     const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
       throw new NotFoundError(`Country with id "${id}" not found!`);
@@ -55,7 +55,7 @@ export class CountryService {
   };
 
   update = async (
-    id: number,
+    id: string,
     updateCountryInput: UpdateCountryInput,
   ): Promise<CountryEntity> => {
     const country = await this.countryRepository.findOneBy({ id });
@@ -65,7 +65,7 @@ export class CountryService {
     return this.countryRepository.save({ ...country, ...updateCountryInput });
   };
 
-  delete = async (id: number): Promise<boolean> => {
+  delete = async (id: string): Promise<boolean> => {
     const country = await this.countryRepository.findOneBy({ id });
     if (!country) {
       throw new NotFoundError(`Country with id "${id}" not found!`);

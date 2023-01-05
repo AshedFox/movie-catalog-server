@@ -1,24 +1,50 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { FilterableField } from '@common/filter';
+import { MediaEntity } from '../../media/entities/media.entity';
 
-@ObjectType()
-@Entity({ name: 'persons' })
+@ObjectType('Person')
+@Entity('persons')
 export class PersonEntity {
   @FilterableField(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 255 })
+  @Index()
   name: string;
 
-  @FilterableField(() => Int, { nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
-  countryId?: number;
+  @Index({ where: 'country_id IS NOT NULL' })
+  countryId?: string;
 
   @Field(() => CountryEntity, { nullable: true })
-  @ManyToOne(() => CountryEntity, { nullable: true })
+  @ManyToOne(() => CountryEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   country?: CountryEntity;
+
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true, type: 'uuid' })
+  @Index({ where: 'image_id IS NOT NULL' })
+  imageId?: string;
+
+  @Field(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  image?: MediaEntity;
 }

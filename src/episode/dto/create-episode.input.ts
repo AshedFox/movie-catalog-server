@@ -6,7 +6,7 @@ import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 @InputType()
 export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   @Field({ nullable: true })
-  @Length(1, 200)
+  @Length(1, 255)
   @IsOptional()
   title?: string;
 

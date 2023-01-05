@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType()
+@ObjectType('RefreshToken')
 @Entity('refresh_tokens')
 export class RefreshTokenEntity {
   @Field(() => ID)
@@ -18,6 +18,6 @@ export class RefreshTokenEntity {
   userId: string;
 
   @Field(() => UserEntity)
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   user: UserEntity;
 }

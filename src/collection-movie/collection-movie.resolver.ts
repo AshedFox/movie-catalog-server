@@ -44,7 +44,7 @@ export class CollectionMovieResolver {
     return loaders.movieLoader.load(collectionMovie.movieId);
   }
 
-  @ResolveField(() => GenreEntity)
+  @ResolveField(() => CollectionEntity)
   collection(
     @Parent() collectionMovie: CollectionMovieEntity,
     @Context('loaders') loaders: IDataLoaders,

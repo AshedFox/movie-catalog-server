@@ -30,7 +30,11 @@ export class CollectionResolver {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Mutation(() => CollectionEntity)
-  createCollection(@Args('input') input: CreateCollectionInput) {
+  createCollection(
+    @Args('input') input: CreateCollectionInput,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    input.isSystem = user.role !== RoleEnum.User;
     return this.collectionService.create(input);
   }
 
@@ -48,7 +52,9 @@ export class CollectionResolver {
   updateCollection(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: UpdateCollectionInput,
+    @CurrentUser() user: CurrentUserDto,
   ) {
+    input.isSystem = user.role !== RoleEnum.User;
     return this.collectionService.update(id, input);
   }
 

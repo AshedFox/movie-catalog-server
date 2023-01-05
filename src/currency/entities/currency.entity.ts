@@ -2,11 +2,11 @@ import { ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('Currency')
 @Entity('currencies')
 export class CurrencyEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int2' })
   id: number;
 
   @FilterableField()

@@ -3,12 +3,12 @@ import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 
-@ObjectType()
+@ObjectType('MovieCountry')
 @Entity('movies_countries')
 export class MovieCountryEntity {
   @Field(() => ID)
   @PrimaryColumn()
-  countryId: number;
+  countryId: string;
 
   @Field(() => ID)
   @PrimaryColumn()

@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -15,8 +16,8 @@ import { FilterableField, FilterableRelation } from '@common/filter';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
-@ObjectType()
-@Entity({ name: 'seasons' })
+@ObjectType('Season')
+@Entity('seasons')
 @Unique(['numberInSeries', 'seriesId'])
 export class SeasonEntity {
   @FilterableField(() => ID)
@@ -24,11 +25,11 @@ export class SeasonEntity {
   id: string;
 
   @FilterableField(() => Int)
-  @Column({ type: 'int' })
+  @Column({ type: 'int2' })
   numberInSeries: number;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 255 })
   title?: string;
 
   @FilterableField({ nullable: true })
@@ -45,10 +46,12 @@ export class SeasonEntity {
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
+  @Index({ where: 'start_release_date IS NOT NULL' })
   startReleaseDate?: Date;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
+  @Index({ where: 'end_release_date IS NOT NULL' })
   endReleaseDate?: Date;
 
   @FilterableField()
@@ -63,8 +66,10 @@ export class SeasonEntity {
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
+    enumName: 'access_mode_enum',
     default: AccessModeEnum.PRIVATE,
   })
+  @Index({ where: "access_mode = 'PUBLIC'" })
   accessMode: AccessModeEnum;
 
   @Field(() => Int)
@@ -75,7 +80,7 @@ export class SeasonEntity {
   seriesId: string;
 
   @FilterableRelation(() => SeriesEntity)
-  @ManyToOne(() => SeriesEntity)
+  @ManyToOne(() => SeriesEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   series: SeriesEntity;
 
   @Field(() => [EpisodeEntity])

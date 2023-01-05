@@ -1,7 +1,6 @@
 import {
   Args,
   Context,
-  Int,
   Mutation,
   Parent,
   Query,
@@ -32,20 +31,20 @@ export class CountryResolver {
   }
 
   @Query(() => CountryEntity)
-  getCountry(@Args('id', { type: () => Int }) id: number) {
+  getCountry(@Args('id') id: string) {
     return this.countryService.readOne(id);
   }
 
   @Mutation(() => CountryEntity)
   updateCountry(
-    @Args('id', { type: () => Int }) id: number,
+    @Args('id') id: string,
     @Args('input') input: UpdateCountryInput,
   ) {
     return this.countryService.update(id, input);
   }
 
   @Mutation(() => Boolean)
-  deleteCountry(@Args('id', { type: () => Int }) id: number) {
+  deleteCountry(@Args('id') id: string) {
     return this.countryService.delete(id);
   }
 

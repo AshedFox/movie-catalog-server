@@ -4,7 +4,7 @@ import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('MovieUser')
 @Entity('movies_users')
 export class MovieUserEntity {
   @FilterableField(() => ID)

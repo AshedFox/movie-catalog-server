@@ -27,7 +27,7 @@ export class StudioCountryResolver {
   @Mutation(() => StudioCountryEntity)
   createStudioCountry(
     @Args('studioId', { type: () => Int }) studioId: number,
-    @Args('countryId', { type: () => Int }) countryId: number,
+    @Args('countryId') countryId: string,
   ) {
     return this.studioCountryService.create(studioId, countryId);
   }
@@ -37,7 +37,7 @@ export class StudioCountryResolver {
   @Mutation(() => Boolean)
   deleteStudioCountry(
     @Args('studioId', { type: () => Int }) studioId: number,
-    @Args('countryId', { type: () => Int }) countryId: number,
+    @Args('countryId') countryId: string,
   ) {
     return this.studioCountryService.delete(studioId, countryId);
   }

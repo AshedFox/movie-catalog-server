@@ -3,7 +3,7 @@ import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { StudioEntity } from '../../studio/entities/studio.entity';
 
-@ObjectType()
+@ObjectType('MovieStudio')
 @Entity('movies_studios')
 export class MovieStudioEntity {
   @Field(() => ID)

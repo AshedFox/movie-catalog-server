@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { FilmEntity } from '../entities/film.entity';
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { CreateMovieInput } from '../../movie/dto/create-movie.input';
 
 @InputType()

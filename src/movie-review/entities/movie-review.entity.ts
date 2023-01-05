@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,15 +12,16 @@ import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('MovieReview')
 @Entity('movies_reviews')
 export class MovieReviewEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
   @FilterableField(() => ID)
   @Column()
+  @Index()
   userId: string;
 
   @Field(() => UserEntity)
@@ -28,6 +30,7 @@ export class MovieReviewEntity {
 
   @FilterableField(() => ID)
   @Column()
+  @Index()
   movieId: string;
 
   @Field(() => MovieEntity)
@@ -36,6 +39,7 @@ export class MovieReviewEntity {
 
   @FilterableField(() => Int)
   @Column({ type: 'int2' })
+  @Index()
   mark: number;
 
   @FilterableField({ nullable: true })
@@ -44,6 +48,7 @@ export class MovieReviewEntity {
 
   @FilterableField()
   @CreateDateColumn()
+  @Index()
   createdAt: Date;
 
   @FilterableField()

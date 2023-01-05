@@ -11,19 +11,24 @@ import { MediaEntity } from '../../media/entities/media.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField, FilterableRelation } from '@common/filter';
 
-@ObjectType()
+@ObjectType('MovieImage')
 @Entity('movies_images')
 export class MovieImageEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
+  @Index()
   typeId?: number;
 
   @FilterableRelation(() => MovieImageTypeEntity, { nullable: true })
-  @ManyToOne(() => MovieImageTypeEntity, { nullable: true })
+  @ManyToOne(() => MovieImageTypeEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   type?: MovieImageTypeEntity;
 
   @FilterableField(() => ID)
@@ -32,7 +37,8 @@ export class MovieImageEntity {
   imageId: number;
 
   @FilterableField(() => ID)
-  @PrimaryColumn()
+  @Column({ type: 'uuid' })
+  @Index()
   movieId: string;
 
   @Field(() => MediaEntity)

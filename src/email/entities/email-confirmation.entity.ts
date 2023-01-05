@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity({ name: 'emails_confirmations' })
@@ -6,13 +12,14 @@ export class EmailConfirmationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ length: 320 })
   email: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
+  @Index()
   userId: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
   user: UserEntity;
 
   @Column()

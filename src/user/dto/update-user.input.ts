@@ -1,6 +1,6 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { UserEntity } from '../entities/user.entity';
-import { IsEmail, IsOptional } from 'class-validator';
+import { IsEmail, IsOptional, Length } from 'class-validator';
 
 @InputType()
 export class UpdateUserInput implements Partial<UserEntity> {
@@ -9,11 +9,16 @@ export class UpdateUserInput implements Partial<UserEntity> {
   @IsOptional()
   email?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field()
+  @Length(2, 255)
   @IsOptional()
-  countryId?: number;
+  name?: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  avatarId?: string;
+  countryId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  avatarId?: number;
 }

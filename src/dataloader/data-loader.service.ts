@@ -50,6 +50,8 @@ export class DataLoaderService {
     private readonly movieReviewService: MovieReviewService,
     private readonly movieService: MovieService,
     private readonly movieStudioService: MovieStudioService,
+    private readonly moviePersonTypeService: MoviePersonTypeService,
+    private readonly movieImageTypeService: MovieImageTypeService,
     private readonly personService: PersonService,
     private readonly roomParticipantService: RoomParticipantService,
     private readonly roomService: RoomService,
@@ -111,10 +113,10 @@ export class DataLoaderService {
   };
 
   private createSingleLoader = <I extends IndexType, D>(
-    readByIdsFn: (ids: I[]) => Promise<D[]>,
+    readFn: (ids: I[]) => Promise<D[]>,
   ) => {
     return new DataLoader<I, D>(async (ids: I[]) =>
-      this.mapSingleData(ids, await readByIdsFn(ids)),
+      this.mapSingleData(ids, await readFn(ids)),
     );
   };
 
@@ -170,7 +172,6 @@ export class DataLoaderService {
       this.episodeService.readManyBySeries,
       'seriesId',
     ),
-    filmLoader: this.createSingleLoader(this.filmService.readManyByIds),
     genreLoader: this.createSingleLoader(this.genreService.readManyByIds),
     genresByMovieLoader: this.createMultipleRelationLoader(
       this.movieGenreService.readManyByMovies,
@@ -186,6 +187,12 @@ export class DataLoaderService {
     movieImagesByMovieLoader: this.createMultipleLoader(
       this.movieImageService.readManyByMovies,
       'movieId',
+    ),
+    movieImageTypeLoader: this.createSingleLoader(
+      this.movieImageTypeService.readManyByIds,
+    ),
+    moviePersonTypeLoader: this.createSingleLoader(
+      this.moviePersonTypeService.readManyByIds,
     ),
     movieLoader: this.createSingleLoader(this.movieService.readManyByIds),
     moviePersonsByMovieLoader: this.createMultipleLoader(

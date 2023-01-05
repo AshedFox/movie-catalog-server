@@ -1,4 +1,4 @@
-import { Field, ID, InputType } from '@nestjs/graphql';
+import { Field, HideField, ID, InputType } from '@nestjs/graphql';
 import { MovieUserEntity } from '../entities/movie-user.entity';
 import { IsUUID } from 'class-validator';
 
@@ -8,7 +8,7 @@ export class CreateMovieUserInput implements Partial<MovieUserEntity> {
   @IsUUID()
   movieId: string;
 
-  @Field(() => ID)
+  @HideField()
   @IsUUID()
   userId: string;
 

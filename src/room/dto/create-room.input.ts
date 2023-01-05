@@ -5,7 +5,7 @@ import { Length } from 'class-validator';
 @InputType()
 export class CreateRoomInput implements Partial<RoomEntity> {
   @Field()
-  @Length(1, 200)
+  @Length(1, 255)
   name: string;
 
   @HideField()

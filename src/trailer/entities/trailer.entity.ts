@@ -11,16 +11,16 @@ import { VideoEntity } from '../../video/entities/video.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('Trailer')
 @Entity('trailers')
 @Unique(['movieId', 'videoId'])
 export class TrailerEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int4' })
   id: number;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 255 })
   title?: string;
 
   @FilterableField()
@@ -32,7 +32,7 @@ export class TrailerEntity {
   movieId: string;
 
   @Field(() => MovieEntity)
-  @ManyToOne(() => MovieEntity)
+  @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   movie: MovieEntity;
 
   @FilterableField()
@@ -40,6 +40,6 @@ export class TrailerEntity {
   videoId: number;
 
   @Field(() => VideoEntity)
-  @ManyToOne(() => VideoEntity)
+  @ManyToOne(() => VideoEntity, { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
   video: VideoEntity;
 }

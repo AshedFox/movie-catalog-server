@@ -12,7 +12,7 @@ export class CreateMoviePersonInput implements Partial<MoviePersonEntity> {
   personId: number;
 
   @Field({ nullable: true })
-  @Length(2, 200)
+  @Length(2, 255)
   @IsOptional()
   role?: string;
 

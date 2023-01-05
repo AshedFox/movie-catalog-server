@@ -7,25 +7,26 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MediaEntity } from '../../media/entities/media.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
-@Entity({ name: 'users' })
+@ObjectType('User')
+@Entity('users')
 export class UserEntity {
   @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @FilterableField()
-  @Column({ unique: true })
+  @Column({ unique: true, length: 320 })
   email: string;
 
   @FilterableField()
   @Column({ default: false })
+  @Index()
   isEmailConfirmed: boolean;
 
   @HideField()
@@ -33,27 +34,40 @@ export class UserEntity {
   password: string;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 255 })
   name: string;
 
   @FilterableField()
   @CreateDateColumn()
+  @Index()
   createdAt: Date;
 
   @FilterableField()
   @UpdateDateColumn()
+  @Index()
   updatedAt: Date;
 
   @FilterableField(() => RoleEnum)
-  @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.User })
+  @Column({
+    type: 'enum',
+    enum: RoleEnum,
+    enumName: 'role_enum',
+    default: RoleEnum.User,
+  })
+  @Index({ where: "role = 'user'" })
   role: RoleEnum;
 
-  @FilterableField(() => Int, { nullable: true })
+  @FilterableField({ nullable: true })
   @Column({ nullable: true })
-  countryId?: number;
+  @Index({ where: 'country_id IS NOT NULL' })
+  countryId?: string;
 
   @Field(() => CountryEntity, { nullable: true })
-  @ManyToOne(() => CountryEntity, { nullable: true })
+  @ManyToOne(() => CountryEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   country?: CountryEntity;
 
   @FilterableField({ nullable: true })

@@ -1,10 +1,4 @@
-import {
-  Field,
-  GraphQLISODateTime,
-  HideField,
-  ID,
-  ObjectType,
-} from '@nestjs/graphql';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -33,20 +27,23 @@ import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
-@ObjectType()
+@ObjectType('Movie')
 @Entity('movies')
-@TableInheritance({ column: { name: 'type', type: 'varchar' } })
+@TableInheritance({
+  column: { type: 'enum', enum: MovieTypeEnum, enumName: 'movie_type_enum' },
+})
 export class MovieEntity {
   @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @FilterableField()
-  @Column()
-  readonly type: string;
+  @Field(() => MovieTypeEnum)
+  @Column({ type: 'enum', enum: MovieTypeEnum, enumName: 'movie_type_enum' })
+  readonly type: MovieTypeEnum;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 255 })
+  @Index()
   title: string;
 
   @FilterableField({ nullable: true })
@@ -55,10 +52,14 @@ export class MovieEntity {
 
   @FilterableField()
   @CreateDateColumn()
+  @Expose({ name: 'created_at' })
+  @Index()
   createdAt: Date;
 
   @FilterableField()
   @UpdateDateColumn()
+  @Expose({ name: 'updated_at' })
+  @Index()
   updatedAt: Date;
 
   @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
@@ -73,8 +74,11 @@ export class MovieEntity {
   @Column({
     type: 'enum',
     enum: AccessModeEnum,
+    enumName: 'access_mode_enum',
     default: AccessModeEnum.PRIVATE,
   })
+  @Expose({ name: 'access_mode' })
+  @Index({ where: "access_mode = 'PUBLIC'" })
   accessMode: AccessModeEnum;
 
   @FilterableField({ nullable: true })

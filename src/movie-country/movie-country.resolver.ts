@@ -21,7 +21,7 @@ export class MovieCountryResolver {
   @Mutation(() => MovieCountryEntity)
   createMovieCountry(
     @Args('movieId', ParseUUIDPipe) movieId: string,
-    @Args('countryId', { type: () => Int }) countryId: number,
+    @Args('countryId') countryId: string,
   ) {
     return this.movieCountryService.create(movieId, countryId);
   }
@@ -29,7 +29,7 @@ export class MovieCountryResolver {
   @Mutation(() => Boolean)
   deleteMovieCountry(
     @Args('movieId', ParseUUIDPipe) movieId: string,
-    @Args('countryId', { type: () => Int }) countryId: number,
+    @Args('countryId') countryId: string,
   ) {
     return this.movieCountryService.delete(movieId, countryId);
   }

@@ -3,7 +3,7 @@ import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { StudioEntity } from '../../studio/entities/studio.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 
-@ObjectType()
+@ObjectType('StudioCountry')
 @Entity('studios_countries')
 export class StudioCountryEntity {
   @Field(() => ID)
@@ -12,7 +12,7 @@ export class StudioCountryEntity {
 
   @Field(() => ID)
   @PrimaryColumn()
-  countryId: number;
+  countryId: string;
 
   @Field(() => StudioEntity)
   @ManyToOne(() => StudioEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })

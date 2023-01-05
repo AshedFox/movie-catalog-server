@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { PersonEntity } from '../entities/person.entity';
 import { IsOptional, Length } from 'class-validator';
 
@@ -9,10 +9,10 @@ export class CreatePersonInput implements Partial<PersonEntity> {
   imageId?: string;
 
   @Field()
-  @Length(1, 200)
+  @Length(1, 255)
   name: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field({ nullable: true })
   @IsOptional()
-  countryId?: number;
+  countryId?: string;
 }

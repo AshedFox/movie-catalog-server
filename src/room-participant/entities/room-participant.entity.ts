@@ -4,7 +4,7 @@ import { UserEntity } from '../../user/entities/user.entity';
 import { RoomEntity } from '../../room/entities/room.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType()
+@ObjectType('RoomParticipant')
 @Entity('rooms_participants')
 export class RoomParticipantEntity {
   @FilterableField(() => ID)

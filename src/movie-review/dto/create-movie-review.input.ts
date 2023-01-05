@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, HideField, InputType, Int } from '@nestjs/graphql';
 import { MovieReviewEntity } from '../entities/movie-review.entity';
 import { IsOptional, IsUUID, Length, Max, Min } from 'class-validator';
 
@@ -14,8 +14,7 @@ export class CreateMovieReviewInput implements Partial<MovieReviewEntity> {
   @IsOptional()
   text?: string;
 
-  @Field()
-  @IsUUID()
+  @HideField()
   userId: string;
 
   @Field()

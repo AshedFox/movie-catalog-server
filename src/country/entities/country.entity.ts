@@ -1,25 +1,23 @@
 import { CurrencyEntity } from '../../currency/entities/currency.entity';
 import { ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 import { FilterableField, FilterableRelation } from '@common/filter';
+import { LanguageEntity } from '../../language/entities/language.entity';
 
-@ObjectType()
+@ObjectType('Country')
 @Entity('countries')
 export class CountryEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn({ type: 'char', length: 2 })
+  id: string;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 255 })
   name: string;
 
   @FilterableField()
-  @Column({ unique: true, length: 2 })
-  code: string;
-
-  @FilterableField()
   @Column()
+  @Index()
   currencyId: number;
 
   @FilterableRelation(() => CurrencyEntity)

@@ -17,7 +17,7 @@ export class MovieCountryService {
     private readonly countryService: CountryService,
   ) {}
 
-  create = async (movieId: string, countryId: number) => {
+  create = async (movieId: string, countryId: string) => {
     await this.movieService.readOne(movieId);
     await this.countryService.readOne(countryId);
     const movieCountry = await this.movieCountryRepository.findOneBy({
@@ -34,7 +34,7 @@ export class MovieCountryService {
 
   createManyForMovie = async (
     movieId: string,
-    countriesIds: number[],
+    countriesIds: string[],
   ): Promise<MovieCountryEntity[]> =>
     this.movieCountryRepository.save(
       countriesIds.map((countryId) => ({ movieId, countryId })),
@@ -56,7 +56,7 @@ export class MovieCountryService {
 
   readOne = async (
     movieId: string,
-    countryId: number,
+    countryId: string,
   ): Promise<MovieCountryEntity> => {
     const movieCountry = await this.movieCountryRepository.findOneBy({
       movieId,
@@ -70,7 +70,7 @@ export class MovieCountryService {
     return movieCountry;
   };
 
-  delete = async (movieId: string, countryId: number) => {
+  delete = async (movieId: string, countryId: string) => {
     const movieCountry = await this.movieCountryRepository.findOneBy({
       movieId,
       countryId,
