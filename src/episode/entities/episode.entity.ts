@@ -3,17 +3,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 import { SeasonEntity } from '../../season/entities/season.entity';
 import { SeriesEntity } from '../../series/entities/series.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { FilterableField, FilterableRelation } from '@common/filter';
 import { VideoEntity } from '../../video/entities/video.entity';
-import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
 
 @ObjectType()
 @Entity('episodes')
@@ -31,13 +32,13 @@ export class EpisodeEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  ageRestrictionId?: number;
-
-  @FilterableRelation(() => AgeRestrictionEntity, { nullable: true })
-  @ManyToOne(() => AgeRestrictionEntity)
-  ageRestriction?: AgeRestrictionEntity;
+  @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: AgeRestrictionEnum,
+    enumName: 'age_restriction_enum',
+  })
+  ageRestriction?: AgeRestrictionEnum;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })

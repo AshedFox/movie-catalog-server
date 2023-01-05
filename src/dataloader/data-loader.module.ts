@@ -14,8 +14,6 @@ import { GenreModule } from '../genre/genre.module';
 import { MovieGenreModule } from '../movie-genre/movie-genre.module';
 import { MovieStudioModule } from '../movie-studio/movie-studio.module';
 import { EpisodeModule } from '../episode/episode.module';
-import { VideoModule } from '../video/video.module';
-import { ImageModule } from '../image/image.module';
 import { MovieImageModule } from '../movie-image/movie-image.module';
 import { MovieModule } from '../movie/movie.module';
 import { MovieCountryModule } from '../movie-country/movie-country.module';
@@ -24,14 +22,16 @@ import { TrailerModule } from '../trailer/trailer.module';
 import { CollectionModule } from '../collection/collection.module';
 import { CollectionMovieModule } from '../collection-movie/collection-movie.module';
 import { CurrencyModule } from '../currency/currency.module';
-import { AgeRestrictionModule } from '../age-restrictions/age-restriction.module';
 import { RoomModule } from '../room/room.module';
 import { RoomParticipantModule } from '../room-participant/room-participant.module';
+import { MoviePersonTypeModule } from '../movie-person-type/movie-person-type.module';
+import { MovieImageTypeModule } from '../movie-image-type/movie-image-type.module';
+import { MediaModule } from '../media/media.module';
+import { VideoModule } from '../video/video.module';
 
 @Global()
 @Module({
   imports: [
-    AgeRestrictionModule,
     CollectionModule,
     CollectionMovieModule,
     CountryModule,

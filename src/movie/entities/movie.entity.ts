@@ -1,8 +1,15 @@
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  GraphQLISODateTime,
+  HideField,
+  ID,
+  ObjectType,
+} from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -17,12 +24,14 @@ import { MovieGenreEntity } from '../../movie-genre/entities/movie-genre.entity'
 import { StudioEntity } from '../../studio/entities/studio.entity';
 import { MovieStudioEntity } from '../../movie-studio/entities/movie-studio.entity';
 import { MoviePersonEntity } from '../../movie-person/entities/movie-person.entity';
-import { ImageEntity } from '../../image/entities/image.entity';
+import { Expose } from 'class-transformer';
+import { MediaEntity } from '../../media/entities/media.entity';
+import { MovieTypeEnum } from '@utils/enums';
 import { TrailerEntity } from '../../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
-import { AgeRestrictionEntity } from '../../age-restrictions/entities/age-restriction.entity';
+import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
 @ObjectType()
 @Entity('movies')
@@ -52,13 +61,13 @@ export class MovieEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  ageRestrictionId?: number;
-
-  @FilterableRelation(() => AgeRestrictionEntity, { nullable: true })
-  @ManyToOne(() => AgeRestrictionEntity)
-  ageRestriction?: AgeRestrictionEntity;
+  @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: AgeRestrictionEnum,
+    enumName: 'age_restriction_enum',
+  })
+  ageRestriction?: AgeRestrictionEnum;
 
   @FilterableField(() => AccessModeEnum)
   @Column({

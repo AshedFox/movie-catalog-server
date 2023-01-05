@@ -27,9 +27,10 @@ export class CreateSeasonInput implements Partial<SeasonEntity> {
   @Min(0)
   seasonNumber: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @IsEnum(AgeRestrictionEnum)
   @IsOptional()
-  ageRestrictionId?: number;
+  ageRestriction?: AgeRestrictionEnum;
 
   @Field(() => AccessModeEnum, { nullable: true })
   @IsEnum(AccessModeEnum)

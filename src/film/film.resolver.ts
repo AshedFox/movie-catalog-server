@@ -23,13 +23,13 @@ import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity'
 import { GenreEntity } from '../genre/entities/genre.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
 import { VideoEntity } from '../video/entities/video.entity';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { MediaEntity } from '../media/entities/media.entity';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
-import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
-import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 
 @Resolver(FilmEntity)
 export class FilmResolver {

@@ -1,9 +1,12 @@
 import DataLoader from 'dataloader';
 import { EmailConfirmationEntity } from '../email/entities/email-confirmation.entity';
 import { SeriesEntity } from '../series/entities/series.entity';
-import { FilmEntity } from '../film/entities/film.entity';
 import { PersonEntity } from '../person/entities/person.entity';
 import { SeasonEntity } from '../season/entities/season.entity';
+import { MoviePersonTypeEntity } from '../movie-person-type/entities/movie-person-type.entity';
+import { MovieImageTypeEntity } from '../movie-image-type/entities/movie-image-type.entity';
+import { MediaEntity } from '../media/entities/media.entity';
+import { VideoEntity } from '../video/entities/video.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
@@ -11,18 +14,14 @@ import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity'
 import { GenreEntity } from '../genre/entities/genre.entity';
 import { CollectionEntity } from '../collection/entities/collection.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
-import { VideoEntity } from '../video/entities/video.entity';
-import { ImageEntity } from '../image/entities/image.entity';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CurrencyEntity } from '../currency/entities/currency.entity';
-import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 import { RoomEntity } from '../room/entities/room.entity';
 
 export interface IDataLoaders {
-  ageRestrictionLoader: DataLoader<number, AgeRestrictionEntity>;
   collectionLoader: DataLoader<number, CollectionEntity>;
   countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;

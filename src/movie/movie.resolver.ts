@@ -27,7 +27,6 @@ import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
-import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 
 @Resolver(MovieEntity)
 export class MovieResolver {

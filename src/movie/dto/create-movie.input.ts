@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MovieEntity } from '../entities/movie.entity';
+import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
 @InputType()
 export class CreateMovieInput implements Partial<MovieEntity> {
@@ -21,8 +22,10 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   @IsOptional()
   description?: string;
 
-  @Field(() => Int)
-  ageRestrictionId: number;
+  @Field(() => AgeRestrictionEnum, { nullable: true })
+  @IsEnum(AgeRestrictionEnum)
+  @IsOptional()
+  ageRestriction?: AgeRestrictionEnum;
 
   @Field(() => AccessModeEnum, { nullable: true })
   @IsEnum(AccessModeEnum)

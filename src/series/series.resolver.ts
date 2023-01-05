@@ -23,14 +23,13 @@ import { GenreEntity } from '../genre/entities/genre.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
 import { SeasonEntity } from '../season/entities/season.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
-import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
+import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
-import { ImageEntity } from '../image/entities/image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
+import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
+import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { CountryEntity } from '../country/entities/country.entity';
-import { AgeRestrictionEntity } from '../age-restrictions/entities/age-restriction.entity';
 
 @Resolver(SeriesEntity)
 export class SeriesResolver {
@@ -44,7 +43,18 @@ export class SeriesResolver {
   }
 
   @Query(() => PaginatedSeries)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  getManySeriesProtected(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+    return this.seriesService.readMany(pagination, sort, filter);
+  }
+
+  @Query(() => PaginatedSeries)
   getManySeries(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+    filter = {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    };
     return this.seriesService.readMany(pagination, sort, filter);
   }
 
@@ -68,16 +78,6 @@ export class SeriesResolver {
   @Mutation(() => Boolean)
   deleteSeries(@Args('id', ParseUUIDPipe) id: string) {
     return this.seriesService.delete(id);
-  }
-
-  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
-  ageRestriction(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return movie.ageRestrictionId
-      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
-      : undefined;
   }
 
   @ResolveField(() => ImageEntity, { nullable: true })

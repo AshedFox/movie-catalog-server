@@ -23,9 +23,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { GqlThrottlerGuard } from '@utils/gql-throttler.guard';
 import { ErrorInterceptor } from '@utils/error.interceptor';
-import { VideoModule } from './video/video.module';
+import { MediaModule } from './media/media.module';
 import { CountryModule } from './country/country.module';
-import { ImageModule } from './image/image.module';
 import { StudioCountryModule } from './studio-country/studio-country.module';
 import { MovieGenreModule } from './movie-genre/movie-genre.module';
 import { MovieStudioModule } from './movie-studio/movie-studio.module';
@@ -41,12 +40,14 @@ import { MovieCountryModule } from './movie-country/movie-country.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CollectionModule } from './collection/collection.module';
 import { CollectionMovieModule } from './collection-movie/collection-movie.module';
-import { AgeRestrictionModule } from './age-restrictions/age-restriction.module';
 import { MovieImageTypeModule } from './movie-image-type/movie-image-type.module';
 import { MoviePersonTypeModule } from './movie-person-type/movie-person-type.module';
 import { CurrencyModule } from './currency/currency.module';
 import { RoomParticipantModule } from './room-participant/room-participant.module';
 import { RoomModule } from './room/room.module';
+import { MovieVisitStatsModule } from './movie-visit-stats/movie-visit-stats.module';
+import { LanguageModule } from './language/language.module';
+import { VideoModule } from './video/video.module';
 
 @Module({
   imports: [
@@ -128,7 +129,6 @@ import { RoomModule } from './room/room.module';
     UserModule,
     VideoModule,
     MovieUserModule,
-    AgeRestrictionModule,
     MovieImageTypeModule,
     MoviePersonTypeModule,
     CurrencyModule,

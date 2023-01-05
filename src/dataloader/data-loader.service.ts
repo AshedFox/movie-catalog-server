@@ -15,8 +15,6 @@ import { GenreService } from '../genre/genre.service';
 import { MovieGenreService } from '../movie-genre/movie-genre.service';
 import { MovieStudioService } from '../movie-studio/movie-studio.service';
 import { EpisodeService } from '../episode/episode.service';
-import { VideoService } from '../video/video.service';
-import { ImageService } from '../image/image.service';
 import { MovieImageService } from '../movie-image/movie-image.service';
 import { MovieCountryService } from '../movie-country/movie-country.service';
 import { MovieService } from '../movie/movie.service';
@@ -26,14 +24,16 @@ import { IndexType } from 'src/utils/types/index.type';
 import { CollectionService } from '../collection/collection.service';
 import { CollectionMovieService } from '../collection-movie/collection-movie.service';
 import { CurrencyService } from '../currency/currency.service';
-import { AgeRestrictionService } from '../age-restrictions/age-restriction.service';
 import { RoomParticipantService } from '../room-participant/room-participant.service';
 import { RoomService } from '../room/room.service';
+import { MoviePersonTypeService } from '../movie-person-type/movie-person-type.service';
+import { MovieImageTypeService } from '../movie-image-type/movie-image-type.service';
+import { MediaService } from '../media/media.service';
+import { VideoService } from '../video/video.service';
 
 @Injectable()
 export class DataLoaderService {
   constructor(
-    private readonly ageRestrictionService: AgeRestrictionService,
     private readonly collectionMovieService: CollectionMovieService,
     private readonly collectionService: CollectionService,
     private readonly countryService: CountryService,
@@ -143,9 +143,6 @@ export class DataLoaderService {
   };
 
   createLoaders = (): IDataLoaders => ({
-    ageRestrictionLoader: this.createSingleLoader(
-      this.ageRestrictionService.readManyByIds,
-    ),
     collectionLoader: this.createSingleLoader(
       this.collectionService.readManyByIds,
     ),
