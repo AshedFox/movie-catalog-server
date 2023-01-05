@@ -4,13 +4,13 @@ import { MovieImageResolver } from './movie-image.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MovieImageEntity } from './entities/movie-image.entity';
 import { MovieModule } from '../movie/movie.module';
-import { ImageModule } from '../image/image.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MovieImageEntity]),
     MovieModule,
-    ImageModule,
+    MediaModule,
   ],
   providers: [MovieImageResolver, MovieImageService],
   exports: [MovieImageService],

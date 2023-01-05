@@ -34,7 +34,7 @@ export interface IDataLoaders {
   filmLoader: DataLoader<string, FilmEntity>;
   genreLoader: DataLoader<string, GenreEntity>;
   genresByMovieLoader: DataLoader<string, GenreEntity[]>;
-  imageLoader: DataLoader<string, ImageEntity>;
+  mediaLoader: DataLoader<number, MediaEntity>;
   movieImagesByMovieLoader: DataLoader<string, MovieImageEntity[]>;
   movieLoader: DataLoader<string, MovieEntity>;
   moviePersonsByMovieLoader: DataLoader<string, MoviePersonEntity[]>;
@@ -53,5 +53,5 @@ export interface IDataLoaders {
   trailersByMovieLoader: DataLoader<string, TrailerEntity[]>;
   userLoader: DataLoader<string, UserEntity>;
   usersByRoomLoader: DataLoader<string, UserEntity[]>;
-  videoLoader: DataLoader<string, VideoEntity>;
+  videoLoader: DataLoader<number, VideoEntity>;
 }

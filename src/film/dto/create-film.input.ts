@@ -13,7 +13,6 @@ export class CreateFilmInput
   releaseDate?: Date;
 
   @Field({ nullable: true })
-  @IsUUID('4')
   @IsOptional()
-  videoId?: string;
+  videoId?: number;
 }

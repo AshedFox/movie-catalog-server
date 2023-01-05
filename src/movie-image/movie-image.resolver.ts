@@ -17,11 +17,12 @@ import { GetMoviesImagesArgs } from './dto/get-movies-images.args';
 import { PaginatedMoviesImages } from './dto/paginated-movies-images';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
-import { ImageEntity } from '../image/entities/image.entity';
+import { MediaEntity } from '../media/entities/media.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { MovieImageTypeEntity } from '../movie-image-type/entities/movie-image-type.entity';
 
 @Resolver(MovieImageEntity)
 export class MovieImageResolver {
@@ -71,11 +72,19 @@ export class MovieImageResolver {
     return loaders.movieLoader.load(movieImage.movieId);
   }
 
-  @ResolveField(() => ImageEntity)
+  @ResolveField(() => MediaEntity)
   image(
     @Parent() movieImage: MovieImageEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.imageLoader.load(movieImage.imageId);
+    return loaders.mediaLoader.load(movieImage.imageId);
+  }
+
+  @ResolveField(() => MovieImageTypeEntity)
+  type(
+    @Parent() movieImage: MovieImageEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.movieImageTypeLoader.load(movieImage.typeId);
   }
 }

@@ -4,6 +4,10 @@ import { IsOptional, Length } from 'class-validator';
 
 @InputType()
 export class CreatePersonInput implements Partial<PersonEntity> {
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  imageId?: string;
+
   @Field()
   @Length(1, 200)
   name: string;

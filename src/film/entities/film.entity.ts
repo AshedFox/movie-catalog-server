@@ -13,10 +13,15 @@ export class FilmEntity extends MovieEntity {
   releaseDate?: Date;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  videoId?: string;
+  @Column({ nullable: true, type: 'int8' })
+  @Index({ where: 'video_id IS NOT NULL' })
+  videoId?: number;
 
   @Field(() => VideoEntity, { nullable: true })
-  @OneToOne(() => VideoEntity, { nullable: true })
+  @OneToOne(() => VideoEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   video?: VideoEntity;
 }

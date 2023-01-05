@@ -1,36 +1,19 @@
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import { ImageEntity } from '../../image/entities/image.entity';
-import { FilterableField } from '@common/filter';
+import { MediaEntity } from '../../media/entities/media.entity';
 
-@ObjectType()
+@ObjectType('Video')
 @Entity('videos')
 export class VideoEntity {
-  @FilterableField(() => ID)
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @Field(() => ID)
+  @PrimaryGeneratedColumn({ type: 'int4' })
+  id: number;
 
-  @FilterableField()
-  @Column()
-  url: string;
+  @Field()
+  @Column({ type: 'int8' })
+  fileId: number;
 
-  @FilterableField(() => Int)
-  @Column({ type: 'int' })
-  duration: number;
-
-  @FilterableField(() => Int, { nullable: true })
-  @Column({ type: 'int', nullable: true })
-  width?: number;
-
-  @FilterableField(() => Int, { nullable: true })
-  @Column({ type: 'int', nullable: true })
-  height?: number;
-
-  @FilterableField()
-  @Column()
-  previewId: string;
-
-  @Field(() => ImageEntity)
-  @ManyToOne(() => ImageEntity)
-  preview: ImageEntity;
+  @Field(() => MediaEntity)
+  @ManyToOne(() => MediaEntity)
+  file: MediaEntity;
 }

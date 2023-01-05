@@ -25,6 +25,7 @@ import { SeasonEntity } from '../season/entities/season.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MovieEntity } from '../movie/entities/movie.entity';
+import { MediaEntity } from '../media/entities/media.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
@@ -80,12 +81,12 @@ export class SeriesResolver {
     return this.seriesService.delete(id);
   }
 
-  @ResolveField(() => ImageEntity, { nullable: true })
+  @ResolveField(() => MediaEntity, { nullable: true })
   cover(
     @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return movie.coverId ? loaders.imageLoader.load(movie.coverId) : undefined;
+    return movie.coverId ? loaders.mediaLoader.load(movie.coverId) : undefined;
   }
 
   @ResolveField(() => [TrailerEntity])

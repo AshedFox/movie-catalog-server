@@ -5,7 +5,7 @@ import { MovieImageEntity } from './entities/movie-image.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { MovieService } from '../movie/movie.service';
-import { ImageService } from '../image/image.service';
+import { MediaService } from '../media/media.service';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { GqlOffsetPagination } from '@common/pagination';
 import { SortType } from '@common/sort';
@@ -19,13 +19,13 @@ export class MovieImageService {
     @InjectRepository(MovieImageEntity)
     private readonly movieImageRepository: Repository<MovieImageEntity>,
     private readonly movieService: MovieService,
-    private readonly imageService: ImageService,
+    private readonly mediaService: MediaService,
   ) {}
 
   create = async (createMovieImageInput: CreateMovieImageInput) => {
     const { movieId, imageId } = createMovieImageInput;
     await this.movieService.readOne(movieId);
-    await this.imageService.readOne(imageId);
+    await this.mediaService.readOne(imageId);
     const movieImage = await this.movieImageRepository.findOneBy({
       movieId,
       imageId,

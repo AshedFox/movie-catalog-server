@@ -21,6 +21,7 @@ import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { MediaEntity } from '../media/entities/media.entity';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -74,6 +75,16 @@ export class UserResolver {
   ) {
     return parent.countryId
       ? loaders.countryLoader.load(parent.countryId)
+      : undefined;
+  }
+
+  @ResolveField(() => MediaEntity)
+  avatar(
+    @Parent() parent: UserEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return parent.avatarId
+      ? loaders.mediaLoader.load(parent.avatarId)
       : undefined;
   }
 }

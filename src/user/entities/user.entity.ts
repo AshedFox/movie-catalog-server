@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,7 +10,7 @@ import {
 import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../../country/entities/country.entity';
-import { ImageEntity } from '../../image/entities/image.entity';
+import { MediaEntity } from '../../media/entities/media.entity';
 import { FilterableField } from '@common/filter';
 
 @ObjectType()
@@ -57,9 +58,14 @@ export class UserEntity {
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true })
-  avatarId?: string;
+  @Index({ where: 'avatar_id IS NOT NULL' })
+  avatarId?: number;
 
-  @Field(() => ImageEntity, { nullable: true })
-  @ManyToOne(() => ImageEntity, { nullable: true })
-  avatar?: ImageEntity;
+  @Field(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  avatar?: MediaEntity;
 }

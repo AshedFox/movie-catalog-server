@@ -40,7 +40,7 @@ import { VideoModule } from '../video/video.module';
     EpisodeModule,
     FilmModule,
     GenreModule,
-    ImageModule,
+    MediaModule,
     MovieCountryModule,
     MovieGenreModule,
     MovieImageModule,

@@ -14,6 +14,5 @@ export class CreateTrailerInput implements Partial<TrailerEntity> {
   movieId: string;
 
   @Field()
-  @IsUUID()
-  videoId: string;
+  videoId: number;
 }

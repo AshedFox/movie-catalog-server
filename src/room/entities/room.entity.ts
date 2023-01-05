@@ -34,12 +34,17 @@ export class RoomEntity {
   @ManyToOne(() => UserEntity)
   owner: UserEntity;
 
-  @FilterableField()
-  @Column()
-  currentVideoId?: string;
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true, type: 'int8' })
+  @Index()
+  currentVideoId?: number;
 
   @Field(() => VideoEntity, { nullable: true })
-  @ManyToOne(() => VideoEntity, { nullable: true })
+  @ManyToOne(() => VideoEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   currentVideo?: VideoEntity;
 
   @HideField()

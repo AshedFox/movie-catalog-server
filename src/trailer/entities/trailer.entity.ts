@@ -37,7 +37,7 @@ export class TrailerEntity {
 
   @FilterableField()
   @Column()
-  videoId: string;
+  videoId: number;
 
   @Field(() => VideoEntity)
   @ManyToOne(() => VideoEntity)

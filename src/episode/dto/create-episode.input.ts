@@ -47,7 +47,6 @@ export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   seriesId: string;
 
   @Field({ nullable: true })
-  @IsUUID('4')
   @IsOptional()
-  videoId?: string;
+  videoId?: number;
 }

@@ -12,11 +12,18 @@ import { CollectionService } from './collection.service';
 import { CollectionEntity } from './entities/collection.entity';
 import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionInput } from './dto/update-collection.input';
-import { ImageEntity } from '../image/entities/image.entity';
+import { MediaEntity } from '../media/entities/media.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { PaginatedCollections } from './dto/paginated-collections';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { GetCollectionsArgs } from './dto/get-collections.args';
+import { UseGuards } from '@nestjs/common';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { RoleEnum } from '@utils/enums';
+import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Resolver(() => CollectionEntity)
 export class CollectionResolver {
@@ -50,13 +57,13 @@ export class CollectionResolver {
     return this.collectionService.delete(id);
   }
 
-  @ResolveField(() => ImageEntity, { nullable: true })
+  @ResolveField(() => MediaEntity, { nullable: true })
   cover(
     @Parent() collection: CollectionEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return collection.coverId
-      ? loaders.imageLoader.load(collection.coverId)
+      ? loaders.mediaLoader.load(collection.coverId)
       : undefined;
   }
 

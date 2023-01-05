@@ -5,7 +5,7 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { GqlOffsetPagination } from '@common/pagination';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UpdateMoviePersonTypeInput } from './dto/update-movie-person-type.input';
 import { MoviePersonTypeEntity } from './entities/movie-person-type.entity';
 import { CreateMoviePersonTypeInput } from './dto/create-movie-person-type.input';
@@ -51,6 +51,9 @@ export class MoviePersonTypeService {
       hasNext: count > pagination.take + pagination.skip,
     };
   };
+
+  readManyByIds = async (ids: number[]): Promise<MoviePersonTypeEntity[]> =>
+    await this.moviePersonTypeRepository.findBy({ id: In(ids) });
 
   readOne = async (id: number): Promise<MoviePersonTypeEntity> => {
     const moviePersonType = await this.moviePersonTypeRepository.findOneBy({

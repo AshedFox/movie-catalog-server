@@ -1,6 +1,7 @@
 import {
   Args,
   Context,
+  Int,
   Mutation,
   Parent,
   Query,
@@ -9,64 +10,57 @@ import {
 } from '@nestjs/graphql';
 import { VideoService } from './video.service';
 import { VideoEntity } from './entities/video.entity';
-import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { CreateVideoInput } from './dto/create-video.input';
+import { UpdateVideoInput } from './dto/update-video.input';
+import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { FileUpload } from 'graphql-upload';
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
-import { ImageEntity } from '../image/entities/image.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
-import { GetVideosArgs } from './dto/get-videos.args';
 import { PaginatedVideos } from './dto/paginated-videos';
+import { GetVideosArgs } from './dto/get-videos.args';
+import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { MediaEntity } from '../media/entities/media.entity';
 
+@UseGuards(GqlJwtAuthGuard, RolesGuard)
+@Role([RoleEnum.Admin, RoleEnum.Moderator])
 @Resolver(() => VideoEntity)
 export class VideoResolver {
-  constructor(
-    private readonly videoService: VideoService,
-    private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  constructor(private readonly videoService: VideoService) {}
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => VideoEntity)
-  async createVideo(
-    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
-  ) {
-    const { url, height, width } = await this.cloudinaryService.uploadVideo(
-      file,
-    );
-    return this.videoService.create({ url, height, width });
+  createVideo(@Args('input') input: CreateVideoInput) {
+    return this.videoService.create(input);
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedVideos)
-  getVideos(@Args() { pagination, sort, filter }: GetVideosArgs) {
+  getVideos(@Args() { pagination, filter, sort }: GetVideosArgs) {
     return this.videoService.readMany(pagination, sort, filter);
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => VideoEntity)
-  getVideo(@Args('id', ParseUUIDPipe) id: string) {
+  getVideo(@Args('id', { type: () => Int }) id: number) {
     return this.videoService.readOne(id);
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
-  deleteVideo(@Args('id') id: string) {
+  @Mutation(() => VideoEntity)
+  updateVideo(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('input') input: UpdateVideoInput,
+  ) {
+    return this.videoService.update(id, input);
+  }
+
+  @Mutation(() => VideoEntity)
+  removeVideo(@Args('id', { type: () => Int }) id: number) {
     return this.videoService.delete(id);
   }
 
-  @ResolveField(() => ImageEntity)
-  preview(
+  @ResolveField(() => MediaEntity)
+  file(
     @Parent() video: VideoEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.imageLoader.load(video.id);
+    return loaders.mediaLoader.load(video.fileId);
   }
 }

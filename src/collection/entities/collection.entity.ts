@@ -3,12 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ImageEntity } from '../../image/entities/image.entity';
+import { MediaEntity } from '../../media/entities/media.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
@@ -41,12 +42,17 @@ export class CollectionEntity {
   updatedAt: Date;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  coverId?: string;
+  @Column({ nullable: true, type: 'int8' })
+  @Index({ where: 'cover_id IS NOT NULL' })
+  coverId?: number;
 
-  @Field(() => ImageEntity, { nullable: true })
-  @ManyToOne(() => ImageEntity, { nullable: true })
-  cover?: ImageEntity;
+  @Field(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  cover?: MediaEntity;
 
   @Field(() => MovieEntity)
   movies: MovieEntity[];

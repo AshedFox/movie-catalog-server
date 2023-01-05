@@ -22,6 +22,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { MoviePersonTypeEntity } from '../movie-person-type/entities/movie-person-type.entity';
 
 @Resolver(MoviePersonEntity)
 export class MoviePersonResolver {
@@ -77,5 +78,13 @@ export class MoviePersonResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.personLoader.load(moviePerson.personId);
+  }
+
+  @ResolveField(() => MoviePersonTypeEntity)
+  type(
+    @Parent() moviePerson: MoviePersonEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.moviePersonTypeLoader.load(moviePerson.typeId);
   }
 }

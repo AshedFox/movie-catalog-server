@@ -33,9 +33,8 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   accessMode: AccessModeEnum;
 
   @Field({ nullable: true })
-  @IsUUID()
   @IsOptional()
-  coverId?: string;
+  coverId?: number;
 
   @Field(() => [Int], { nullable: true })
   @IsOptional()

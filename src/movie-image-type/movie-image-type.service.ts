@@ -9,7 +9,7 @@ import { FilterType } from '@common/filter';
 import { GqlOffsetPagination } from '@common/pagination';
 import { CreateMovieImageTypeInput } from './dto/create-movie-image-type.input';
 import { UpdateMovieImageTypeInput } from './dto/update-movie-image-type.input';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class MovieImageTypeService {
@@ -51,6 +51,9 @@ export class MovieImageTypeService {
       hasNext: count > pagination.take + pagination.skip,
     };
   };
+
+  readManyByIds = async (ids: number[]): Promise<MovieImageTypeEntity[]> =>
+    await this.movieImageTypeRepository.findBy({ id: In(ids) });
 
   readOne = async (id: number): Promise<MovieImageTypeEntity> => {
     const movieImageType = await this.movieImageTypeRepository.findOneBy({

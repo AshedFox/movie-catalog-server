@@ -66,22 +66,12 @@ export class MovieResolver {
     return this.movieService.delete(id);
   }
 
-  @ResolveField(() => AgeRestrictionEntity, { nullable: true })
-  ageRestriction(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return movie.ageRestrictionId
-      ? loaders.ageRestrictionLoader.load(movie.ageRestrictionId)
-      : undefined;
-  }
-
-  @ResolveField(() => ImageEntity, { nullable: true })
+  @ResolveField(() => MediaEntity, { nullable: true })
   cover(
     @Parent() movie: MovieEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return movie.coverId ? loaders.imageLoader.load(movie.coverId) : undefined;
+    return movie.coverId ? loaders.mediaLoader.load(movie.coverId) : undefined;
   }
 
   @ResolveField(() => [TrailerEntity])

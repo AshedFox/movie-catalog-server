@@ -42,7 +42,7 @@ export class DataLoaderService {
     private readonly episodeService: EpisodeService,
     private readonly filmService: FilmService,
     private readonly genreService: GenreService,
-    private readonly imageService: ImageService,
+    private readonly mediaService: MediaService,
     private readonly movieCountryService: MovieCountryService,
     private readonly movieGenreService: MovieGenreService,
     private readonly movieImageService: MovieImageService,
@@ -177,7 +177,7 @@ export class DataLoaderService {
       'movieId',
       'genre',
     ),
-    imageLoader: this.createSingleLoader(this.imageService.readManyByIds),
+    mediaLoader: this.createSingleLoader(this.mediaService.readManyByIds),
     moviesByCollectionLoader: this.createMultipleRelationLoader(
       this.collectionMovieService.readManyByCollections,
       'collectionId',

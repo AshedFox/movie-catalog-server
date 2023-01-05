@@ -78,12 +78,18 @@ export class MovieEntity {
   accessMode: AccessModeEnum;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  coverId?: string;
+  @Column({ nullable: true, type: 'uuid' })
+  @Expose({ name: 'cover_id' })
+  @Index({ where: 'cover_id IS NOT NULL' })
+  coverId?: number;
 
-  @FilterableRelation(() => ImageEntity, { nullable: true })
-  @ManyToOne(() => ImageEntity, { nullable: true })
-  cover?: ImageEntity;
+  @FilterableRelation(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  cover?: MediaEntity;
 
   @Field(() => [TrailerEntity])
   @OneToMany(() => TrailerEntity, (trailer) => trailer.movie)

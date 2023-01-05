@@ -20,9 +20,8 @@ export class CreateCollectionInput implements Partial<CollectionEntity> {
   description?: string;
 
   @Field({ nullable: true })
-  @IsUUID()
   @IsOptional()
-  coverId?: string;
+  coverId?: number;
 
   @Field(() => [String], { nullable: true })
   @IsOptional()
