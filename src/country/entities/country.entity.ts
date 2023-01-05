@@ -21,6 +21,21 @@ export class CountryEntity {
   currencyId: number;
 
   @FilterableRelation(() => CurrencyEntity)
-  @ManyToOne(() => CurrencyEntity)
-  currency: CountryEntity;
+  @ManyToOne(() => CurrencyEntity, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  currency: CurrencyEntity;
+
+  @FilterableField()
+  @Column()
+  @Index()
+  languageId: string;
+
+  @FilterableRelation(() => LanguageEntity)
+  @ManyToOne(() => LanguageEntity, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  language: LanguageEntity;
 }

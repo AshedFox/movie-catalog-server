@@ -14,6 +14,7 @@ import { UpdateCountryInput } from './dto/update-country.input';
 import { GetCountriesArgs } from './dto/get-countries.args';
 import { PaginatedCountries } from './dto/paginated-countries';
 import { CurrencyEntity } from '../currency/entities/currency.entity';
+import { LanguageEntity } from '../language/entities/language.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 
 @Resolver(() => CountryEntity)
@@ -54,5 +55,13 @@ export class CountryResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.currencyLoader.load(country.currencyId);
+  }
+
+  @ResolveField(() => LanguageEntity)
+  language(
+    @Parent() country: CountryEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.languageLoader.load(country.languageId);
   }
 }

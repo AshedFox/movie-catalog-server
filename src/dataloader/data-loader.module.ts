@@ -28,6 +28,7 @@ import { MoviePersonTypeModule } from '../movie-person-type/movie-person-type.mo
 import { MovieImageTypeModule } from '../movie-image-type/movie-image-type.module';
 import { MediaModule } from '../media/media.module';
 import { VideoModule } from '../video/video.module';
+import { LanguageModule } from '../language/language.module';
 
 @Global()
 @Module({
@@ -40,6 +41,7 @@ import { VideoModule } from '../video/video.module';
     EpisodeModule,
     FilmModule,
     GenreModule,
+    LanguageModule,
     MediaModule,
     MovieCountryModule,
     MovieGenreModule,

@@ -20,6 +20,7 @@ import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CurrencyEntity } from '../currency/entities/currency.entity';
 import { RoomEntity } from '../room/entities/room.entity';
+import { LanguageEntity } from '../language/entities/language.entity';
 
 export interface IDataLoaders {
   collectionLoader: DataLoader<number, CollectionEntity>;
@@ -33,6 +34,7 @@ export interface IDataLoaders {
   episodesBySeriesLoader: DataLoader<string, EpisodeEntity[]>;
   genreLoader: DataLoader<string, GenreEntity>;
   genresByMovieLoader: DataLoader<string, GenreEntity[]>;
+  languageLoader: DataLoader<string, LanguageEntity>;
   mediaLoader: DataLoader<number, MediaEntity>;
   movieImagesByMovieLoader: DataLoader<string, MovieImageEntity[]>;
   movieLoader: DataLoader<string, MovieEntity>;

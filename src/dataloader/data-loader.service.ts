@@ -30,6 +30,7 @@ import { MoviePersonTypeService } from '../movie-person-type/movie-person-type.s
 import { MovieImageTypeService } from '../movie-image-type/movie-image-type.service';
 import { MediaService } from '../media/media.service';
 import { VideoService } from '../video/video.service';
+import { LanguageService } from '../language/language.service';
 
 @Injectable()
 export class DataLoaderService {
@@ -42,6 +43,7 @@ export class DataLoaderService {
     private readonly episodeService: EpisodeService,
     private readonly filmService: FilmService,
     private readonly genreService: GenreService,
+    private readonly languageService: LanguageService,
     private readonly mediaService: MediaService,
     private readonly movieCountryService: MovieCountryService,
     private readonly movieGenreService: MovieGenreService,
@@ -178,6 +180,7 @@ export class DataLoaderService {
       'movieId',
       'genre',
     ),
+    languageLoader: this.createSingleLoader(this.languageService.readManyByIds),
     mediaLoader: this.createSingleLoader(this.mediaService.readManyByIds),
     moviesByCollectionLoader: this.createMultipleRelationLoader(
       this.collectionMovieService.readManyByCollections,
