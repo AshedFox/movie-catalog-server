@@ -45,16 +45,6 @@ export type DateFilterType = {
 export type UniversalFilter<T> = {
   eq?: T;
   neq?: T;
-  gt?: T;
-  gte?: T;
-  lt?: T;
-  lte?: T;
-  like?: T;
-  nlike?: T;
-  ilike?: T;
-  nilike?: T;
   in?: T[];
   nin?: T[];
-  btwn?: BetweenType<T>;
-  nbtwn?: BetweenType<T>;
 };

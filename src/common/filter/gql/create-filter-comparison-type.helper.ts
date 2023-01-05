@@ -6,9 +6,9 @@ import {
   ReturnTypeFuncValue,
   TypeMetadataStorage,
 } from '@nestjs/graphql';
-import { IsOptional, ValidateNested } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { Type as TypeDecorator } from 'class-transformer';
-import { BetweenType, FilterType, UniversalFilter } from '../common';
+import { FilterType, UniversalFilter } from '../common';
 import { ReturnTypeFunc } from '@nestjs/graphql/dist/interfaces/return-type-func.interface';
 import { capitalize, hasName } from '@utils/helpers';
 import { LazyMetadataStorage } from '@nestjs/graphql/dist/schema-builder/storages/lazy-metadata.storage';
@@ -41,19 +41,6 @@ export function createFilterComparisonType<T>(
     return ExistingFilter as Type<FilterType<T>>;
   }
 
-  @InputType(`${filterName}Between`)
-  class Between implements BetweenType<T> {
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    end?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    start?: T;
-  }
-
   @InputType(filterName)
   class GqlFilterType implements UniversalFilter<T> {
     @Field(() => fieldType, { nullable: true })
@@ -66,46 +53,6 @@ export function createFilterComparisonType<T>(
     @TypeDecorator(() => classRef)
     neq?: T;
 
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    gt?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    gte?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    lt?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    lte?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    like?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    nlike?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    ilike?: T;
-
-    @Field(() => fieldType, { nullable: true })
-    @IsOptional()
-    @TypeDecorator(() => classRef)
-    nilike?: T;
-
     @Field(() => [fieldType], { nullable: true })
     @IsOptional()
     @TypeDecorator(() => classRef)
@@ -115,18 +62,6 @@ export function createFilterComparisonType<T>(
     @IsOptional()
     @TypeDecorator(() => classRef)
     nin?: T[];
-
-    @Field(() => Between, { nullable: true })
-    @IsOptional()
-    @ValidateNested()
-    @TypeDecorator(() => Between)
-    btwn?: BetweenType<T>;
-
-    @Field(() => Between, { nullable: true })
-    @IsOptional()
-    @ValidateNested()
-    @TypeDecorator(() => Between)
-    nbtwn?: BetweenType<T>;
   }
 
   FilterStorage.set(filterName, GqlFilterType);
