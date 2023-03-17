@@ -146,13 +146,13 @@ const applyFilterTreeLevel = <T>(
   Object.keys(filter).forEach((key) => {
     if (key === 'and') {
       qb.andWhere(
-        new Brackets((where) =>
+        new Brackets(() =>
           filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'and')),
         ),
       );
     } else if (key === 'or') {
       qb.andWhere(
-        new Brackets((where) =>
+        new Brackets(() =>
           filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'or')),
         ),
       );
