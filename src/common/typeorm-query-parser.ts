@@ -14,6 +14,7 @@ import {
 } from './sort';
 import { snakeCase } from 'typeorm/util/StringUtils';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
+import { ArgsType } from '@common/args';
 
 const applyFieldFilter = (
   where: WhereExpressionBuilder,
@@ -262,6 +263,26 @@ export function parseArgsToQuery<T>(
   }
   if (sort) {
     applySort(qb, sort);
+  }
+  if (pagination) {
+    applyPagination(qb, pagination);
+  }
+
+  return qb;
+}
+
+export function applyArgs<T>(
+  qb: SelectQueryBuilder<T>,
+  args: ArgsType<T>,
+  alias?: string,
+) {
+  const { filter, sort, pagination } = args;
+
+  if (filter) {
+    applyFilter(qb, filter);
+  }
+  if (sort) {
+    applySort(qb, sort, alias);
   }
   if (pagination) {
     applyPagination(qb, pagination);
