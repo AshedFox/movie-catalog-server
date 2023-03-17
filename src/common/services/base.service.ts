@@ -1,4 +1,4 @@
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, In, Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { GqlOffsetPagination } from '@common/pagination';
 import { SortType } from '@common/sort';
@@ -26,6 +26,14 @@ export abstract class BaseService<
       return this.repository.save(input);
     } catch {
       throw new AlreadyExistsError(`${this.repository.target} already exists!`);
+    }
+  };
+
+  createMany = async (input: C[]): Promise<T[]> => {
+    try {
+      return this.repository.save(input);
+    } catch {
+      throw new AlreadyExistsError(`Already exists!`);
     }
   };
 
@@ -77,5 +85,13 @@ export abstract class BaseService<
   delete = async (id: string | number): Promise<T> => {
     const entity = await this.readOne(id);
     return this.repository.remove(entity);
+  };
+
+  deleteMany = async (ids: string[] | number[]): Promise<T[]> => {
+    const entities = await this.repository.findBy({
+      id: In(ids as any[]),
+    } as any);
+
+    return this.repository.remove(entities);
   };
 }
