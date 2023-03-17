@@ -5,6 +5,7 @@ import { ValidateNested } from 'class-validator';
 import {
   createFilterComparisonType,
   FilterableRelationMetadata,
+  FilterStorage,
   FilterType,
   getFilterableFields,
   getFilterableRelations,
@@ -28,6 +29,12 @@ function createFilterableType<T>(
   name: string,
   relations?: FilterableRelationMetadata[],
 ) {
+  const ExistingFilter = FilterStorage.get(name);
+
+  if (ExistingFilter) {
+    return ExistingFilter as Type<FilterType<T>>;
+  }
+
   const filterableFields = getFilterableFields(classRef);
 
   if (filterableFields.length === 0 && relations?.length === 0) {
@@ -75,5 +82,7 @@ function createFilterableType<T>(
     Field(() => FT, { nullable: true })(GqlFilter.prototype, propertyKey);
     TypeDecorator(() => FT)(GqlFilter.prototype, propertyKey);
   });
+
+  FilterStorage.set(name, GqlFilter);
   return GqlFilter as Type<FilterType<T>>;
 }
