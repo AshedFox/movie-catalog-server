@@ -26,9 +26,8 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   @IsOptional()
   ageRestriction?: AgeRestrictionEnum;
 
-  @Field(() => AccessModeEnum, { nullable: true })
+  @Field(() => AccessModeEnum)
   @IsEnum(AccessModeEnum)
-  @IsOptional()
   accessMode: AccessModeEnum;
 
   @Field({ nullable: true })
