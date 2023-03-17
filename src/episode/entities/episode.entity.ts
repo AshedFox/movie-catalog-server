@@ -13,7 +13,7 @@ import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 import { SeasonEntity } from '../../season/entities/season.entity';
 import { SeriesEntity } from '../../series/entities/series.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { FilterableField, FilterableRelation } from '@common/filter';
+import { FilterableField } from '@common/filter';
 import { VideoEntity } from '../../video/entities/video.entity';
 
 @ObjectType('Episode')
@@ -32,7 +32,7 @@ export class EpisodeEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
+  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
   @Column({
     type: 'enum',
     enum: AgeRestrictionEnum,

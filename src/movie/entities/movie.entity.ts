@@ -62,7 +62,7 @@ export class MovieEntity {
   @Index()
   updatedAt: Date;
 
-  @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
+  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
   @Column({
     type: 'enum',
     enum: AgeRestrictionEnum,

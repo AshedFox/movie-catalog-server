@@ -36,7 +36,7 @@ export class SeasonEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @FilterableRelation(() => AgeRestrictionEnum, { nullable: true })
+  @FilterableField(() => AgeRestrictionEnum, { nullable: true })
   @Column({
     type: 'enum',
     enum: AgeRestrictionEnum,
