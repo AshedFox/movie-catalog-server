@@ -57,14 +57,14 @@ export class FloatFilter implements NumberFilterType {
   @Field(() => [Float], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
-  @IsDecimal({ each: true })
+  @IsDecimal({}, { each: true })
   @IsOptional()
   in?: number[];
 
   @Field(() => [Float], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
-  @IsDecimal({ each: true })
+  @IsDecimal({}, { each: true })
   @IsOptional()
   nin?: number[];
 
