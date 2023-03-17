@@ -14,7 +14,7 @@ export class MediaEntity {
   @Column({ type: 'varchar', unique: true, length: 255 })
   publicId: string;
 
-  @FilterableField()
+  @FilterableField(() => MediaTypeEnum)
   @Column({ type: 'enum', enum: MediaTypeEnum, enumName: 'media_type_enum' })
   type: MediaTypeEnum;
 
