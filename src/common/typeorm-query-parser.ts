@@ -294,3 +294,10 @@ export function applyArgs<T>(
 
   return qb;
 }
+
+export default {
+  applySort,
+  applyFilter,
+  applyPagination,
+  applyArgs,
+};
