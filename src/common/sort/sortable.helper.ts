@@ -8,6 +8,7 @@ import {
 } from '../filter';
 import { SortType } from './sort.type';
 import { SortOptions } from './sort-options.type';
+import { SortStorage } from '@common/sort/sort-storage';
 
 export function Sortable<T>(classRef: Type<T>) {
   const filterableRelations = getFilterableRelations(classRef);
@@ -26,6 +27,12 @@ function createSortableType<T>(
   name: string,
   relations?: FilterableRelationMetadata[],
 ) {
+  const ExistingSort = SortStorage.get(name);
+
+  if (ExistingSort) {
+    return ExistingSort as Type<SortType<T>>;
+  }
+
   const filterableFields = getFilterableFields(classRef);
 
   if (filterableFields.length === 0 && relations?.length === 0) {
@@ -61,5 +68,6 @@ function createSortableType<T>(
     Field(() => ST, { nullable: true })(GqlSort.prototype, propertyKey);
   });
 
+  SortStorage.set(name, GqlSort);
   return GqlSort as Type<SortType<T>>;
 }
