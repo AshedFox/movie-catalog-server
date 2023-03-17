@@ -214,9 +214,13 @@ const applyFieldSort = (
   qb.addOrderBy(snakeName, direction, nulls);
 };
 
-export const applySort = <T>(qb: SelectQueryBuilder<T>, sort: SortType<T>) => {
+export const applySort = <T>(
+  qb: SelectQueryBuilder<T>,
+  sort: SortType<T>,
+  alias?: string,
+) => {
   Object.keys(sort).forEach((key) => {
-    applyFieldSort(qb, key, sort[key]);
+    applyFieldSort(qb, key, sort[key], alias);
   });
 };
 
