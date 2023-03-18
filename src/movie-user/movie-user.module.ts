@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MovieUserService } from './movie-user.service';
 import { MovieUserResolver } from './movie-user.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,8 +9,8 @@ import { UserModule } from '../user/user.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([MovieUserEntity]),
-    MovieModule,
-    UserModule,
+    forwardRef(() => MovieModule),
+    forwardRef(() => UserModule),
   ],
   providers: [MovieUserResolver, MovieUserService],
   exports: [MovieUserService],
