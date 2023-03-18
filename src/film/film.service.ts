@@ -18,12 +18,6 @@ export class FilmService extends BaseService<
   constructor(
     @InjectRepository(FilmEntity)
     private readonly filmRepository: Repository<FilmEntity>,
-    @InjectRepository(MovieCountryEntity)
-    private readonly movieCountryRepository: Repository<MovieCountryEntity>,
-    @InjectRepository(MovieStudioEntity)
-    private readonly movieStudioRepository: Repository<MovieStudioEntity>,
-    @InjectRepository(MovieGenreEntity)
-    private readonly movieGenreRepository: Repository<MovieGenreEntity>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {
@@ -33,36 +27,32 @@ export class FilmService extends BaseService<
   create = async (createFilmInput: CreateFilmInput): Promise<FilmEntity> => {
     const queryRunner = this.dataSource.createQueryRunner();
 
+    await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const film = await this.filmRepository.save(
-        {
-          ...createFilmInput,
-        },
-        { transaction: false },
-      );
+      const film = await queryRunner.manager.save(FilmEntity, createFilmInput);
       const { genresIds, studiosIds, countriesIds } = createFilmInput;
 
       if (countriesIds) {
-        film.countriesConnection = await this.movieCountryRepository.save(
+        film.countriesConnection = await queryRunner.manager.save(
+          MovieCountryEntity,
           countriesIds.map((countryId) => ({ movieId: film.id, countryId })),
-          { transaction: false },
         );
       }
       if (genresIds) {
-        film.genresConnection = await this.movieGenreRepository.save(
+        film.genresConnection = await queryRunner.manager.save(
+          MovieGenreEntity,
           genresIds.map((genreId) => ({ movieId: film.id, genreId })),
-          { transaction: false },
         );
       }
       if (studiosIds) {
-        film.studiosConnection = await this.movieStudioRepository.save(
+        film.studiosConnection = await queryRunner.manager.save(
+          MovieStudioEntity,
           studiosIds.map((studioId) => ({
             movieId: film.id,
             genreId: studioId,
           })),
-          { transaction: false },
         );
       }
       await queryRunner.commitTransaction();
