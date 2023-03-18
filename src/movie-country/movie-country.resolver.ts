@@ -31,7 +31,7 @@ export class MovieCountryResolver {
     return this.movieCountryService.create(movieId, countryId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovieCountry(
