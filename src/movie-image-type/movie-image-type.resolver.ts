@@ -25,10 +25,18 @@ export class MovieImageTypeResolver {
   }
 
   @Query(() => PaginatedMovieImageTypes)
-  getMovieImageTypes(
+  async getMovieImageTypes(
     @Args() { pagination, sort, filter }: GetMovieImageTypesArgs,
   ) {
-    return this.movieImageTypeService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.movieImageTypeService.readMany(pagination, sort, filter),
+      this.movieImageTypeService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => MovieImageTypeEntity)
@@ -48,7 +56,7 @@ export class MovieImageTypeResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieImageTypeEntity)
   deleteMovieImageType(@Args('id', { type: () => Int }) id: number) {
     return this.movieImageTypeService.delete(id);
   }

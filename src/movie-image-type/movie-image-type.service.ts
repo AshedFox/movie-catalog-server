@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { MovieImageTypeEntity } from './entities/movie-image-type.entity';
-import { PaginatedMovieImageTypes } from './dto/paginated-movie-image-types';
-import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AlreadyExistsError, NotFoundError } from '@utils/errors';
-import { SortType } from '@common/sort';
-import { FilterType } from '@common/filter';
-import { GqlOffsetPagination } from '@common/pagination';
+import { AlreadyExistsError } from '@utils/errors';
 import { CreateMovieImageTypeInput } from './dto/create-movie-image-type.input';
 import { UpdateMovieImageTypeInput } from './dto/update-movie-image-type.input';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { BaseService } from '@common/services';
 
 @Injectable()
-export class MovieImageTypeService {
+export class MovieImageTypeService extends BaseService<
+  MovieImageTypeEntity,
+  CreateMovieImageTypeInput,
+  UpdateMovieImageTypeInput
+> {
   constructor(
     @InjectRepository(MovieImageTypeEntity)
     private readonly movieImageTypeRepository: Repository<MovieImageTypeEntity>,
-  ) {}
+  ) {
+    super(movieImageTypeRepository);
+  }
 
   create = async (createMovieImageTypeInput: CreateMovieImageTypeInput) => {
     const { name } = createMovieImageTypeInput;
@@ -29,66 +31,5 @@ export class MovieImageTypeService {
       );
     }
     return this.movieImageTypeRepository.save(createMovieImageTypeInput);
-  };
-
-  readMany = async (
-    pagination?: GqlOffsetPagination,
-    sort?: SortType<MovieImageTypeEntity>,
-    filter?: FilterType<MovieImageTypeEntity>,
-  ): Promise<PaginatedMovieImageTypes> => {
-    const qb = parseArgsToQuery(
-      this.movieImageTypeRepository,
-      pagination,
-      sort,
-      filter,
-    );
-    const { entities: data } = await qb.getRawAndEntities();
-    const count = await qb.getCount();
-
-    return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
-    };
-  };
-
-  readManyByIds = async (ids: number[]): Promise<MovieImageTypeEntity[]> =>
-    await this.movieImageTypeRepository.findBy({ id: In(ids) });
-
-  readOne = async (id: number): Promise<MovieImageTypeEntity> => {
-    const movieImageType = await this.movieImageTypeRepository.findOneBy({
-      id,
-    });
-    if (!movieImageType) {
-      throw new NotFoundError(`Age restriction with id "${id}" not found!`);
-    }
-    return movieImageType;
-  };
-
-  update = async (
-    id: number,
-    updateMovieImageTypeInput: UpdateMovieImageTypeInput,
-  ): Promise<MovieImageTypeEntity> => {
-    const movieImageType = await this.movieImageTypeRepository.findOneBy({
-      id,
-    });
-    if (!movieImageType) {
-      throw new NotFoundError(`Age restriction with id "${id}" not found!`);
-    }
-    return this.movieImageTypeRepository.save({
-      ...movieImageType,
-      ...updateMovieImageTypeInput,
-    });
-  };
-
-  delete = async (id: number): Promise<boolean> => {
-    const movieImageType = await this.movieImageTypeRepository.findOneBy({
-      id,
-    });
-    if (!movieImageType) {
-      throw new NotFoundError(`Age restriction with id "${id}" not found!`);
-    }
-    await this.movieImageTypeRepository.remove(movieImageType);
-    return true;
   };
 }

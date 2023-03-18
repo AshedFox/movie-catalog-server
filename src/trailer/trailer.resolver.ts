@@ -16,8 +16,16 @@ export class TrailerResolver {
   }
 
   @Query(() => PaginatedTrailers)
-  getTrailers(@Args() { pagination, sort, filter }: GetTrailersArgs) {
-    return this.trailerService.readMany(pagination, sort, filter);
+  async getTrailers(@Args() { pagination, sort, filter }: GetTrailersArgs) {
+    const [data, count] = await Promise.all([
+      this.trailerService.readMany(pagination, sort, filter),
+      this.trailerService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => TrailerEntity)
@@ -33,7 +41,7 @@ export class TrailerResolver {
     return this.trailerService.update(id, updateTrailerInput);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => TrailerEntity)
   deleteTrailer(@Args('id', { type: () => Int }) id: number) {
     return this.trailerService.delete(id);
   }

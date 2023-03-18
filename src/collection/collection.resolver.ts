@@ -40,8 +40,19 @@ export class CollectionResolver {
   }
 
   @Query(() => PaginatedCollections)
-  getCollections(@Args() { sort, filter, pagination }: GetCollectionsArgs) {
-    return this.collectionService.readMany(pagination, sort, filter);
+  async getCollections(
+    @Args() { sort, filter, pagination }: GetCollectionsArgs,
+  ) {
+    const [data, count] = await Promise.all([
+      this.collectionService.readMany(pagination, sort, filter),
+      this.collectionService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => CollectionEntity)
@@ -62,7 +73,7 @@ export class CollectionResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => CollectionEntity)
   deleteCollection(@Args('id', { type: () => Int }) id: number) {
     return this.collectionService.delete(id);
   }

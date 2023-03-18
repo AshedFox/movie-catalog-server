@@ -38,17 +38,37 @@ export class EpisodeResolver {
   @Query(() => PaginatedEpisodes)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  getEpisodesProtected(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
-    return this.episodeService.readMany(pagination, sort, filter);
+  async getEpisodesProtected(
+    @Args() { filter, sort, pagination }: GetEpisodesArgs,
+  ) {
+    const [data, count] = await Promise.all([
+      this.episodeService.readMany(pagination, sort, filter),
+      this.episodeService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => PaginatedEpisodes)
-  getEpisodes(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
-    if (!filter) {
-      filter = {};
-    }
-    filter.accessMode = { eq: AccessModeEnum.PUBLIC };
-    return this.episodeService.readMany(pagination, sort, filter);
+  async getEpisodes(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
+    filter = {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    };
+    const [data, count] = await Promise.all([
+      this.episodeService.readMany(pagination, sort, filter),
+      this.episodeService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => EpisodeEntity)
@@ -68,7 +88,7 @@ export class EpisodeResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => EpisodeEntity)
   deleteEpisode(@Args('id', ParseUUIDPipe) id: string) {
     return this.episodeService.delete(id);
   }

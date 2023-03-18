@@ -34,8 +34,17 @@ export class PersonResolver {
   }
 
   @Query(() => PaginatedPersons)
-  getPersons(@Args() { pagination, sort, filter }: GetPersonsArgs) {
-    return this.personService.readMany(pagination, sort, filter);
+  async getPersons(@Args() { pagination, sort, filter }: GetPersonsArgs) {
+    const [data, count] = await Promise.all([
+      this.personService.readMany(pagination, sort, filter),
+      this.personService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => PersonEntity)
@@ -55,7 +64,7 @@ export class PersonResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => PersonEntity)
   deletePerson(@Args('id', { type: () => Int }) id: number) {
     return this.personService.delete(id);
   }

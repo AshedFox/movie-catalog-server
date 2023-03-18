@@ -34,8 +34,17 @@ export class StudioResolver {
   }
 
   @Query(() => PaginatedStudios)
-  getStudios(@Args() { pagination, sort, filter }: GetStudiosArgs) {
-    return this.studioService.readMany(pagination, sort, filter);
+  async getStudios(@Args() { pagination, sort, filter }: GetStudiosArgs) {
+    const [data, count] = await Promise.all([
+      this.studioService.readMany(pagination, sort, filter),
+      this.studioService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => StudioEntity)
@@ -55,7 +64,7 @@ export class StudioResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => StudioEntity)
   deleteStudio(@Args('id', { type: () => Int }) id: number) {
     return this.studioService.delete(id);
   }

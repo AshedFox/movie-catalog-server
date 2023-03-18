@@ -34,8 +34,17 @@ export class CountryResolver {
   }
 
   @Query(() => PaginatedCountries)
-  getCountries(@Args() { sort, filter, pagination }: GetCountriesArgs) {
-    return this.countryService.readMany(pagination, sort, filter);
+  async getCountries(@Args() { sort, filter, pagination }: GetCountriesArgs) {
+    const [data, count] = await Promise.all([
+      this.countryService.readMany(pagination, sort, filter),
+      this.countryService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => CountryEntity)
@@ -55,7 +64,7 @@ export class CountryResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => CountryEntity)
   deleteCountry(@Args('id') id: string) {
     return this.countryService.delete(id);
   }

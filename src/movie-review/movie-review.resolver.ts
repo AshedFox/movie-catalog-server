@@ -37,8 +37,18 @@ export class MovieReviewResolver {
   }
 
   @Query(() => PaginatedMoviesReviews)
-  getMoviesReviews(@Args() { pagination, sort, filter }: GetMoviesReviewsArgs) {
-    return this.reviewService.readMany(pagination, sort, filter);
+  async getMoviesReviews(
+    @Args() { pagination, sort, filter }: GetMoviesReviewsArgs,
+  ) {
+    const [data, count] = await Promise.all([
+      this.reviewService.readMany(pagination, sort, filter),
+      this.reviewService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => MovieReviewEntity)
@@ -55,7 +65,7 @@ export class MovieReviewResolver {
     return this.reviewService.update(id, updateReviewInput);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieReviewEntity)
   @UseGuards(GqlJwtAuthGuard)
   deleteMovieReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.delete(id);

@@ -38,8 +38,18 @@ export class MoviePersonResolver {
   }
 
   @Query(() => PaginatedMoviesPersons)
-  getMoviesPersons(@Args() { pagination, sort, filter }: GetMoviesPersonsArgs) {
-    return this.moviePersonService.readMany(pagination, sort, filter);
+  async getMoviesPersons(
+    @Args() { pagination, sort, filter }: GetMoviesPersonsArgs,
+  ) {
+    const [data, count] = await Promise.all([
+      this.moviePersonService.readMany(pagination, sort, filter),
+      this.moviePersonService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => MoviePersonEntity)
@@ -59,7 +69,7 @@ export class MoviePersonResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => MoviePersonEntity)
   deleteMoviePerson(@Args('id', { type: () => Int }) id: number) {
     return this.moviePersonService.delete(id);
   }

@@ -16,8 +16,17 @@ export class CurrencyResolver {
   }
 
   @Query(() => PaginatedCurrencies)
-  getCurrencies(@Args() { sort, filter, pagination }: GetCurrenciesArgs) {
-    return this.currencyService.readMany(pagination, sort, filter);
+  async getCurrencies(@Args() { sort, filter, pagination }: GetCurrenciesArgs) {
+    const [data, count] = await Promise.all([
+      this.currencyService.readMany(pagination, sort, filter),
+      this.currencyService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: count > pagination.take + pagination.skip,
+    };
   }
 
   @Query(() => CurrencyEntity)
@@ -33,7 +42,7 @@ export class CurrencyResolver {
     return this.currencyService.update(id, input);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => CurrencyEntity)
   deleteCurrency(@Args('id', { type: () => Int }) id: number) {
     return this.currencyService.delete(id);
   }

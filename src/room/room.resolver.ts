@@ -41,18 +41,39 @@ export class RoomResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Query(() => PaginatedRooms)
-  getRoomsProtected(@Args() { pagination, filter, sort }: GetRoomsArgs) {
-    return this.roomService.readMany(pagination, sort, filter);
+  async getRoomsProtected(@Args() { pagination, filter, sort }: GetRoomsArgs) {
+    const [data, count] = await Promise.all([
+      this.roomService.readMany(pagination, sort, filter),
+      this.roomService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => PaginatedRooms)
   @UseGuards(GqlJwtAuthGuard)
-  getRooms(
+  async getRooms(
     @CurrentUser() currentUser: CurrentUserDto,
     @Args() { pagination, filter, sort }: GetRoomsArgs,
   ) {
-    filter.ownerId = { eq: currentUser.id };
-    return this.roomService.readMany(pagination, sort, filter);
+    filter = {
+      ...filter,
+      ownerId: {
+        eq: currentUser.id,
+      },
+    };
+    const [data, count] = await Promise.all([
+      this.roomService.readMany(pagination, sort, filter),
+      this.roomService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => RoomEntity)
@@ -79,7 +100,7 @@ export class RoomResolver {
     return this.roomService.update(id, updateRoomInput);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => RoomEntity)
   @UseGuards(GqlJwtAuthGuard)
   async deleteRoom(
     @CurrentUser() currentUser: CurrentUserDto,

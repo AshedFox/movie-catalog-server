@@ -38,8 +38,18 @@ export class MovieImageResolver {
   }
 
   @Query(() => PaginatedMoviesImages)
-  getMoviesImages(@Args() { pagination, sort, filter }: GetMoviesImagesArgs) {
-    return this.movieImageService.readMany(pagination, sort, filter);
+  async getMoviesImages(
+    @Args() { pagination, sort, filter }: GetMoviesImagesArgs,
+  ) {
+    const [data, count] = await Promise.all([
+      this.movieImageService.readMany(pagination, sort, filter),
+      this.movieImageService.count(filter),
+    ]);
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+    };
   }
 
   @Query(() => MovieImageEntity)
@@ -59,7 +69,7 @@ export class MovieImageResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieImageEntity)
   deleteMovieImage(@Args('id', { type: () => Int }) id: number) {
     return this.movieImageService.delete(id);
   }
