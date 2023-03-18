@@ -54,7 +54,7 @@ export class GenreResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => GenreEntity)
   deleteGenre(@Args('id', ParseUUIDPipe) id: string) {
     return this.genreService.delete(id);
   }
