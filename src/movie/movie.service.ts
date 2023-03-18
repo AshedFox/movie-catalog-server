@@ -61,12 +61,11 @@ export class MovieService {
     return movie;
   };
 
-  delete = async (id: string): Promise<boolean> => {
+  delete = async (id: string): Promise<MovieEntity> => {
     const movie = await this.movieRepository.findOneBy({ id });
     if (!movie) {
       throw new NotFoundError(`Movie with id ${id} not found!`);
     }
-    await this.movieRepository.remove(movie);
-    return true;
+    return this.movieRepository.remove(movie);
   };
 }

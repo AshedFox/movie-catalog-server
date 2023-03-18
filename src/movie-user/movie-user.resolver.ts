@@ -63,7 +63,7 @@ export class MovieUserResolver {
     return this.movieUserService.update(movieId, userId, input);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieUserEntity)
   @UseGuards(GqlJwtAuthGuard)
   deleteMovieUser(
     @Args('movieId', ParseUUIDPipe) movieId: string,

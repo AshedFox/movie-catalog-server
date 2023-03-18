@@ -72,7 +72,10 @@ export class MovieStudioService {
     return movieStudio;
   };
 
-  delete = async (movieId: string, studioId: number): Promise<boolean> => {
+  delete = async (
+    movieId: string,
+    studioId: number,
+  ): Promise<MovieStudioEntity> => {
     const movieStudio = await this.movieStudioRepository.findOneBy({
       movieId,
       studioId,
@@ -82,7 +85,6 @@ export class MovieStudioService {
         `Movie studio with movieId "${movieId}" and studioId "${studioId}" not found!`,
       );
     }
-    await this.movieStudioRepository.remove(movieStudio);
-    return true;
+    return this.movieStudioRepository.remove(movieStudio);
   };
 }

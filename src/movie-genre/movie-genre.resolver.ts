@@ -31,7 +31,7 @@ export class MovieGenreResolver {
     return this.movieGenreService.create(movieId, genreId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieGenreEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovieGenre(

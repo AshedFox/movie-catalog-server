@@ -73,13 +73,15 @@ export class MediaService {
   readManyByIds = async (ids: number[]): Promise<MediaEntity[]> =>
     this.imageRepository.findBy({ id: In(ids) });
 
-  delete = async (id: number): Promise<boolean> => {
+  delete = async (id: number): Promise<MediaEntity> => {
     const image = await this.imageRepository.findOneBy({ id });
     if (!image) {
       throw new NotFoundError(`Image with id "${id}" not found!`);
     }
-    await this.imageRepository.remove(image);
+    const removed = await this.imageRepository.remove(image);
+
     await this.cloudinaryService.delete(image.publicId);
-    return true;
+
+    return removed;
   };
 }

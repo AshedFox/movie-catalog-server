@@ -34,7 +34,7 @@ export class StudioCountryResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => StudioCountryEntity)
   deleteStudioCountry(
     @Args('studioId', { type: () => Int }) studioId: number,
     @Args('countryId') countryId: string,

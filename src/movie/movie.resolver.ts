@@ -59,7 +59,7 @@ export class MovieResolver {
     return this.movieService.readOne(id);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovie(@Args('id', ParseUUIDPipe) id: string) {

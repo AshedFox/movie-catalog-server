@@ -95,7 +95,10 @@ export class MovieUserService {
     });
   };
 
-  delete = async (movieId: string, userId: string): Promise<boolean> => {
+  delete = async (
+    movieId: string,
+    userId: string,
+  ): Promise<MovieUserEntity> => {
     const movieUser = await this.movieUserRepository.findOneBy({
       movieId,
       userId,
@@ -105,7 +108,6 @@ export class MovieUserService {
         `Movie user with movieId "${movieId}" and userId "${userId}" not found!`,
       );
     }
-    await this.movieUserRepository.remove(movieUser);
-    return true;
+    return this.movieUserRepository.remove(movieUser);
   };
 }

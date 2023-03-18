@@ -72,7 +72,10 @@ export class StudioCountryService {
     return studioCountry;
   };
 
-  delete = async (studioId: number, countryId: string): Promise<boolean> => {
+  delete = async (
+    studioId: number,
+    countryId: string,
+  ): Promise<StudioCountryEntity> => {
     const studioCountry = await this.studioCountryRepository.findOneBy({
       studioId,
       countryId,
@@ -82,7 +85,6 @@ export class StudioCountryService {
         `Studio country with studioId "${studioId}" and countryId "${countryId}" not found!`,
       );
     }
-    await this.studioCountryRepository.remove(studioCountry);
-    return true;
+    return this.studioCountryRepository.remove(studioCountry);
   };
 }

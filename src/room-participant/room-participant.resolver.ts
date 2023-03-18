@@ -33,7 +33,7 @@ export class RoomParticipantResolver {
     return this.roomParticipantService.create(roomId, userId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => RoomParticipantEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteRoomParticipant(

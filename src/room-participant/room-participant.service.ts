@@ -72,7 +72,10 @@ export class RoomParticipantService {
     return roomParticipant;
   };
 
-  delete = async (roomId: string, userId: string): Promise<boolean> => {
+  delete = async (
+    roomId: string,
+    userId: string,
+  ): Promise<RoomParticipantEntity> => {
     const roomParticipant = await this.roomParticipantRepository.findOneBy({
       roomId,
       userId,
@@ -82,7 +85,6 @@ export class RoomParticipantService {
         `Room participant with roomId "${roomId}" and userId "${userId}" not found!`,
       );
     }
-    await this.roomParticipantRepository.remove(roomParticipant);
-    return true;
+    return this.roomParticipantRepository.remove(roomParticipant);
   };
 }

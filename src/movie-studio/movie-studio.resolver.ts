@@ -32,7 +32,7 @@ export class MovieStudioResolver {
     return this.movieStudioService.create(movieId, studioId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MovieStudioEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   deleteMovieStudio(

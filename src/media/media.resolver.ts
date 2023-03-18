@@ -31,7 +31,7 @@ export class MediaResolver {
     return this.mediaService.readOne(id);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => MediaEntity)
   deleteMedia(@Args('id') id: number) {
     return this.mediaService.delete(id);
   }

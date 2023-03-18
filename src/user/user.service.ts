@@ -88,12 +88,11 @@ export class UserService {
     await this.userRepository.update(id, { isEmailConfirmed: true });
   };
 
-  delete = async (id: string): Promise<boolean> => {
+  delete = async (id: string): Promise<UserEntity> => {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundError(`User with id "${id}" not found!`);
     }
-    await this.userRepository.remove(user);
-    return true;
+    return this.userRepository.remove(user);
   };
 }

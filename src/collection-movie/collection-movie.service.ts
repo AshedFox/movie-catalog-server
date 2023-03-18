@@ -70,7 +70,10 @@ export class CollectionMovieService {
     return collectionMovie;
   };
 
-  delete = async (collectionId: number, movieId: string) => {
+  delete = async (
+    collectionId: number,
+    movieId: string,
+  ): Promise<CollectionMovieEntity> => {
     const collectionMovie = await this.collectionMovieRepository.findOneBy({
       collectionId,
       movieId,
@@ -80,7 +83,6 @@ export class CollectionMovieService {
         `Collection movie with movieId "${movieId}" and collectionId "${collectionId}" not found!`,
       );
     }
-    await this.collectionMovieRepository.remove(collectionMovie);
-    return true;
+    return this.collectionMovieRepository.remove(collectionMovie);
   };
 }

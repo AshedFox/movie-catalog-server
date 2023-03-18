@@ -52,7 +52,7 @@ export class UserResolver {
     return this.userService.update(currentUser.id, updateUserInput);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
   deleteMe(@CurrentUser() currentUser: CurrentUserDto) {
     return this.userService.delete(currentUser.id);
@@ -60,7 +60,7 @@ export class UserResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => UserEntity)
   deleteUser(@Args('id') id: string) {
     return this.userService.delete(id);
   }

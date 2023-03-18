@@ -36,7 +36,7 @@ export class CollectionMovieResolver {
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Mutation(() => Boolean)
+  @Mutation(() => CollectionMovieEntity)
   deleteCollectionMovie(
     @Args('collectionId', { type: () => Int }) collectionId: number,
     @Args('movieId', ParseUUIDPipe) movieId: string,

@@ -68,7 +68,10 @@ export class MovieGenreService {
     return movieGenre;
   };
 
-  delete = async (movieId: string, genreId: string) => {
+  delete = async (
+    movieId: string,
+    genreId: string,
+  ): Promise<MovieGenreEntity> => {
     const movieGenre = await this.movieGenreRepository.findOneBy({
       movieId,
       genreId,
@@ -78,7 +81,6 @@ export class MovieGenreService {
         `Movie genre with movieId "${movieId}" and genreId "${genreId}" not found!`,
       );
     }
-    await this.movieGenreRepository.remove(movieGenre);
-    return true;
+    return this.movieGenreRepository.remove(movieGenre);
   };
 }
