@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,5 +14,6 @@ async function bootstrap() {
   app.use(graphqlUploadExpress());
 
   await app.listen(config.get('PORT') || 3000);
+  Logger.debug(`Listening at ${await app.getUrl()}`, 'bootstrap');
 }
 bootstrap();
