@@ -105,6 +105,6 @@ export class SeasonResolver {
     @Parent() season: SeasonEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.episodesBySeasonLoader.load(season.seriesId);
+    return loaders.episodesBySeasonLoader.load(season.id);
   }
 }
