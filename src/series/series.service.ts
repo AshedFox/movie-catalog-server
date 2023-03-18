@@ -18,12 +18,6 @@ export class SeriesService extends BaseService<
   constructor(
     @InjectRepository(SeriesEntity)
     private readonly seriesRepository: Repository<SeriesEntity>,
-    @InjectRepository(MovieCountryEntity)
-    private readonly movieCountryRepository: Repository<MovieCountryEntity>,
-    @InjectRepository(MovieStudioEntity)
-    private readonly movieStudioRepository: Repository<MovieStudioEntity>,
-    @InjectRepository(MovieGenreEntity)
-    private readonly movieGenreRepository: Repository<MovieGenreEntity>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {
@@ -35,36 +29,35 @@ export class SeriesService extends BaseService<
   ): Promise<SeriesEntity> => {
     const queryRunner = this.dataSource.createQueryRunner();
 
+    await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       const { genresIds, studiosIds, countriesIds } = createSeriesInput;
-      const series = await this.seriesRepository.save(
-        {
-          ...createSeriesInput,
-        },
-        { transaction: false },
+      const series = await queryRunner.manager.save(
+        SeriesEntity,
+        createSeriesInput,
       );
 
       if (countriesIds) {
-        series.countriesConnection = await this.movieCountryRepository.save(
+        series.countriesConnection = await queryRunner.manager.save(
+          MovieCountryEntity,
           countriesIds.map((countryId) => ({ movieId: series.id, countryId })),
-          { transaction: false },
         );
       }
       if (genresIds) {
-        series.genresConnection = await this.movieGenreRepository.save(
+        series.genresConnection = await queryRunner.manager.save(
+          MovieGenreEntity,
           genresIds.map((genreId) => ({ movieId: series.id, genreId })),
-          { transaction: false },
         );
       }
       if (studiosIds) {
-        series.studiosConnection = await this.movieStudioRepository.save(
+        series.studiosConnection = await queryRunner.manager.save(
+          MovieStudioEntity,
           studiosIds.map((studioId) => ({
             movieId: series.id,
             genreId: studioId,
           })),
-          { transaction: false },
         );
       }
       await queryRunner.commitTransaction();
