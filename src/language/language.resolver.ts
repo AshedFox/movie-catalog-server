@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { LanguageService } from './Language.service';
-import { LanguageEntity } from './entities/Language.entity';
-import { CreateLanguageInput } from './dto/create-Language.input';
-import { UpdateLanguageInput } from './dto/update-Language.input';
+import { LanguageService } from './language.service';
+import { LanguageEntity } from './entities/language.entity';
+import { CreateLanguageInput } from './dto/create-language.input';
+import { UpdateLanguageInput } from './dto/update-language.input';
 import { PaginatedLanguages } from './dto/paginated-languages';
 import { GetLanguagesArgs } from './dto/get-languages.args';
 
