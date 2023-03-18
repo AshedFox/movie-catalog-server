@@ -26,11 +26,11 @@ export class MovieUserService {
     const { userId, movieId } = createMovieUserInput;
     await this.movieService.readOne(movieId);
     await this.userService.readOneById(userId);
-    const movieStudio = await this.movieUserRepository.findOneBy({
+    const movieUser = await this.movieUserRepository.findOneBy({
       movieId,
       userId,
     });
-    if (movieStudio) {
+    if (movieUser) {
       throw new AlreadyExistsError(
         `Movie user with movieId "${movieId}" and userId "${userId}" already exists!`,
       );
