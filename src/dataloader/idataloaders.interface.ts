@@ -22,6 +22,7 @@ import { CurrencyEntity } from '../currency/entities/currency.entity';
 import { RoomEntity } from '../room/entities/room.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
+import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
 
 export interface IDataLoaders {
   collectionLoader: DataLoader<number, CollectionEntity>;
@@ -53,6 +54,8 @@ export interface IDataLoaders {
   seriesLoader: DataLoader<string, SeriesEntity>;
   studioLoader: DataLoader<number, StudioEntity>;
   studiosByMovieLoader: DataLoader<string, StudioEntity[]>;
+  subtitlesLoader: DataLoader<number, SubtitlesEntity>;
+  subtitlesByVideoLoader: DataLoader<number, SubtitlesEntity[]>;
   trailerLoader: DataLoader<number, TrailerEntity>;
   trailersByMovieLoader: DataLoader<string, TrailerEntity[]>;
   userLoader: DataLoader<string, UserEntity>;

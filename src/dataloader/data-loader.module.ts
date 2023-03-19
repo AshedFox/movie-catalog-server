@@ -30,6 +30,7 @@ import { MediaModule } from '../media/media.module';
 import { VideoModule } from '../video/video.module';
 import { RoomVideoModule } from '../room-video/room-video.module';
 import { LanguageModule } from '../language/language.module';
+import { SubtitlesModule } from '../subtitles/subtitles.module';
 import { VideoVariantModule } from '../video-variant/video-variant.module';
 
 @Global()
@@ -62,6 +63,7 @@ import { VideoVariantModule } from '../video-variant/video-variant.module';
     SeriesModule,
     StudioCountryModule,
     StudioModule,
+    SubtitlesModule,
     TrailerModule,
     UserModule,
     VideoModule,

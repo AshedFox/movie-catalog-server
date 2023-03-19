@@ -9,6 +9,7 @@ import { GqlOffsetPagination } from '@common/pagination';
 import { SortType } from '@common/sort';
 import { CreateVideoInput } from './dto/create-video.input';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
+import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
 
 @Injectable()
 export class VideoService {
@@ -42,6 +43,11 @@ export class VideoService {
       video.variants = await queryRunner.manager.save(
         VideoVariantEntity,
         input.variants.map((v) => ({ ...v, videoId: video.id })),
+      );
+
+      video.subtitles = await queryRunner.manager.save(
+        SubtitlesEntity,
+        input.subtitles.map((s) => ({ ...s, videoId: video.id })),
       );
 
       await queryRunner.commitTransaction();

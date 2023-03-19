@@ -20,6 +20,7 @@ import { PaginatedVideos } from './dto/paginated-videos';
 import { GetVideosArgs } from './dto/get-videos.args';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
+import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -64,5 +65,13 @@ export class VideoResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.videoVariantsByVideoLoader.load(video.id);
+  }
+
+  @ResolveField(() => [SubtitlesEntity])
+  subtitles(
+    @Parent() video: VideoEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.subtitlesByVideoLoader.load(video.id);
   }
 }

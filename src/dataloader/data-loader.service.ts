@@ -33,6 +33,7 @@ import { VideoService } from '../video/video.service';
 import { RoomVideoService } from '../room-video/room-video.service';
 import { LanguageService } from '../language/language.service';
 import { VideoVariantService } from '../video-variant/video-variant.service';
+import { SubtitlesService } from '../subtitles/subtitles.service';
 
 @Injectable()
 export class DataLoaderService {
@@ -64,6 +65,7 @@ export class DataLoaderService {
     private readonly seriesService: SeriesService,
     private readonly studioCountryService: StudioCountryService,
     private readonly studioService: StudioService,
+    private readonly subtitlesService: SubtitlesService,
     private readonly trailerService: TrailerService,
     private readonly userService: UserService,
     private readonly videoService: VideoService,
@@ -230,6 +232,13 @@ export class DataLoaderService {
       this.movieStudioService.readManyByMovies,
       'movieId',
       'studio',
+    ),
+    subtitlesLoader: this.createSingleLoader(
+      this.subtitlesService.readManyByIds,
+    ),
+    subtitlesByVideoLoader: this.createMultipleLoader(
+      this.subtitlesService.readManyByVideos,
+      'videoId',
     ),
     trailerLoader: this.createSingleLoader(this.trailerService.readManyByIds),
     trailersByMovieLoader: this.createMultipleLoader(
