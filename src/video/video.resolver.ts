@@ -21,12 +21,12 @@ import { GetVideosArgs } from './dto/get-videos.args';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
 
-@UseGuards(GqlJwtAuthGuard, RolesGuard)
-@Role([RoleEnum.Admin, RoleEnum.Moderator])
 @Resolver(() => VideoEntity)
 export class VideoResolver {
   constructor(private readonly videoService: VideoService) {}
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => VideoEntity)
   createVideo(@Args('input') input: CreateVideoInput) {
     return this.videoService.create(input);
@@ -51,6 +51,8 @@ export class VideoResolver {
     return this.videoService.readOne(id);
   }
 
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => VideoEntity)
   removeVideo(@Args('id', { type: () => Int }) id: number) {
     return this.videoService.delete(id);
