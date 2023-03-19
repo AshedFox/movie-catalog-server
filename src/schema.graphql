@@ -1,0 +1,1819 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+directive @upper on FIELD_DEFINITION
+
+type Media {
+  id: ID!
+  publicId: String!
+  type: MediaTypeEnum!
+  url: String!
+}
+
+enum MediaTypeEnum {
+  VIDEO
+  IMAGE
+  SUBTITLES
+}
+
+type Language {
+  id: ID!
+  languageCode: String!
+  countryCode: String!
+  name: String!
+}
+
+type VideoVariant {
+  id: Float!
+  videoId: Int!
+  video: Video!
+  fileId: Int!
+  file: Media!
+  languageId: String!
+  language: Language!
+  quality: VideoQualityEnum!
+}
+
+enum VideoQualityEnum {
+  QUALITY_240p
+  QUALITY_360p
+  QUALITY_720p
+  QUALITY_1080p
+}
+
+type Subtitles {
+  id: Float!
+  videoId: Int!
+  video: Video!
+  languageId: String!
+  language: Language!
+  fileId: Int!
+  file: Media!
+}
+
+type Video {
+  id: ID!
+  variants: [VideoVariant!]!
+  subtitles: [Subtitles!]!
+}
+
+type MovieImageType {
+  id: ID!
+  name: String!
+}
+
+type MovieImage {
+  id: ID!
+  typeId: Float
+  type: MovieImageType
+  imageId: ID!
+  movieId: ID!
+  image: Media!
+  movie: Movie!
+}
+
+type Genre {
+  id: ID!
+  name: String!
+}
+
+type MovieGenre {
+  genreId: ID!
+  movieId: ID!
+  genre: Genre!
+  movie: Movie!
+}
+
+type Currency {
+  id: ID!
+  symbol: String!
+  code: String!
+}
+
+type Country {
+  id: ID!
+  name: String!
+  currencyId: Float!
+  currency: Currency!
+  languageId: String!
+  language: Language!
+}
+
+type StudioCountry {
+  studioId: ID!
+  countryId: ID!
+  studio: Studio!
+  country: Country!
+}
+
+type Studio {
+  id: ID!
+  name: String!
+  countries: [Country!]!
+}
+
+type MovieStudio {
+  movieId: ID!
+  studioId: ID!
+  movie: Movie!
+  studio: Studio!
+}
+
+type MoviePersonType {
+  id: ID!
+  name: String!
+}
+
+type Person {
+  id: ID!
+  name: String!
+  countryId: String
+  country: Country
+  imageId: String
+  image: Media
+}
+
+type MoviePerson {
+  id: ID!
+  movie: Movie!
+  person: Person!
+  movieId: String!
+  personId: Float!
+  role: String
+  typeId: Float!
+  type: MoviePersonType!
+}
+
+type Trailer {
+  id: ID!
+  title: String
+  createdAt: DateTime!
+  movieId: String!
+  movie: Movie!
+  videoId: Float!
+  video: Video!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type User {
+  id: ID!
+  email: String!
+  isEmailConfirmed: Boolean!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  role: RoleEnum!
+  countryId: String
+  country: Country
+  avatarId: Float
+  avatar: Media
+}
+
+"""User role in app"""
+enum RoleEnum {
+  User
+  Moderator
+  Admin
+}
+
+type MovieReview {
+  id: ID!
+  userId: ID!
+  user: User!
+  movieId: ID!
+  movie: Movie!
+  mark: Int!
+  text: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type MovieCountry {
+  countryId: ID!
+  movieId: ID!
+  country: Country!
+  movie: Movie!
+}
+
+type Movie {
+  id: ID!
+  type: MovieTypeEnum!
+  title: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  cover: Media
+  trailers: [Trailer!]!
+  reviews: [MovieReview!]!
+  genres: [Genre!]!
+  studios: [Studio!]!
+  countries: [Country!]!
+  movieImages: [MovieImage!]!
+  moviePersons: [MoviePerson!]!
+}
+
+enum MovieTypeEnum {
+  Film
+  Series
+}
+
+"""Movies age restrictions in MPAA system"""
+enum AgeRestrictionEnum {
+  G
+  PG
+  PG13
+  R
+  NC17
+}
+
+enum AccessModeEnum {
+  PUBLIC
+  PRIVATE
+}
+
+type Film {
+  id: ID!
+  type: MovieTypeEnum!
+  title: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  cover: Media
+  trailers: [Trailer!]!
+  reviews: [MovieReview!]!
+  genres: [Genre!]!
+  studios: [Studio!]!
+  countries: [Country!]!
+  movieImages: [MovieImage!]!
+  moviePersons: [MoviePerson!]!
+  releaseDate: DateTime
+  videoId: Float
+  video: Video
+}
+
+type PaginatedFilms {
+  totalCount: Int!
+  edges: [Film!]!
+  hasNext: Boolean!
+}
+
+type PaginatedUsers {
+  totalCount: Int!
+  edges: [User!]!
+  hasNext: Boolean!
+}
+
+type Series {
+  id: ID!
+  type: MovieTypeEnum!
+  title: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  cover: Media
+  trailers: [Trailer!]!
+  reviews: [MovieReview!]!
+  genres: [Genre!]!
+  studios: [Studio!]!
+  countries: [Country!]!
+  movieImages: [MovieImage!]!
+  moviePersons: [MoviePerson!]!
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+  seasons: [Season!]!
+  episodes: [Episode!]!
+}
+
+type Season {
+  id: ID!
+  numberInSeries: Int!
+  title: String
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accessMode: AccessModeEnum!
+  episodesCount: Int!
+  seriesId: String!
+  series: Series!
+  episodes: [Episode!]!
+}
+
+type Episode {
+  id: ID!
+  title: String
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  releaseDate: DateTime
+  publicationDate: DateTime!
+  accessMode: AccessModeEnum!
+  numberInSeries: Int!
+  numberInSeason: Int
+  seasonId: String
+  season: Season
+  seriesId: String!
+  series: Series!
+  videoId: Float
+  video: Video
+}
+
+type PaginatedEpisodes {
+  totalCount: Int!
+  edges: [Episode!]!
+  hasNext: Boolean!
+}
+
+type PaginatedSeasons {
+  totalCount: Int!
+  edges: [Season!]!
+  hasNext: Boolean!
+}
+
+type PaginatedSeries {
+  totalCount: Int!
+  edges: [Series!]!
+  hasNext: Boolean!
+}
+
+type PaginatedGenres {
+  totalCount: Int!
+  edges: [Genre!]!
+  hasNext: Boolean!
+}
+
+type PaginatedPersons {
+  totalCount: Int!
+  edges: [Person!]!
+  hasNext: Boolean!
+}
+
+type PaginatedStudios {
+  totalCount: Int!
+  edges: [Studio!]!
+  hasNext: Boolean!
+}
+
+type PaginatedCountries {
+  totalCount: Int!
+  edges: [Country!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMoviesPersons {
+  totalCount: Int!
+  edges: [MoviePerson!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMoviesUnion {
+  totalCount: Int!
+  edges: [MovieUnion!]!
+  hasNext: Boolean!
+}
+
+union MovieUnion = Film | Series
+
+type AuthResult {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type CollectionMovie {
+  collectionId: ID!
+  movieId: ID!
+  collection: Collection!
+  movie: Movie!
+}
+
+type Collection {
+  id: ID!
+  name: String!
+  description: String
+  isSystem: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  coverId: Float
+  cover: Media
+  movies: [Movie!]!
+}
+
+type RoomVideo {
+  videoId: ID!
+  video: Video!
+  roomId: ID!
+  room: Room!
+  order: Int!
+}
+
+type Room {
+  id: ID!
+  inviteKey: String
+  name: String!
+  ownerId: String!
+  owner: User!
+  currentVideoId: Float
+  videos: [Video!]!
+  participants: [User!]!
+}
+
+type RoomParticipant {
+  roomId: ID!
+  userId: ID!
+  room: Room!
+  user: User!
+}
+
+type PaginatedMoviesImages {
+  totalCount: Int!
+  edges: [MovieImage!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMedia {
+  totalCount: Int!
+  edges: [Media!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMoviesReviews {
+  totalCount: Int!
+  edges: [MovieReview!]!
+  hasNext: Boolean!
+}
+
+type PaginatedTrailers {
+  totalCount: Int!
+  edges: [Trailer!]!
+  hasNext: Boolean!
+}
+
+type PaginatedCollections {
+  totalCount: Int!
+  edges: [Collection!]!
+  hasNext: Boolean!
+}
+
+type PaginatedCurrencies {
+  totalCount: Int!
+  edges: [Currency!]!
+  hasNext: Boolean!
+}
+
+type PaginatedRooms {
+  totalCount: Int!
+  edges: [Room!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMoviePersonTypes {
+  totalCount: Int!
+  edges: [MoviePersonType!]!
+  hasNext: Boolean!
+}
+
+type PaginatedMovieImageTypes {
+  totalCount: Int!
+  edges: [MovieImageType!]!
+  hasNext: Boolean!
+}
+
+type PaginatedVideos {
+  totalCount: Int!
+  edges: [Video!]!
+  hasNext: Boolean!
+}
+
+type PaginatedRoomsVideos {
+  totalCount: Int!
+  edges: [RoomVideo!]!
+  hasNext: Boolean!
+}
+
+type PaginatedLanguages {
+  totalCount: Int!
+  edges: [Language!]!
+  hasNext: Boolean!
+}
+
+type MovieUser {
+  userId: ID!
+  user: User!
+  movieId: ID!
+  movie: Movie!
+  isWatched: Boolean!
+  isBookmarked: Boolean!
+}
+
+type PaginatedMoviesUsers {
+  totalCount: Int!
+  edges: [MovieUser!]!
+  hasNext: Boolean!
+}
+
+type MovieVisitStatsLastMonth {
+  id: Float!
+  movieId: String!
+  movie: Movie!
+  createdAt: DateTime!
+}
+
+type PaginatedMoviesVisits {
+  totalCount: Int!
+  edges: [MovieVisitStatsLastMonth!]!
+  hasNext: Boolean!
+}
+
+type Query {
+  getCollections(sort: CollectionSort, filter: CollectionFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedCollections!
+  getCollection(id: Int!): Collection!
+  getMoviesProtected(sort: MovieSort, filter: MovieFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesUnion!
+  getMovies(sort: MovieSort, filter: MovieFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesUnion!
+  getMostPopularMovies(pagination: GqlOffsetPagination!): [MovieUnion!]!
+  getMovie(id: String!): Movie!
+  getCountries(sort: CountrySort, filter: CountryFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedCountries!
+  getCountry(id: String!): Country!
+  getCurrencies(sort: CurrencySort, filter: CurrencyFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedCurrencies!
+  getCurrency(id: Int!): Currency!
+  getMe: User
+  getUsers(sort: UserSort, filter: UserFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedUsers!
+  getUser(id: String!): User!
+  getEpisodesProtected(sort: EpisodeSort, filter: EpisodeFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedEpisodes!
+  getEpisodes(sort: EpisodeSort, filter: EpisodeFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedEpisodes!
+  getEpisode(id: String!): Episode!
+  getFilmsProtected(sort: FilmSort, filter: FilmFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedFilms!
+  getFilms(sort: FilmSort, filter: FilmFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedFilms!
+  getFilm(id: String!): Film!
+  getGenres(sort: GenreSort, filter: GenreFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedGenres!
+  getGenre(id: String!): Genre!
+  getLanguages(sort: LanguageSort, filter: LanguageFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedLanguages!
+  getLanguage(id: String!): Language!
+  getManyMedia(sort: MediaSort, filter: MediaFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMedia!
+  getOneMedia(id: Float!): Media!
+  getMoviesImages(sort: MovieImageSort, filter: MovieImageFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesImages!
+  getMovieImage(id: Int!): MovieImage!
+  getMoviePersonTypes(sort: MoviePersonTypeSort, filter: MoviePersonTypeFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviePersonTypes!
+  getMoviePersonType(id: Int!): MoviePersonType!
+  getMoviesPersons(sort: MoviePersonSort, filter: MoviePersonFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesPersons!
+  getMoviePerson(id: Int!): MoviePerson!
+  getPersons(sort: PersonSort, filter: PersonFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedPersons!
+  getPerson(id: Int!): Person!
+  getMoviesReviews(sort: MovieReviewSort, filter: MovieReviewFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesReviews!
+  getMovieReview(id: Int!): MovieReview!
+  getStudios(sort: StudioSort, filter: StudioFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedStudios!
+  getStudio(id: Int!): Studio!
+  getMovieImageTypes(sort: MovieImageTypeSort, filter: MovieImageTypeFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMovieImageTypes!
+  getMovieImageType(id: Int!): MovieImageType!
+  getRoomsProtected(sort: RoomSort, filter: RoomFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedRooms!
+  getRooms(sort: RoomSort, filter: RoomFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedRooms!
+  getRoom(id: String!): Room!
+  getRoomsVideos(sort: RoomVideoSort, filter: RoomVideoFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedRoomsVideos!
+  roomVideo(roomId: String!, videoId: Int!): RoomVideo!
+  getVideos(sort: VideoSort, filter: VideoFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedVideos!
+  getVideo(id: Int!): Video!
+  getSeasonsProtected(sort: SeasonSort, filter: SeasonFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedSeasons!
+  getSeasons(sort: SeasonSort, filter: SeasonFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedSeasons!
+  getSeason(id: String!): Season!
+  getManySeriesProtected(sort: SeriesSort, filter: SeriesFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedSeries!
+  getManySeries(sort: SeriesSort, filter: SeriesFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedSeries!
+  getOneSeries(id: String!): Series!
+  getManySubtitles: [Subtitles!]!
+  getOneSubtitles(id: Int!): Subtitles!
+  getTrailers(sort: TrailerSort, filter: TrailerFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedTrailers!
+  getTrailer(id: Int!): Trailer!
+  getVideosVariants: [VideoVariant!]!
+  getVideoVariant(id: Int!): VideoVariant!
+  getMoviesUsers(sort: MovieUserSort, filter: MovieUserFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesUsers!
+  getMovieUser(movieId: String!, userId: String!): MovieUser!
+  getLastMonthMoviesVisits(sort: MovieVisitStatsLastMonthSort, filter: MovieVisitStatsLastMonthFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedMoviesVisits!
+}
+
+input CollectionSort {
+  id: SortOptions
+  name: SortOptions
+  description: SortOptions
+  isSystem: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  coverId: SortOptions
+}
+
+input SortOptions {
+  direction: SortDirectionEnum
+  nulls: SortNullsEnum
+}
+
+enum SortDirectionEnum {
+  ASC
+  asc
+  DESC
+  desc
+}
+
+enum SortNullsEnum {
+  FIRST
+  first
+  LAST
+  last
+}
+
+input CollectionFilter {
+  and: [CollectionFilter!]
+  or: [CollectionFilter!]
+  id: IDFilter
+  name: StringFilter
+  description: StringFilter
+  isSystem: BooleanFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  coverId: NumberFilter
+}
+
+input IDFilter {
+  lt: ID
+  lte: ID
+  gt: ID
+  gte: ID
+  eq: ID
+  neq: ID
+  in: [ID!]
+  nin: [ID!]
+  like: ID
+  nlike: ID
+  ilike: ID
+  nilike: ID
+  btwn: IDBetween
+  nbtwn: IDBetween
+}
+
+input IDBetween {
+  start: ID
+  end: ID
+}
+
+input StringFilter {
+  eq: String
+  neq: String
+  in: [String!]
+  nin: [String!]
+  like: String
+  nlike: String
+  ilike: String
+  nilike: String
+}
+
+input BooleanFilter {
+  eq: Boolean
+  neq: Boolean
+}
+
+input DateFilter {
+  eq: DateTime
+  neq: DateTime
+  in: [DateTime!]
+  nin: [DateTime!]
+}
+
+input NumberFilter {
+  eq: Float
+  neq: Float
+  in: [Float!]
+  nin: [Float!]
+}
+
+input GqlOffsetPagination {
+  skip: Int! = 0
+  take: Int! = 20
+}
+
+input MovieSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  ageRestriction: SortOptions
+  accessMode: SortOptions
+  coverId: SortOptions
+  releaseDate: SortOptions
+  videoId: SortOptions
+  startReleaseDate: SortOptions
+  endReleaseDate: SortOptions
+  cover: MediaEntity_MovieSort
+}
+
+input MediaEntity_MovieSort {
+  id: SortOptions
+  publicId: SortOptions
+  type: SortOptions
+  url: SortOptions
+}
+
+input MovieFilter {
+  and: [MovieFilter!]
+  or: [MovieFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  accessMode: AccessModeEnumFilter
+  coverId: NumberFilter
+  releaseDate: DateFilter
+  videoId: NumberFilter
+  startReleaseDate: DateFilter
+  endReleaseDate: DateFilter
+  cover: MediaEntity_MovieFilter
+}
+
+input AgeRestrictionEnumFilter {
+  eq: AgeRestrictionEnum
+  neq: AgeRestrictionEnum
+  in: [AgeRestrictionEnum!]
+  nin: [AgeRestrictionEnum!]
+}
+
+input AccessModeEnumFilter {
+  eq: AccessModeEnum
+  neq: AccessModeEnum
+  in: [AccessModeEnum!]
+  nin: [AccessModeEnum!]
+}
+
+input MediaEntity_MovieFilter {
+  and: [MediaEntity_MovieFilter!]
+  or: [MediaEntity_MovieFilter!]
+  id: IDFilter
+  publicId: StringFilter
+  type: MediaTypeEnumFilter
+  url: StringFilter
+}
+
+input MediaTypeEnumFilter {
+  eq: MediaTypeEnum
+  neq: MediaTypeEnum
+  in: [MediaTypeEnum!]
+  nin: [MediaTypeEnum!]
+}
+
+input CountrySort {
+  id: SortOptions
+  name: SortOptions
+  currencyId: SortOptions
+  languageId: SortOptions
+  currency: CurrencyEntity_CountrySort
+  language: LanguageEntity_CountrySort
+}
+
+input CurrencyEntity_CountrySort {
+  id: SortOptions
+  symbol: SortOptions
+  code: SortOptions
+}
+
+input LanguageEntity_CountrySort {
+  id: SortOptions
+  languageCode: SortOptions
+  countryCode: SortOptions
+  name: SortOptions
+}
+
+input CountryFilter {
+  and: [CountryFilter!]
+  or: [CountryFilter!]
+  id: IDFilter
+  name: StringFilter
+  currencyId: NumberFilter
+  languageId: StringFilter
+  currency: CurrencyEntity_CountryFilter
+  language: LanguageEntity_CountryFilter
+}
+
+input CurrencyEntity_CountryFilter {
+  and: [CurrencyEntity_CountryFilter!]
+  or: [CurrencyEntity_CountryFilter!]
+  id: IDFilter
+  symbol: StringFilter
+  code: StringFilter
+}
+
+input LanguageEntity_CountryFilter {
+  and: [LanguageEntity_CountryFilter!]
+  or: [LanguageEntity_CountryFilter!]
+  id: IDFilter
+  languageCode: StringFilter
+  countryCode: StringFilter
+  name: StringFilter
+}
+
+input CurrencySort {
+  id: SortOptions
+  symbol: SortOptions
+  code: SortOptions
+}
+
+input CurrencyFilter {
+  and: [CurrencyFilter!]
+  or: [CurrencyFilter!]
+  id: IDFilter
+  symbol: StringFilter
+  code: StringFilter
+}
+
+input UserSort {
+  id: SortOptions
+  email: SortOptions
+  isEmailConfirmed: SortOptions
+  name: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  role: SortOptions
+  countryId: SortOptions
+  avatarId: SortOptions
+}
+
+input UserFilter {
+  and: [UserFilter!]
+  or: [UserFilter!]
+  id: IDFilter
+  email: StringFilter
+  isEmailConfirmed: BooleanFilter
+  name: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  role: RoleEnumFilter
+  countryId: StringFilter
+  avatarId: NumberFilter
+}
+
+input RoleEnumFilter {
+  eq: RoleEnum
+  neq: RoleEnum
+  in: [RoleEnum!]
+  nin: [RoleEnum!]
+}
+
+input EpisodeSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  ageRestriction: SortOptions
+  releaseDate: SortOptions
+  publicationDate: SortOptions
+  accessMode: SortOptions
+  numberInSeries: SortOptions
+  numberInSeason: SortOptions
+  seasonId: SortOptions
+  seriesId: SortOptions
+  videoId: SortOptions
+}
+
+input EpisodeFilter {
+  and: [EpisodeFilter!]
+  or: [EpisodeFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  releaseDate: DateFilter
+  publicationDate: DateFilter
+  accessMode: AccessModeEnumFilter
+  numberInSeries: IntFilter
+  numberInSeason: IntFilter
+  seasonId: StringFilter
+  seriesId: StringFilter
+  videoId: NumberFilter
+}
+
+input IntFilter {
+  ge: Int
+  gte: Int
+  lt: Int
+  lte: Int
+  eq: Int
+  neq: Int
+  in: [Int!]
+  nin: [Int!]
+  btwn: IntBetween
+  nbtwn: IntBetween
+}
+
+input IntBetween {
+  start: Int
+  end: Int
+}
+
+input FilmSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  ageRestriction: SortOptions
+  accessMode: SortOptions
+  coverId: SortOptions
+  releaseDate: SortOptions
+  videoId: SortOptions
+  cover: MediaEntity_FilmSort
+}
+
+input MediaEntity_FilmSort {
+  id: SortOptions
+  publicId: SortOptions
+  type: SortOptions
+  url: SortOptions
+}
+
+input FilmFilter {
+  and: [FilmFilter!]
+  or: [FilmFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  accessMode: AccessModeEnumFilter
+  coverId: NumberFilter
+  releaseDate: DateFilter
+  videoId: NumberFilter
+  cover: MediaEntity_FilmFilter
+}
+
+input MediaEntity_FilmFilter {
+  and: [MediaEntity_FilmFilter!]
+  or: [MediaEntity_FilmFilter!]
+  id: IDFilter
+  publicId: StringFilter
+  type: MediaTypeEnumFilter
+  url: StringFilter
+}
+
+input GenreSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input GenreFilter {
+  and: [GenreFilter!]
+  or: [GenreFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input LanguageSort {
+  id: SortOptions
+  languageCode: SortOptions
+  countryCode: SortOptions
+  name: SortOptions
+}
+
+input LanguageFilter {
+  and: [LanguageFilter!]
+  or: [LanguageFilter!]
+  id: IDFilter
+  languageCode: StringFilter
+  countryCode: StringFilter
+  name: StringFilter
+}
+
+input MediaSort {
+  id: SortOptions
+  publicId: SortOptions
+  type: SortOptions
+  url: SortOptions
+}
+
+input MediaFilter {
+  and: [MediaFilter!]
+  or: [MediaFilter!]
+  id: IDFilter
+  publicId: StringFilter
+  type: MediaTypeEnumFilter
+  url: StringFilter
+}
+
+input MovieImageSort {
+  id: SortOptions
+  typeId: SortOptions
+  imageId: SortOptions
+  movieId: SortOptions
+  type: MovieImageTypeEntity_MovieImageSort
+}
+
+input MovieImageTypeEntity_MovieImageSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input MovieImageFilter {
+  and: [MovieImageFilter!]
+  or: [MovieImageFilter!]
+  id: IDFilter
+  typeId: NumberFilter
+  imageId: IDFilter
+  movieId: IDFilter
+  type: MovieImageTypeEntity_MovieImageFilter
+}
+
+input MovieImageTypeEntity_MovieImageFilter {
+  and: [MovieImageTypeEntity_MovieImageFilter!]
+  or: [MovieImageTypeEntity_MovieImageFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input MoviePersonTypeSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input MoviePersonTypeFilter {
+  and: [MoviePersonTypeFilter!]
+  or: [MoviePersonTypeFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input MoviePersonSort {
+  id: SortOptions
+  movieId: SortOptions
+  personId: SortOptions
+  role: SortOptions
+  typeId: SortOptions
+  type: MoviePersonTypeEntity_MoviePersonSort
+}
+
+input MoviePersonTypeEntity_MoviePersonSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input MoviePersonFilter {
+  and: [MoviePersonFilter!]
+  or: [MoviePersonFilter!]
+  id: IDFilter
+  movieId: StringFilter
+  personId: NumberFilter
+  role: StringFilter
+  typeId: NumberFilter
+  type: MoviePersonTypeEntity_MoviePersonFilter
+}
+
+input MoviePersonTypeEntity_MoviePersonFilter {
+  and: [MoviePersonTypeEntity_MoviePersonFilter!]
+  or: [MoviePersonTypeEntity_MoviePersonFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input PersonSort {
+  id: SortOptions
+  name: SortOptions
+  countryId: SortOptions
+  imageId: SortOptions
+}
+
+input PersonFilter {
+  and: [PersonFilter!]
+  or: [PersonFilter!]
+  id: IDFilter
+  name: StringFilter
+  countryId: StringFilter
+  imageId: StringFilter
+}
+
+input MovieReviewSort {
+  id: SortOptions
+  userId: SortOptions
+  movieId: SortOptions
+  mark: SortOptions
+  text: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+}
+
+input MovieReviewFilter {
+  and: [MovieReviewFilter!]
+  or: [MovieReviewFilter!]
+  id: IDFilter
+  userId: IDFilter
+  movieId: IDFilter
+  mark: IntFilter
+  text: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+}
+
+input StudioSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input StudioFilter {
+  and: [StudioFilter!]
+  or: [StudioFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input MovieImageTypeSort {
+  id: SortOptions
+  name: SortOptions
+}
+
+input MovieImageTypeFilter {
+  and: [MovieImageTypeFilter!]
+  or: [MovieImageTypeFilter!]
+  id: IDFilter
+  name: StringFilter
+}
+
+input RoomSort {
+  id: SortOptions
+  inviteKey: SortOptions
+  name: SortOptions
+  ownerId: SortOptions
+  currentVideoId: SortOptions
+}
+
+input RoomFilter {
+  and: [RoomFilter!]
+  or: [RoomFilter!]
+  id: IDFilter
+  inviteKey: StringFilter
+  name: StringFilter
+  ownerId: StringFilter
+  currentVideoId: NumberFilter
+}
+
+input RoomVideoSort {
+  videoId: SortOptions
+  roomId: SortOptions
+}
+
+input RoomVideoFilter {
+  and: [RoomVideoFilter!]
+  or: [RoomVideoFilter!]
+  videoId: IDFilter
+  roomId: IDFilter
+}
+
+input VideoSort {
+  id: SortOptions
+}
+
+input VideoFilter {
+  and: [VideoFilter!]
+  or: [VideoFilter!]
+  id: IDFilter
+}
+
+input SeasonSort {
+  id: SortOptions
+  numberInSeries: SortOptions
+  title: SortOptions
+  description: SortOptions
+  ageRestriction: SortOptions
+  startReleaseDate: SortOptions
+  endReleaseDate: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  accessMode: SortOptions
+  seriesId: SortOptions
+  series: SeriesEntity_SeasonSort
+}
+
+input SeriesEntity_SeasonSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  ageRestriction: SortOptions
+  accessMode: SortOptions
+  coverId: SortOptions
+  releaseDate: SortOptions
+  videoId: SortOptions
+  startReleaseDate: SortOptions
+  endReleaseDate: SortOptions
+}
+
+input SeasonFilter {
+  and: [SeasonFilter!]
+  or: [SeasonFilter!]
+  id: IDFilter
+  numberInSeries: IntFilter
+  title: StringFilter
+  description: StringFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  startReleaseDate: DateFilter
+  endReleaseDate: DateFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  accessMode: AccessModeEnumFilter
+  seriesId: StringFilter
+  series: SeriesEntity_SeasonFilter
+}
+
+input SeriesEntity_SeasonFilter {
+  and: [SeriesEntity_SeasonFilter!]
+  or: [SeriesEntity_SeasonFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  accessMode: AccessModeEnumFilter
+  coverId: NumberFilter
+  releaseDate: DateFilter
+  videoId: NumberFilter
+  startReleaseDate: DateFilter
+  endReleaseDate: DateFilter
+}
+
+input SeriesSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  ageRestriction: SortOptions
+  accessMode: SortOptions
+  coverId: SortOptions
+  releaseDate: SortOptions
+  videoId: SortOptions
+  startReleaseDate: SortOptions
+  endReleaseDate: SortOptions
+  cover: MediaEntity_SeriesSort
+}
+
+input MediaEntity_SeriesSort {
+  id: SortOptions
+  publicId: SortOptions
+  type: SortOptions
+  url: SortOptions
+}
+
+input SeriesFilter {
+  and: [SeriesFilter!]
+  or: [SeriesFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  accessMode: AccessModeEnumFilter
+  coverId: NumberFilter
+  releaseDate: DateFilter
+  videoId: NumberFilter
+  startReleaseDate: DateFilter
+  endReleaseDate: DateFilter
+  cover: MediaEntity_SeriesFilter
+}
+
+input MediaEntity_SeriesFilter {
+  and: [MediaEntity_SeriesFilter!]
+  or: [MediaEntity_SeriesFilter!]
+  id: IDFilter
+  publicId: StringFilter
+  type: MediaTypeEnumFilter
+  url: StringFilter
+}
+
+input TrailerSort {
+  id: SortOptions
+  title: SortOptions
+  createdAt: SortOptions
+  movieId: SortOptions
+  videoId: SortOptions
+}
+
+input TrailerFilter {
+  and: [TrailerFilter!]
+  or: [TrailerFilter!]
+  id: IDFilter
+  title: StringFilter
+  createdAt: DateFilter
+  movieId: StringFilter
+  videoId: NumberFilter
+}
+
+input MovieUserSort {
+  userId: SortOptions
+  movieId: SortOptions
+  isWatched: SortOptions
+  isBookmarked: SortOptions
+}
+
+input MovieUserFilter {
+  and: [MovieUserFilter!]
+  or: [MovieUserFilter!]
+  userId: IDFilter
+  movieId: IDFilter
+  isWatched: BooleanFilter
+  isBookmarked: BooleanFilter
+}
+
+input MovieVisitStatsLastMonthSort {
+  movieId: SortOptions
+  createdAt: SortOptions
+  movie: MovieEntity_MovieVisitStatsLastMonthSort
+}
+
+input MovieEntity_MovieVisitStatsLastMonthSort {
+  id: SortOptions
+  title: SortOptions
+  description: SortOptions
+  createdAt: SortOptions
+  updatedAt: SortOptions
+  ageRestriction: SortOptions
+  accessMode: SortOptions
+  coverId: SortOptions
+  releaseDate: SortOptions
+  videoId: SortOptions
+  startReleaseDate: SortOptions
+  endReleaseDate: SortOptions
+}
+
+input MovieVisitStatsLastMonthFilter {
+  and: [MovieVisitStatsLastMonthFilter!]
+  or: [MovieVisitStatsLastMonthFilter!]
+  movieId: StringFilter
+  createdAt: DateFilter
+  movie: MovieEntity_MovieVisitStatsLastMonthFilter
+}
+
+input MovieEntity_MovieVisitStatsLastMonthFilter {
+  and: [MovieEntity_MovieVisitStatsLastMonthFilter!]
+  or: [MovieEntity_MovieVisitStatsLastMonthFilter!]
+  id: IDFilter
+  title: StringFilter
+  description: StringFilter
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  ageRestriction: AgeRestrictionEnumFilter
+  accessMode: AccessModeEnumFilter
+  coverId: NumberFilter
+  releaseDate: DateFilter
+  videoId: NumberFilter
+  startReleaseDate: DateFilter
+  endReleaseDate: DateFilter
+}
+
+type Mutation {
+  createCollection(input: CreateCollectionInput!): Collection!
+  updateCollection(id: Int!, input: UpdateCollectionInput!): Collection!
+  deleteCollection(id: Int!): Collection!
+  createCollectionMovie(collectionId: Int!, movieId: String!): CollectionMovie!
+  deleteCollectionMovie(collectionId: Int!, movieId: String!): CollectionMovie!
+  deleteMovie(id: String!): Movie!
+  createCountry(input: CreateCountryInput!): Country!
+  updateCountry(id: String!, input: UpdateCountryInput!): Country!
+  deleteCountry(id: String!): Country!
+  createCurrency(input: CreateCurrencyInput!): Currency!
+  updateCurrency(id: Int!, input: UpdateCurrencyInput!): Currency!
+  deleteCurrency(id: Int!): Currency!
+  sendConfirmation: Boolean!
+  confirmEmail(input: ConfirmEmailInput!): Boolean!
+  deleteExpiredConfirmations: Boolean!
+  updateMe(input: UpdateUserInput!): User!
+  deleteMe: User!
+  deleteUser(id: String!): User!
+  createEpisode(input: CreateEpisodeInput!): Episode!
+  updateEpisode(id: String!, input: UpdateEpisodeInput!): Episode!
+  deleteEpisode(id: String!): Episode!
+  createFilm(input: CreateFilmInput!): Film!
+  updateFilm(id: String!, input: UpdateFilmInput!): Film!
+  deleteFilm(id: String!): Film!
+  createGenre(input: CreateGenreInput!): Genre!
+  updateGenre(id: String!, input: UpdateGenreInput!): Genre!
+  deleteGenre(id: String!): Genre!
+  createLanguage(input: CreateLanguageInput!): Language!
+  updateLanguage(id: String!, input: UpdateLanguageInput!): Language!
+  deleteLanguage(id: String!): Language!
+  uploadMedia(input: CreateMediaInput!): Media!
+  deleteMedia(id: Float!): Media!
+  createMovieCountry(movieId: String!, countryId: String!): MovieCountry!
+  deleteMovieCountry(movieId: String!, countryId: String!): Movie!
+  createMovieGenre(movieId: String!, genreId: String!): MovieGenre!
+  deleteMovieGenre(movieId: String!, genreId: String!): MovieGenre!
+  createMovieImage(input: CreateMovieImageInput!): MovieImage!
+  updateMovieImage(id: Int!, input: UpdateMovieImageInput!): MovieImage!
+  deleteMovieImage(id: Int!): MovieImage!
+  createMoviePersonType(input: CreateMoviePersonTypeInput!): MoviePersonType!
+  updateMoviePersonType(id: Int!, input: UpdateMoviePersonTypeInput!): MoviePersonType!
+  deleteMoviePersonType(id: Int!): MoviePersonType!
+  createMoviePerson(input: CreateMoviePersonInput!): MoviePerson!
+  updateMoviePerson(id: Int!, input: UpdateMoviePersonInput!): MoviePerson!
+  deleteMoviePerson(id: Int!): MoviePerson!
+  createPerson(input: CreatePersonInput!): Person!
+  updatePerson(id: Int!, input: UpdatePersonInput!): Person!
+  deletePerson(id: Int!): Person!
+  createMovieReview(input: CreateMovieReviewInput!): MovieReview!
+  updateMovieReview(id: Int!, input: UpdateMovieReviewInput!): MovieReview!
+  deleteMovieReview(id: Int!): MovieReview!
+  createMovieStudio(movieId: String!, studioId: Int!): MovieStudio!
+  deleteMovieStudio(movieId: String!, studioId: Int!): MovieStudio!
+  createStudio(input: CreateStudioInput!): Studio!
+  updateStudio(id: Int!, input: UpdateStudioInput!): Studio!
+  deleteStudio(id: Int!): Studio!
+  createStudioCountry(studioId: Int!, countryId: String!): StudioCountry!
+  deleteStudioCountry(studioId: Int!, countryId: String!): StudioCountry!
+  createMovieImageType(input: CreateMovieImageTypeInput!): MovieImageType!
+  updateMovieImageType(id: Int!, input: UpdateMovieImageTypeInput!): MovieImageType!
+  deleteMovieImageType(id: Int!): MovieImageType!
+  createRoom(input: CreateRoomInput!): Room!
+  updateRoom(id: String!, input: UpdateRoomInput!): Room!
+  deleteRoom(id: String!): Room!
+  createRoomParticipant(roomId: String!, userId: String!): RoomParticipant!
+  deleteRoomParticipant(roomId: String!, userId: String!): RoomParticipant!
+  createRoomVideo(input: CreateRoomVideoInput!): RoomVideo!
+  moveRoomVideo(roomId: String!, input: MoveRoomVideoInput!): RoomVideo!
+  deleteRoomVideo(roomId: String!, videoId: Int!): RoomVideo!
+  createVideo(input: CreateVideoInput!): Video!
+  removeVideo(id: Int!): Video!
+  createSeason(input: CreateSeasonInput!): Season!
+  updateSeason(id: String!, input: UpdateSeasonInput!): Season!
+  deleteSeason(id: String!): Season!
+  createSeries(input: CreateSeriesInput!): Series!
+  updateSeries(id: String!, input: UpdateSeriesInput!): Series!
+  deleteSeries(id: String!): Series!
+  createSubtitles(input: CreateSubtitlesInput!): Subtitles!
+  updateSubtitles(id: Int!, input: UpdateSubtitlesInput!): Subtitles!
+  deleteSubtitles(id: Int!): Subtitles!
+  createTrailer(input: CreateTrailerInput!): Trailer!
+  updateTrailer(id: Int!, input: UpdateTrailerInput!): Trailer!
+  deleteTrailer(id: Int!): Trailer!
+  createVideoVariant(input: CreateVideoVariantInput!): VideoVariant!
+  updateVideoVariant(id: Int!, input: UpdateVideoVariantInput!): VideoVariant!
+  deleteVideoVariant(id: Float!): VideoVariant!
+  login(input: LoginInput!): AuthResult!
+  register(input: CreateUserInput!): AuthResult!
+  refresh: AuthResult!
+  logout: Boolean!
+  createMovieUser(input: CreateMovieUserInput!): MovieUser!
+  updateMovieUser(movieId: String!, userId: String!, input: UpdateMovieUserInput!): MovieUser!
+  deleteMovieUser(movieId: String!, userId: String!): MovieUser!
+  increaseMovieVisits(movieId: String!): Boolean!
+  updateLastMonthView: Boolean!
+}
+
+input CreateCollectionInput {
+  name: String!
+  isSystem: Boolean
+  description: String
+  coverId: Float
+  moviesIds: [String!]
+}
+
+input UpdateCollectionInput {
+  name: String
+  isSystem: Boolean
+  description: String
+  coverId: Float
+}
+
+input CreateCountryInput {
+  id: String!
+  name: String!
+  currencyId: Int!
+}
+
+input UpdateCountryInput {
+  id: String
+  name: String
+  currencyId: Int
+}
+
+input CreateCurrencyInput {
+  symbol: String!
+  code: String!
+}
+
+input UpdateCurrencyInput {
+  symbol: String!
+  code: String!
+}
+
+input ConfirmEmailInput {
+  email: String!
+  token: String!
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  countryId: String
+  avatarId: Float
+}
+
+input CreateEpisodeInput {
+  title: String
+  description: String
+  releaseDate: DateTime
+  numberInSeries: Float!
+  numberInSeason: Float
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  seasonId: String
+  seriesId: String!
+  videoId: Float
+}
+
+input UpdateEpisodeInput {
+  title: String
+  description: String
+  releaseDate: DateTime
+  numberInSeries: Float
+  numberInSeason: Float
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  seasonId: String
+  seriesId: String
+  videoId: Float
+}
+
+input CreateFilmInput {
+  title: String!
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  countriesIds: [String!]
+  studiosIds: [Int!]
+  genresIds: [String!]
+  releaseDate: DateTime
+  videoId: Float
+}
+
+input UpdateFilmInput {
+  title: String
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  coverId: Float
+  releaseDate: DateTime
+  videoId: Float
+}
+
+input CreateGenreInput {
+  name: String!
+}
+
+input UpdateGenreInput {
+  name: String
+}
+
+input CreateLanguageInput {
+  languageCode: String!
+  countryCode: String!
+  name: String!
+}
+
+input UpdateLanguageInput {
+  languageCode: String
+  countryCode: String
+  name: String
+}
+
+input CreateMediaInput {
+  file: Upload!
+  type: MediaTypeEnum!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input CreateMovieImageInput {
+  movieId: String!
+  imageId: Float!
+  typeId: Float!
+}
+
+input UpdateMovieImageInput {
+  movieId: String
+  imageId: Float
+  typeId: Float
+}
+
+input CreateMoviePersonTypeInput {
+  name: String!
+}
+
+input UpdateMoviePersonTypeInput {
+  name: String
+}
+
+input CreateMoviePersonInput {
+  movieId: String!
+  personId: Int!
+  role: String
+  typeId: Int!
+}
+
+input UpdateMoviePersonInput {
+  movieId: String
+  personId: Int
+  role: String
+  typeId: Int
+}
+
+input CreatePersonInput {
+  imageId: String
+  name: String!
+  countryId: String
+}
+
+input UpdatePersonInput {
+  imageId: String
+  name: String
+  countryId: String
+}
+
+input CreateMovieReviewInput {
+  mark: Int!
+  text: String
+  movieId: String!
+}
+
+input UpdateMovieReviewInput {
+  mark: Int
+  text: String
+  movieId: String
+}
+
+input CreateStudioInput {
+  name: String!
+  countriesIds: [String!]
+}
+
+input UpdateStudioInput {
+  name: String
+}
+
+input CreateMovieImageTypeInput {
+  name: String!
+}
+
+input UpdateMovieImageTypeInput {
+  name: String
+}
+
+input CreateRoomInput {
+  name: String!
+}
+
+input UpdateRoomInput {
+  name: String
+}
+
+input CreateRoomVideoInput {
+  roomId: String!
+  videoId: Int!
+}
+
+input MoveRoomVideoInput {
+  oldOrder: Int!
+  newOrder: Int!
+}
+
+input CreateVideoInput {
+  subtitles: [Video_CreateSubtitlesInput!]!
+  variants: [Video_CreateVideoVariantInput!]!
+}
+
+input Video_CreateSubtitlesInput {
+  languageId: String!
+  fileId: Int!
+}
+
+input Video_CreateVideoVariantInput {
+  fileId: Int!
+  languageId: String!
+  quality: VideoQualityEnum!
+}
+
+input CreateSeasonInput {
+  title: String
+  description: String
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+  numberInSeries: Float!
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  seriesId: String!
+}
+
+input UpdateSeasonInput {
+  title: String
+  description: String
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+  numberInSeries: Float
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  seriesId: String
+}
+
+input CreateSeriesInput {
+  title: String!
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  countriesIds: [String!]
+  studiosIds: [Int!]
+  genresIds: [String!]
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+}
+
+input UpdateSeriesInput {
+  title: String
+  description: String
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum
+  coverId: Float
+  startReleaseDate: DateTime
+  endReleaseDate: DateTime
+}
+
+input CreateSubtitlesInput {
+  videoId: Int!
+  languageId: String!
+  fileId: Int!
+}
+
+input UpdateSubtitlesInput {
+  videoId: Int
+  languageId: String
+  fileId: Int
+}
+
+input CreateTrailerInput {
+  title: String
+  movieId: String!
+  videoId: Float!
+}
+
+input UpdateTrailerInput {
+  title: String
+  movieId: String
+  videoId: Float
+}
+
+input CreateVideoVariantInput {
+  videoId: Int!
+  fileId: Int!
+  languageId: String!
+  quality: VideoQualityEnum!
+}
+
+input UpdateVideoVariantInput {
+  videoId: Int
+  fileId: Int
+  languageId: String
+  quality: VideoQualityEnum
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  name: String!
+}
+
+input CreateMovieUserInput {
+  movieId: ID!
+  isWatched: Boolean!
+  isBookmarked: Boolean!
+}
+
+input UpdateMovieUserInput {
+  movieId: ID
+  isWatched: Boolean
+  isBookmarked: Boolean
+}
