@@ -32,6 +32,7 @@ import { MediaService } from '../media/media.service';
 import { VideoService } from '../video/video.service';
 import { RoomVideoService } from '../room-video/room-video.service';
 import { LanguageService } from '../language/language.service';
+import { VideoVariantService } from '../video-variant/video-variant.service';
 
 @Injectable()
 export class DataLoaderService {
@@ -66,6 +67,7 @@ export class DataLoaderService {
     private readonly trailerService: TrailerService,
     private readonly userService: UserService,
     private readonly videoService: VideoService,
+    private readonly videoVariantService: VideoVariantService,
   ) {}
 
   private mapSingleData = <I extends IndexType, D>(
@@ -246,5 +248,9 @@ export class DataLoaderService {
       'video',
     ),
     videoLoader: this.createSingleLoader(this.videoService.readManyByIds),
+    videoVariantsByVideoLoader: this.createMultipleLoader(
+      this.videoVariantService.readManyByVideos,
+      'videoId',
+    ),
   });
 }

@@ -11,7 +11,6 @@ import {
 import { VideoService } from './video.service';
 import { VideoEntity } from './entities/video.entity';
 import { CreateVideoInput } from './dto/create-video.input';
-import { UpdateVideoInput } from './dto/update-video.input';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -20,7 +19,7 @@ import { RoleEnum } from '@utils/enums';
 import { PaginatedVideos } from './dto/paginated-videos';
 import { GetVideosArgs } from './dto/get-videos.args';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
-import { MediaEntity } from '../media/entities/media.entity';
+import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
 
 @UseGuards(GqlJwtAuthGuard, RolesGuard)
 @Role([RoleEnum.Admin, RoleEnum.Moderator])
@@ -34,8 +33,17 @@ export class VideoResolver {
   }
 
   @Query(() => PaginatedVideos)
-  getVideos(@Args() { pagination, filter, sort }: GetVideosArgs) {
-    return this.videoService.readMany(pagination, sort, filter);
+  async getVideos(@Args() { pagination, filter, sort }: GetVideosArgs) {
+    const [data, count] = await Promise.all([
+      this.videoService.readMany(pagination, sort, filter),
+      this.videoService.count(filter),
+    ]);
+
+    return {
+      edges: data,
+      totalCount: count,
+      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+    };
   }
 
   @Query(() => VideoEntity)
@@ -44,23 +52,15 @@ export class VideoResolver {
   }
 
   @Mutation(() => VideoEntity)
-  updateVideo(
-    @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: UpdateVideoInput,
-  ) {
-    return this.videoService.update(id, input);
-  }
-
-  @Mutation(() => VideoEntity)
   removeVideo(@Args('id', { type: () => Int }) id: number) {
     return this.videoService.delete(id);
   }
 
-  @ResolveField(() => MediaEntity)
-  file(
+  @ResolveField(() => [VideoVariantEntity])
+  variants(
     @Parent() video: VideoEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return loaders.mediaLoader.load(video.fileId);
+    return loaders.videoVariantsByVideoLoader.load(video.id);
   }
 }

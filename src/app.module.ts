@@ -49,6 +49,7 @@ import { MovieVisitStatsModule } from './movie-visit-stats/movie-visit-stats.mod
 import { LanguageModule } from './language/language.module';
 import { RoomVideoModule } from './room-video/room-video.module';
 import { VideoModule } from './video/video.module';
+import { VideoVariantModule } from './video-variant/video-variant.module';
 
 @Module({
   imports: [
@@ -138,6 +139,7 @@ import { VideoModule } from './video/video.module';
     RoomParticipantModule,
     RoomVideoModule,
     MovieVisitStatsModule,
+    VideoVariantModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },

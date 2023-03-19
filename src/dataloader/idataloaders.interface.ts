@@ -21,6 +21,7 @@ import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity'
 import { CurrencyEntity } from '../currency/entities/currency.entity';
 import { RoomEntity } from '../room/entities/room.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
+import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
 
 export interface IDataLoaders {
   collectionLoader: DataLoader<number, CollectionEntity>;
@@ -58,4 +59,5 @@ export interface IDataLoaders {
   usersByRoomLoader: DataLoader<string, UserEntity[]>;
   videosByRoomLoader: DataLoader<string, VideoEntity[]>;
   videoLoader: DataLoader<number, VideoEntity>;
+  videoVariantsByVideoLoader: DataLoader<number, VideoVariantEntity[]>;
 }

@@ -30,6 +30,7 @@ import { MediaModule } from '../media/media.module';
 import { VideoModule } from '../video/video.module';
 import { RoomVideoModule } from '../room-video/room-video.module';
 import { LanguageModule } from '../language/language.module';
+import { VideoVariantModule } from '../video-variant/video-variant.module';
 
 @Global()
 @Module({
@@ -64,6 +65,7 @@ import { LanguageModule } from '../language/language.module';
     TrailerModule,
     UserModule,
     VideoModule,
+    VideoVariantModule,
   ],
   providers: [DataLoaderService],
   exports: [DataLoaderService],
