@@ -56,5 +56,6 @@ export interface IDataLoaders {
   trailersByMovieLoader: DataLoader<string, TrailerEntity[]>;
   userLoader: DataLoader<string, UserEntity>;
   usersByRoomLoader: DataLoader<string, UserEntity[]>;
+  videosByRoomLoader: DataLoader<string, VideoEntity[]>;
   videoLoader: DataLoader<number, VideoEntity>;
 }

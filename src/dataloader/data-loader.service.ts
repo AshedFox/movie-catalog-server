@@ -30,6 +30,7 @@ import { MoviePersonTypeService } from '../movie-person-type/movie-person-type.s
 import { MovieImageTypeService } from '../movie-image-type/movie-image-type.service';
 import { MediaService } from '../media/media.service';
 import { VideoService } from '../video/video.service';
+import { RoomVideoService } from '../room-video/room-video.service';
 import { LanguageService } from '../language/language.service';
 
 @Injectable()
@@ -57,6 +58,7 @@ export class DataLoaderService {
     private readonly personService: PersonService,
     private readonly roomParticipantService: RoomParticipantService,
     private readonly roomService: RoomService,
+    private readonly roomVideoService: RoomVideoService,
     private readonly seasonService: SeasonService,
     private readonly seriesService: SeriesService,
     private readonly studioCountryService: StudioCountryService,
@@ -237,6 +239,11 @@ export class DataLoaderService {
       this.roomParticipantService.readManyByRooms,
       'roomId',
       'user',
+    ),
+    videosByRoomLoader: this.createMultipleRelationLoader(
+      this.roomVideoService.readManyByRooms,
+      'roomId',
+      'video',
     ),
     videoLoader: this.createSingleLoader(this.videoService.readManyByIds),
   });

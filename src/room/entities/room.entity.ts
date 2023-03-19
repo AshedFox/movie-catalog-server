@@ -11,6 +11,7 @@ import { UserEntity } from '../../user/entities/user.entity';
 import { RoomParticipantEntity } from '../../room-participant/entities/room-participant.entity';
 import { VideoEntity } from '../../video/entities/video.entity';
 import { FilterableField } from '@common/filter';
+import { RoomVideoEntity } from '../../room-video/entities/room-video.entity';
 
 @ObjectType('Room')
 @Entity('rooms')
@@ -42,18 +43,17 @@ export class RoomEntity {
   @Index()
   currentVideoId?: number;
 
-  @Field(() => VideoEntity, { nullable: true })
-  @ManyToOne(() => VideoEntity, {
-    nullable: true,
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-  })
-  currentVideo?: VideoEntity;
+  @Field(() => [VideoEntity])
+  videos: VideoEntity[];
+
+  @HideField()
+  @OneToMany(() => RoomVideoEntity, (roomVideo) => roomVideo.roomId)
+  videosConnection: RoomVideoEntity[];
 
   @HideField()
   @OneToMany(
     () => RoomParticipantEntity,
-    (roomParticipant) => roomParticipant.room,
+    (roomParticipant) => roomParticipant.roomId,
   )
   participantsConnection: RoomParticipantEntity[];
 

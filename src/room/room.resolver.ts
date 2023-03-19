@@ -118,13 +118,11 @@ export class RoomResolver {
   }
 
   @ResolveField(() => VideoEntity, { nullable: true })
-  currentVideo(
+  videos(
     @Parent() room: RoomEntity,
     @Context('loaders') loaders: IDataLoaders,
   ) {
-    return room.currentVideoId
-      ? loaders.videoLoader.load(room.currentVideoId)
-      : null;
+    return loaders.videosByRoomLoader.load(room.id);
   }
 
   @ResolveField(() => UserEntity)

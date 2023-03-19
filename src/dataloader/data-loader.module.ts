@@ -28,6 +28,7 @@ import { MoviePersonTypeModule } from '../movie-person-type/movie-person-type.mo
 import { MovieImageTypeModule } from '../movie-image-type/movie-image-type.module';
 import { MediaModule } from '../media/media.module';
 import { VideoModule } from '../video/video.module';
+import { RoomVideoModule } from '../room-video/room-video.module';
 import { LanguageModule } from '../language/language.module';
 
 @Global()
@@ -55,6 +56,7 @@ import { LanguageModule } from '../language/language.module';
     PersonModule,
     RoomModule,
     RoomParticipantModule,
+    RoomVideoModule,
     SeasonModule,
     SeriesModule,
     StudioCountryModule,

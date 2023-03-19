@@ -47,6 +47,7 @@ import { RoomParticipantModule } from './room-participant/room-participant.modul
 import { RoomModule } from './room/room.module';
 import { MovieVisitStatsModule } from './movie-visit-stats/movie-visit-stats.module';
 import { LanguageModule } from './language/language.module';
+import { RoomVideoModule } from './room-video/room-video.module';
 import { VideoModule } from './video/video.module';
 
 @Module({
@@ -135,6 +136,7 @@ import { VideoModule } from './video/video.module';
     CurrencyModule,
     RoomModule,
     RoomParticipantModule,
+    RoomVideoModule,
     MovieVisitStatsModule,
   ],
   providers: [
