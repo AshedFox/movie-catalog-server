@@ -37,12 +37,11 @@ export class RefreshTokenService {
     return true;
   };
 
-  delete = async (id: string): Promise<boolean> => {
+  delete = async (id: string): Promise<RefreshTokenEntity> => {
     const token = await this.refreshTokenRepository.findOneBy({ id });
     if (!token) {
       throw new NotFoundError(`Refresh token with id "${id}" not found!`);
     }
-    await this.refreshTokenRepository.remove(token);
-    return true;
+    return this.refreshTokenRepository.remove(token);
   };
 }
