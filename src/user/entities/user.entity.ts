@@ -58,7 +58,7 @@ export class UserEntity {
   role: RoleEnum;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'char', length: 2 })
   @Index({ where: 'country_id IS NOT NULL' })
   countryId?: string;
 
