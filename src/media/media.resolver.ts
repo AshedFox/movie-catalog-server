@@ -22,7 +22,7 @@ export class MediaResolver {
   }
 
   @Query(() => PaginatedMedia)
-  getManyMedia(@Args() { pagination, sort, filter }: GetMediaArgs) {
+  getManyMedia(@Args() { sort, filter, ...pagination }: GetMediaArgs) {
     return this.mediaService.readMany(pagination, sort, filter);
   }
 

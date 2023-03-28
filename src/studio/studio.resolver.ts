@@ -34,16 +34,21 @@ export class StudioResolver {
   }
 
   @Query(() => PaginatedStudios)
-  async getStudios(@Args() { pagination, sort, filter }: GetStudiosArgs) {
+  async getStudios(@Args() { sort, filter, ...pagination }: GetStudiosArgs) {
     const [data, count] = await Promise.all([
       this.studioService.readMany(pagination, sort, filter),
       this.studioService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

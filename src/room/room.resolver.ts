@@ -40,26 +40,11 @@ export class RoomResolver {
     return this.roomService.create(createRoomInput);
   }
 
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  @Query(() => PaginatedRooms)
-  async getRoomsProtected(@Args() { pagination, filter, sort }: GetRoomsArgs) {
-    const [data, count] = await Promise.all([
-      this.roomService.readMany(pagination, sort, filter),
-      this.roomService.count(filter),
-    ]);
-    return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
-    };
-  }
-
   @Query(() => PaginatedRooms)
   @UseGuards(GqlJwtAuthGuard)
   async getRooms(
     @CurrentUser() currentUser: CurrentUserDto,
-    @Args() { pagination, filter, sort }: GetRoomsArgs,
+    @Args() { sort, filter, ...pagination }: GetRoomsArgs,
   ) {
     const ability = this.caslAbilityFactory.createForUser(currentUser);
 
@@ -76,10 +61,16 @@ export class RoomResolver {
       this.roomService.readMany(pagination, sort, filter),
       this.roomService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

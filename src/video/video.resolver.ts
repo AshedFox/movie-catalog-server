@@ -34,16 +34,21 @@ export class VideoResolver {
   }
 
   @Query(() => PaginatedVideos)
-  async getVideos(@Args() { pagination, filter, sort }: GetVideosArgs) {
+  async getVideos(@Args() { sort, filter, ...pagination }: GetVideosArgs) {
     const [data, count] = await Promise.all([
       this.videoService.readMany(pagination, sort, filter),
       this.videoService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

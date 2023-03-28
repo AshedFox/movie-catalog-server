@@ -1,34 +1,81 @@
 import { Type } from '@nestjs/common';
-import { ArgsType, Field } from '@nestjs/graphql';
-import { ValidateNested } from 'class-validator';
+import { ArgsType, Field, Int } from '@nestjs/graphql';
+import { IsOptional, IsPositive, Min, ValidateNested } from 'class-validator';
 import { Type as TypeDecorator } from 'class-transformer';
 import { Filterable, FilterType } from '../filter';
-import { GqlOffsetPagination } from '../pagination';
 import { Sortable, SortType } from '../sort';
-import { ArgsType as AT } from './args.type';
+import { ArgsType as AT, OffsetArgsType, RelayArgsType } from './args.type';
+import { InferPaginationType, PaginationVariant } from '../pagination';
+import { ArgsStorage } from './args-storage';
 
-export function GqlArgs<T>(classRef: Type<T>) {
+export function GqlArgs<
+  T,
+  P extends PaginationVariant = 'take-skip',
+  PT = InferPaginationType<P>,
+>(classRef: Type<T>, paginationVariant?: P) {
+  const ExistingArgs = ArgsStorage.get(`${classRef.name}_${paginationVariant}`);
+
+  if (ExistingArgs) {
+    return ExistingArgs as Type<AT<T> & PT>;
+  }
+
   const FT = Filterable(classRef);
   const ST = Sortable(classRef);
 
-  @ArgsType()
-  class GqlArgs implements AT<T> {
-    @ValidateNested()
-    @Field(() => ST, { nullable: true })
-    @TypeDecorator(() => ST)
-    sort?: SortType<T>;
-    @ValidateNested()
-    @Field(() => FT, { nullable: true })
-    @TypeDecorator(() => FT)
-    filter?: FilterType<T>;
-    @ValidateNested()
-    @Field(() => GqlOffsetPagination, {
-      nullable: true,
-      defaultValue: { take: 20, skip: 0 },
-    })
-    @TypeDecorator(() => GqlOffsetPagination)
-    pagination?: GqlOffsetPagination;
-  }
+  if (!paginationVariant || paginationVariant === 'take-skip') {
+    @ArgsType()
+    class GqlArgs implements OffsetArgsType<T> {
+      @ValidateNested()
+      @Field(() => ST, { nullable: true })
+      @TypeDecorator(() => ST)
+      sort?: SortType<T>;
+      @ValidateNested()
+      @Field(() => FT, { nullable: true })
+      @TypeDecorator(() => FT)
+      filter?: FilterType<T>;
+      @Field(() => Int, { defaultValue: 0 })
+      @Min(0)
+      skip: number;
+      @Field(() => Int, { defaultValue: 20 })
+      @Min(1)
+      take: number;
+    }
 
-  return GqlArgs as Type<AT<T>>;
+    ArgsStorage.set(
+      `${classRef.name}_${paginationVariant ?? 'take-skip'}`,
+      GqlArgs,
+    );
+
+    return GqlArgs as unknown as Type<AT<T> & PT>;
+  } else if (paginationVariant === 'relay') {
+    @ArgsType()
+    class GqlArgs implements RelayArgsType<T> {
+      @ValidateNested()
+      @Field(() => ST, { nullable: true })
+      @TypeDecorator(() => ST)
+      sort?: SortType<T>;
+      @ValidateNested()
+      @Field(() => FT, { nullable: true })
+      @TypeDecorator(() => FT)
+      filter?: FilterType<T>;
+      @Field(() => Int, { nullable: true })
+      @IsPositive()
+      @IsOptional()
+      first?: number;
+      @Field({ nullable: true })
+      @IsOptional()
+      after?: string;
+      @Field(() => Int, { nullable: true })
+      @IsPositive()
+      @IsOptional()
+      last?: number;
+      @Field({ nullable: true })
+      @IsOptional()
+      before?: string;
+    }
+
+    ArgsStorage.set(`${classRef.name}_${paginationVariant}`, GqlArgs);
+
+    return GqlArgs as Type<AT<T> & PT>;
+  }
 }

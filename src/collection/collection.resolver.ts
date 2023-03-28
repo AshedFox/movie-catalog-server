@@ -41,17 +41,22 @@ export class CollectionResolver {
 
   @Query(() => PaginatedCollections)
   async getCollections(
-    @Args() { sort, filter, pagination }: GetCollectionsArgs,
+    @Args() { sort, filter, ...pagination }: GetCollectionsArgs,
   ) {
     const [data, count] = await Promise.all([
       this.collectionService.readMany(pagination, sort, filter),
       this.collectionService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

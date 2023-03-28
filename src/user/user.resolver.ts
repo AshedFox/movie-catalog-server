@@ -37,7 +37,7 @@ export class UserResolver {
   }
 
   @Query(() => PaginatedUsers)
-  getUsers(@Args() { pagination, sort, filter }: GetUsersArgs) {
+  getUsers(@Args() { sort, filter, ...pagination }: GetUsersArgs) {
     return this.userService.readMany(pagination, sort, filter);
   }
 

@@ -5,7 +5,7 @@ import {
   WhereExpressionBuilder,
 } from 'typeorm';
 import { FilterComparisonType, FilterType } from './filter';
-import { GqlOffsetPagination } from './pagination';
+import { PaginationArgsType } from './pagination';
 import {
   SortDirectionEnum,
   SortNullsEnum,
@@ -15,6 +15,8 @@ import {
 import { snakeCase } from 'typeorm/util/StringUtils';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ArgsType } from '@common/args';
+import { OffsetPaginationArgsType } from './pagination/offset';
+import { RelayPaginationArgsType } from './pagination/relay';
 
 const applyFieldFilter = (
   where: WhereExpressionBuilder,
@@ -169,12 +171,47 @@ export const applyFilter = <T>(
   applyFilterTreeLevel(qb, filter, 'and');
 };
 
-export const applyPagination = <T>(
+export const applyOffsetPagination = <T>(
   qb: SelectQueryBuilder<T>,
-  pagination: GqlOffsetPagination,
+  pagination: OffsetPaginationArgsType,
 ) => {
   qb.take(pagination.take);
   qb.skip(pagination.skip);
+};
+
+export const applyRelayPagination = <T>(
+  qb: SelectQueryBuilder<T>,
+  pagination: RelayPaginationArgsType,
+  alias?: string,
+) => {
+  const { first, last, before, after } = pagination;
+  const idFieldName = alias ? `"${alias}"."id"` : `"id"`;
+
+  if (first) {
+    if (after) {
+      qb.andWhere(`${idFieldName} > :after`, { after });
+    }
+    qb.addOrderBy(idFieldName, 'ASC');
+    qb.take(first + 1);
+  } else if (last) {
+    if (before) {
+      qb.andWhere(`${idFieldName} < :before`, { before });
+    }
+    qb.addOrderBy(idFieldName, 'DESC');
+    qb.take(last + 1);
+  }
+};
+
+export const applyPagination = <T>(
+  qb: SelectQueryBuilder<T>,
+  pagination: PaginationArgsType,
+  alias?: string,
+) => {
+  if (isOffsetPagination(pagination)) {
+    applyOffsetPagination(qb, pagination);
+  } else {
+    applyRelayPagination(qb, pagination, alias);
+  }
 };
 
 const applyFieldSort = (
@@ -252,7 +289,7 @@ const getRelations = <T>(
 
 export function parseArgsToQuery<T>(
   repo: Repository<T>,
-  pagination?: GqlOffsetPagination,
+  pagination?: PaginationArgsType,
   sort?: SortType<T>,
   filter?: FilterType<T>,
 ) {
@@ -262,34 +299,41 @@ export function parseArgsToQuery<T>(
 
   applyJoins(qb, relations);
 
-  if (filter) {
-    applyFilter(qb, filter);
-  }
   if (sort) {
     applySort(qb, sort);
   }
   if (pagination) {
     applyPagination(qb, pagination);
   }
+  if (filter) {
+    applyFilter(qb, filter);
+  }
 
   return qb;
+}
+
+function isOffsetPagination(
+  pagination: PaginationArgsType,
+): pagination is OffsetPaginationArgsType {
+  return (pagination as OffsetPaginationArgsType).skip !== undefined;
 }
 
 export function applyArgs<T>(
   qb: SelectQueryBuilder<T>,
   args: ArgsType<T>,
+  pagination?: PaginationArgsType,
   alias?: string,
 ) {
-  const { filter, sort, pagination } = args;
+  const { filter, sort } = args;
 
-  if (filter) {
-    applyFilter(qb, filter);
-  }
   if (sort) {
     applySort(qb, sort, alias);
   }
   if (pagination) {
     applyPagination(qb, pagination);
+  }
+  if (filter) {
+    applyFilter(qb, filter);
   }
 
   return qb;

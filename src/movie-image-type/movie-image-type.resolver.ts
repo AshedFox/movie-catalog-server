@@ -26,16 +26,22 @@ export class MovieImageTypeResolver {
 
   @Query(() => PaginatedMovieImageTypes)
   async getMovieImageTypes(
-    @Args() { pagination, sort, filter }: GetMovieImageTypesArgs,
+    @Args() { sort, filter, ...pagination }: GetMovieImageTypesArgs,
   ) {
     const [data, count] = await Promise.all([
       this.movieImageTypeService.readMany(pagination, sort, filter),
       this.movieImageTypeService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

@@ -29,7 +29,7 @@ export class RoomVideoResolver {
   }
 
   @Query(() => PaginatedRoomsVideos)
-  getRoomsVideos(@Args() { filter, sort, pagination }: GetRoomsVideosArgs) {
+  getRoomsVideos(@Args() { sort, filter, ...pagination }: GetRoomsVideosArgs) {
     return this.roomVideoService.readMany(pagination, sort, filter);
   }
 

@@ -38,16 +38,22 @@ export class MovieReviewResolver {
 
   @Query(() => PaginatedMoviesReviews)
   async getMoviesReviews(
-    @Args() { pagination, sort, filter }: GetMoviesReviewsArgs,
+    @Args() { sort, filter, ...pagination }: GetMoviesReviewsArgs,
   ) {
     const [data, count] = await Promise.all([
       this.reviewService.readMany(pagination, sort, filter),
       this.reviewService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

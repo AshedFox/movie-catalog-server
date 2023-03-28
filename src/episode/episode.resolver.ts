@@ -39,22 +39,27 @@ export class EpisodeResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getEpisodesProtected(
-    @Args() { filter, sort, pagination }: GetEpisodesArgs,
+    @Args() { sort, filter, ...pagination }: GetEpisodesArgs,
   ) {
     const [data, count] = await Promise.all([
       this.episodeService.readMany(pagination, sort, filter),
       this.episodeService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 
   @Query(() => PaginatedEpisodes)
-  async getEpisodes(@Args() { filter, sort, pagination }: GetEpisodesArgs) {
+  async getEpisodes(@Args() { sort, filter, ...pagination }: GetEpisodesArgs) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
@@ -64,10 +69,15 @@ export class EpisodeResolver {
       this.episodeService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

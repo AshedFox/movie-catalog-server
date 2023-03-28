@@ -34,16 +34,21 @@ export class PersonResolver {
   }
 
   @Query(() => PaginatedPersons)
-  async getPersons(@Args() { pagination, sort, filter }: GetPersonsArgs) {
+  async getPersons(@Args() { sort, filter, ...pagination }: GetPersonsArgs) {
     const [data, count] = await Promise.all([
       this.personService.readMany(pagination, sort, filter),
       this.personService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

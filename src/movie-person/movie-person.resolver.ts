@@ -39,16 +39,22 @@ export class MoviePersonResolver {
 
   @Query(() => PaginatedMoviesPersons)
   async getMoviesPersons(
-    @Args() { pagination, sort, filter }: GetMoviesPersonsArgs,
+    @Args() { sort, filter, ...pagination }: GetMoviesPersonsArgs,
   ) {
     const [data, count] = await Promise.all([
       this.moviePersonService.readMany(pagination, sort, filter),
       this.moviePersonService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

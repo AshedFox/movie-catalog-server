@@ -24,7 +24,7 @@ export class MovieVisitStatsResolver {
 
   @Query(() => PaginatedMoviesVisits)
   getLastMonthMoviesVisits(
-    @Args() { filter, sort, pagination }: GetMoviesVisitsArgs,
+    @Args() { sort, filter, ...pagination }: GetMoviesVisitsArgs,
   ) {
     return this.movieVisitStatsLastMonthService.readMany(
       filter,

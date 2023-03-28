@@ -46,23 +46,28 @@ export class FilmResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getFilmsProtected(
-    @Args() { pagination, sort, filter }: GetFilmsArgs,
+    @Args() { sort, filter, ...pagination }: GetFilmsArgs,
   ): Promise<PaginatedFilms> {
     const [data, count] = await Promise.all([
       this.filmService.readMany(pagination, sort, filter),
       this.filmService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 
   @Query(() => PaginatedFilms)
   async getFilms(
-    @Args() { pagination, sort, filter }: GetFilmsArgs,
+    @Args() { sort, filter, ...pagination }: GetFilmsArgs,
   ): Promise<PaginatedFilms> {
     filter = {
       ...filter,
@@ -73,10 +78,15 @@ export class FilmResolver {
       this.filmService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

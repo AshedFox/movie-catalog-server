@@ -16,16 +16,23 @@ export class CurrencyResolver {
   }
 
   @Query(() => PaginatedCurrencies)
-  async getCurrencies(@Args() { sort, filter, pagination }: GetCurrenciesArgs) {
+  async getCurrencies(
+    @Args() { sort, filter, ...pagination }: GetCurrenciesArgs,
+  ) {
     const [data, count] = await Promise.all([
       this.currencyService.readMany(pagination, sort, filter),
       this.currencyService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

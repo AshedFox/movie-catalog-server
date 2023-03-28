@@ -7,7 +7,7 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovieService } from '../movie/movie.service';
 import { UserService } from '../user/user.service';
-import { GqlOffsetPagination } from '@common/pagination';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { FilterType } from '@common/filter';
 import { SortType } from '@common/sort';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
@@ -47,7 +47,7 @@ export class MovieUserService {
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<MovieUserEntity>,
     filter?: FilterType<MovieUserEntity>,
   ): Promise<MovieUserEntity[]> => {

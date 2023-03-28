@@ -47,22 +47,27 @@ export class SeriesResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getManySeriesProtected(
-    @Args() { pagination, sort, filter }: GetSeriesArgs,
+    @Args() { sort, filter, ...pagination }: GetSeriesArgs,
   ) {
     const [data, count] = await Promise.all([
       this.seriesService.readMany(pagination, sort, filter),
       this.seriesService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 
   @Query(() => PaginatedSeries)
-  async getManySeries(@Args() { pagination, sort, filter }: GetSeriesArgs) {
+  async getManySeries(@Args() { sort, filter, ...pagination }: GetSeriesArgs) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
@@ -73,10 +78,15 @@ export class SeriesResolver {
       this.seriesService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.take + pagination.skip : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

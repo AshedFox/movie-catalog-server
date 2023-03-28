@@ -1,6 +1,6 @@
 import { DeepPartial, In, Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
-import { GqlOffsetPagination } from '@common/pagination';
+import { PaginationArgsType } from '@common/pagination';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
@@ -53,7 +53,7 @@ export abstract class BaseService<
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: PaginationArgsType,
     sort?: SortType<T>,
     filter?: FilterType<T>,
   ): Promise<T[]> => {

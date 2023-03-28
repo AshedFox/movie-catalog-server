@@ -1,4 +1,4 @@
-import { Paginated } from '@common/pagination';
+import { Paginated } from '@common/pagination/offset';
 import { LanguageEntity } from '../entities/language.entity';
 import { ObjectType } from '@nestjs/graphql';
 

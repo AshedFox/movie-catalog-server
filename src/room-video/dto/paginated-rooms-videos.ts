@@ -1,5 +1,5 @@
 import { ObjectType } from '@nestjs/graphql';
-import { Paginated } from '@common/pagination';
+import { Paginated } from '@common/pagination/offset';
 import { RoomVideoEntity } from '../entities/room-video.entity';
 
 @ObjectType()

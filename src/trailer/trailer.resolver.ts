@@ -16,15 +16,21 @@ export class TrailerResolver {
   }
 
   @Query(() => PaginatedTrailers)
-  async getTrailers(@Args() { pagination, sort, filter }: GetTrailersArgs) {
+  async getTrailers(@Args() { sort, filter, ...pagination }: GetTrailersArgs) {
     const [data, count] = await Promise.all([
       this.trailerService.readMany(pagination, sort, filter),
       this.trailerService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

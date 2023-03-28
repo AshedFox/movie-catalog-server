@@ -1,5 +1,5 @@
+import { Paginated } from '@common/pagination/offset';
 import { ObjectType } from '@nestjs/graphql';
-import { Paginated } from '../../common/pagination';
 import { MoviePersonEntity } from '../entities/movie-person.entity';
 
 @ObjectType()

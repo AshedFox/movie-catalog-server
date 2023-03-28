@@ -38,22 +38,27 @@ export class SeasonResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getSeasonsProtected(
-    @Args() { pagination, sort, filter }: GetSeasonsArgs,
+    @Args() { sort, filter, ...pagination }: GetSeasonsArgs,
   ) {
     const [data, count] = await Promise.all([
       this.seasonService.readMany(pagination, sort, filter),
       this.seasonService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 
   @Query(() => PaginatedSeasons)
-  async getSeasons(@Args() { pagination, sort, filter }: GetSeasonsArgs) {
+  async getSeasons(@Args() { sort, filter, ...pagination }: GetSeasonsArgs) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
@@ -63,10 +68,15 @@ export class SeasonResolver {
       this.seasonService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

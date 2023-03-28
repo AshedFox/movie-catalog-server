@@ -1,15 +1,16 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { PaginatedType } from '@common/pagination';
+import { Field, ObjectType } from '@nestjs/graphql';
+import {
+  PageInfo,
+  PageInfoType,
+  PaginatedType,
+} from '@common/pagination/offset';
 import { MovieUnion } from '../entities/movie.union';
 
 @ObjectType()
 export class PaginatedMoviesUnion implements PaginatedType<typeof MovieUnion> {
-  @Field(() => Int)
-  totalCount: number;
-
   @Field(() => [MovieUnion])
-  edges: Array<typeof MovieUnion>;
+  nodes: Array<typeof MovieUnion>;
 
-  @Field()
-  hasNext: boolean;
+  @Field(() => PageInfo)
+  pageInfo: PageInfoType;
 }

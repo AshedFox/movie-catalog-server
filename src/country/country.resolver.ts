@@ -34,16 +34,23 @@ export class CountryResolver {
   }
 
   @Query(() => PaginatedCountries)
-  async getCountries(@Args() { sort, filter, pagination }: GetCountriesArgs) {
+  async getCountries(
+    @Args() { sort, filter, ...pagination }: GetCountriesArgs,
+  ) {
     const [data, count] = await Promise.all([
       this.countryService.readMany(pagination, sort, filter),
       this.countryService.count(filter),
     ]);
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

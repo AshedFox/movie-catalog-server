@@ -6,7 +6,7 @@ import { PaginatedUsers } from './dto/paginated-users';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
-import { GqlOffsetPagination } from '@common/pagination';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
@@ -32,7 +32,7 @@ export class UserService {
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<UserEntity>,
     filter?: FilterType<UserEntity>,
   ): Promise<PaginatedUsers> => {
@@ -40,10 +40,15 @@ export class UserService {
     const { entities: data } = await qb.getRawAndEntities();
     const count = await qb.getCount();
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   };
 

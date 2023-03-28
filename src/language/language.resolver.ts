@@ -16,15 +16,23 @@ export class LanguageResolver {
   }
 
   @Query(() => PaginatedLanguages)
-  async getLanguages(@Args() { pagination, sort, filter }: GetLanguagesArgs) {
+  async getLanguages(
+    @Args() { sort, filter, ...pagination }: GetLanguagesArgs,
+  ) {
     const [data, count] = await Promise.all([
       this.languageService.readMany(pagination, sort, filter),
       this.languageService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

@@ -11,7 +11,6 @@ import { MovieEntity } from './entities/movie.entity';
 import { GetMoviesArgs } from './dto/get-movies.args';
 import { MovieService } from './movie.service';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { GqlOffsetPagination } from '@common/pagination';
 import { MediaEntity } from '../media/entities/media.entity';
 import { MovieUnion } from './entities/movie.union';
 import { PaginatedMoviesUnion } from './dto/paginated-movies-union';
@@ -28,6 +27,7 @@ import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
+import { OffsetPaginationArgs } from '@common/pagination/offset';
 
 @Resolver(MovieEntity)
 export class MovieResolver {
@@ -36,12 +36,12 @@ export class MovieResolver {
   @Query(() => PaginatedMoviesUnion)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  getMoviesProtected(@Args() { pagination, sort, filter }: GetMoviesArgs) {
+  getMoviesProtected(@Args() { sort, filter, ...pagination }: GetMoviesArgs) {
     return this.movieService.readMany(pagination, sort, filter);
   }
 
   @Query(() => PaginatedMoviesUnion)
-  getMovies(@Args() { pagination, sort, filter }: GetMoviesArgs) {
+  getMovies(@Args() { sort, filter, ...pagination }: GetMoviesArgs) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
@@ -50,7 +50,7 @@ export class MovieResolver {
   }
 
   @Query(() => [MovieUnion])
-  getMostPopularMovies(@Args('pagination') pagination: GqlOffsetPagination) {
+  getMostPopularMovies(@Args() pagination: OffsetPaginationArgs) {
     return this.movieService.readManyMostPopular(pagination);
   }
 

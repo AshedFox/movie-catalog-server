@@ -14,7 +14,7 @@ import {
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { RoomService } from '../room/room.service';
 import { VideoService } from '../video/video.service';
-import { GqlOffsetPagination } from '@common/pagination';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
@@ -29,11 +29,7 @@ export class RoomVideoService {
     private readonly videoService: VideoService,
   ) {}
 
-  count = async (
-    pagination?: GqlOffsetPagination,
-    sort?: SortType<RoomVideoEntity>,
-    filter?: FilterType<RoomVideoEntity>,
-  ): Promise<number> => {
+  count = async (filter?: FilterType<RoomVideoEntity>): Promise<number> => {
     return parseArgsToQuery(
       this.roomVideoRepository,
       undefined,
@@ -69,7 +65,7 @@ export class RoomVideoService {
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<RoomVideoEntity>,
     filter?: FilterType<RoomVideoEntity>,
   ): Promise<RoomVideoEntity[]> => {

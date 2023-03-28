@@ -42,16 +42,22 @@ export class MovieUserResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getMoviesUsers(
-    @Args() { pagination, sort, filter }: GetMoviesUsersArgs,
+    @Args() { sort, filter, ...pagination }: GetMoviesUsersArgs,
   ) {
     const [data, count] = await Promise.all([
       this.movieUserService.readMany(pagination, sort, filter),
       this.movieUserService.count(filter),
     ]);
+
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: pagination ? count > pagination.skip + pagination.take : false,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   }
 

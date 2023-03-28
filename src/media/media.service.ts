@@ -3,7 +3,7 @@ import { In, Repository } from 'typeorm';
 import { MediaEntity } from './entities/media.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '@utils/errors';
-import { GqlOffsetPagination } from '@common/pagination';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
@@ -46,7 +46,7 @@ export class MediaService {
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<MediaEntity>,
     filter?: FilterType<MediaEntity>,
   ): Promise<PaginatedMedia> => {
@@ -55,10 +55,15 @@ export class MediaService {
     const { entities: data } = await qb.getRawAndEntities();
     const count = await qb.getCount();
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   };
 

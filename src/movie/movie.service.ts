@@ -4,11 +4,11 @@ import { In, Repository } from 'typeorm';
 import { PaginatedMovies } from './dto/paginated-movies';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '@utils/errors';
-import { GqlOffsetPagination } from '@common/pagination';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { plainToInstance } from 'class-transformer';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 
 @Injectable()
 export class MovieService {
@@ -18,7 +18,7 @@ export class MovieService {
   ) {}
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<MovieEntity>,
     filter?: FilterType<MovieEntity>,
   ): Promise<PaginatedMovies> => {
@@ -26,15 +26,20 @@ export class MovieService {
     const { entities: data } = await qb.getRawAndEntities();
     const count = await qb.getCount();
 
+    const { take, skip } = pagination;
+
     return {
-      edges: data,
-      totalCount: count,
-      hasNext: count > pagination.take + pagination.skip,
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > take + skip,
+        hasPreviousPage: skip > 0,
+      },
     };
   };
 
   readManyMostPopular = async (
-    pagination: GqlOffsetPagination,
+    pagination: OffsetPaginationArgsType,
   ): Promise<MovieEntity[]> => {
     const queryText = `
       SELECT * FROM public.get_most_popular_movies()

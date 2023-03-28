@@ -5,7 +5,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import { NotFoundError } from '@utils/errors';
-import { GqlOffsetPagination } from '@common/pagination';
+import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
 import { CreateVideoInput } from './dto/create-video.input';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
@@ -70,7 +70,7 @@ export class VideoService {
   };
 
   readMany = async (
-    pagination?: GqlOffsetPagination,
+    pagination?: OffsetPaginationArgsType,
     sort?: SortType<VideoEntity>,
     filter?: FilterType<VideoEntity>,
   ): Promise<VideoEntity[]> => {
