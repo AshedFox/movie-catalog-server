@@ -1,2 +1,3 @@
-INSERT INTO public.currencies (id, code, symbol) VALUES (1, 'EUR', '€');
-INSERT INTO public.currencies (id, code, symbol) VALUES (2, 'USD', '$');
+INSERT INTO public.currencies (id, symbol, name) VALUES ('EUR', '€', 'Euro');
+INSERT INTO public.currencies (id, symbol, name) VALUES ('USD', '$', 'US dollar');
+INSERT INTO public.currencies (id, symbol, name) VALUES ('RUB', '₽', 'Russian ruble');
