@@ -23,13 +23,9 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
   async validate(payload: any) {
     try {
-      const user = await this.authService.validateRefreshToken(payload.sub);
-      if (!user) {
-        throw new UnauthorizedException();
-      }
-      return user;
-    } catch {
-      throw new UnauthorizedException();
+      return this.authService.validateRefreshToken(payload.sub);
+    } catch (err) {
+      throw new UnauthorizedException(err);
     }
   }
 }

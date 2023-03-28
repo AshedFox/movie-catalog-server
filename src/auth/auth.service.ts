@@ -23,21 +23,25 @@ export class AuthService {
     password: string,
   ): Promise<UserEntity> => {
     const user = await this.userService.readOneByEmail(username);
-    if (user && (await argon2.verify(user.password, password))) {
+
+    if (await argon2.verify(user.password, password)) {
       user.password = '';
       return user;
+    } else {
+      throw new Error('User password incorrect!');
     }
-    return null;
   };
 
   validateRefreshToken = async (token: string): Promise<UserEntity> => {
     const oldRefreshToken = await this.refreshTokenService.readOne(token);
-    const result =
-      oldRefreshToken.expiresAt > new Date()
-        ? await this.userService.readOneById(oldRefreshToken.userId)
-        : null;
+
+    if (oldRefreshToken.expiresAt <= new Date()) {
+      throw new Error('Refresh token is expired!');
+    }
+
+    const user = await this.userService.readOneById(oldRefreshToken.userId);
     await this.refreshTokenService.delete(oldRefreshToken.id);
-    return result;
+    return user;
   };
 
   generateRefreshToken = async (user: UserEntity): Promise<string> => {
