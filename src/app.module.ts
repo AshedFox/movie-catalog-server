@@ -51,6 +51,7 @@ import { RoomVideoModule } from './room-video/room-video.module';
 import { VideoModule } from './video/video.module';
 import { SubtitlesModule } from './subtitles/subtitles.module';
 import { VideoVariantModule } from './video-variant/video-variant.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -142,6 +143,7 @@ import { VideoVariantModule } from './video-variant/video-variant.module';
     MovieVisitStatsModule,
     VideoVariantModule,
     SubtitlesModule,
+    CaslModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },

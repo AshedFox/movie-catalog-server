@@ -13,20 +13,22 @@ import { UpdateRoomInput } from './dto/update-room.input';
 import { RoomEntity } from './entities/room.entity';
 import { PaginatedRooms } from './dto/paginated-rooms';
 import { GetRoomsArgs } from './dto/get-rooms.args';
-import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { ForbiddenException, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { UserEntity } from '../user/entities/user.entity';
 import { VideoEntity } from '../video/entities/video.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '@utils/enums';
+import { ActionEnum } from '@utils/enums/action.enum';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 
 @Resolver(() => RoomEntity)
 export class RoomResolver {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    private readonly roomService: RoomService,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
+  ) {}
 
   @Mutation(() => RoomEntity)
   @UseGuards(GqlJwtAuthGuard)
@@ -59,12 +61,17 @@ export class RoomResolver {
     @CurrentUser() currentUser: CurrentUserDto,
     @Args() { pagination, filter, sort }: GetRoomsArgs,
   ) {
-    filter = {
-      ...filter,
-      ownerId: {
-        eq: currentUser.id,
-      },
-    };
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.READ, RoomEntity)) {
+      filter = {
+        ...filter,
+        ownerId: {
+          eq: currentUser.id,
+        },
+      };
+    }
+
     const [data, count] = await Promise.all([
       this.roomService.readMany(pagination, sort, filter),
       this.roomService.count(filter),
@@ -83,10 +90,12 @@ export class RoomResolver {
     @Args('id', ParseUUIDPipe) id: string,
   ) {
     const room = await this.roomService.readOne(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (room.ownerId !== currentUser.id) {
-      return null;
+    if (ability.cannot(ActionEnum.READ, room)) {
+      throw new ForbiddenException();
     }
+
     return room;
   }
 
@@ -97,6 +106,13 @@ export class RoomResolver {
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') updateRoomInput: UpdateRoomInput,
   ) {
+    const room = await this.roomService.readOne(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.UPDATE, room)) {
+      throw new ForbiddenException();
+    }
+
     return this.roomService.update(id, updateRoomInput);
   }
 
@@ -106,6 +122,13 @@ export class RoomResolver {
     @CurrentUser() currentUser: CurrentUserDto,
     @Args('id', ParseUUIDPipe) id: string,
   ) {
+    const room = await this.roomService.readOne(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.DELETE, room)) {
+      throw new ForbiddenException();
+    }
+
     return this.roomService.delete(id);
   }
 

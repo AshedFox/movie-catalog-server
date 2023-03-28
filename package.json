@@ -22,6 +22,7 @@
     "typeorm": "typeorm-ts-node-commonjs -d ./src/typeorm.data-source.ts"
   },
   "dependencies": {
+    "@casl/ability": "^6.3.3",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/apollo": "^10.1.6",
     "@nestjs/common": "^9.3.7",

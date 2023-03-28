@@ -12,20 +12,23 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { UserEntity } from './entities/user.entity';
 import { PaginatedUsers } from './dto/paginated-users';
 import { GetUsersArgs } from './dto/get-users.args';
-import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { ForbiddenException, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from './dto/current-user.dto';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
-import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '@utils/enums';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { CountryEntity } from '../country/entities/country.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MediaEntity } from '../media/entities/media.entity';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { ActionEnum } from '@utils/enums/action.enum';
+import { plainToClass } from 'class-transformer';
 
 @Resolver(UserEntity)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
+  ) {}
 
   @Query(() => UserEntity, { nullable: true })
   @UseGuards(GqlJwtAuthGuard)
@@ -45,23 +48,32 @@ export class UserResolver {
 
   @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
-  updateMe(
-    @CurrentUser() currentUser: CurrentUserDto,
+  updateUser(
+    @Args('id') id: string,
     @Args('input') updateUserInput: UpdateUserInput,
+    @CurrentUser() currentUser: CurrentUserDto,
   ) {
-    return this.userService.update(currentUser.id, updateUserInput);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.UPDATE, plainToClass(UserEntity, { id }))) {
+      throw new ForbiddenException();
+    }
+
+    return this.userService.update(id, updateUserInput);
   }
 
-  @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
-  deleteMe(@CurrentUser() currentUser: CurrentUserDto) {
-    return this.userService.delete(currentUser.id);
-  }
-
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => UserEntity)
-  deleteUser(@Args('id') id: string) {
+  deleteUser(
+    @Args('id') id: string,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.DELETE, plainToClass(UserEntity, { id }))) {
+      throw new ForbiddenException();
+    }
+
     return this.userService.delete(id);
   }
 
