@@ -23,17 +23,12 @@ export class CurrencyService extends BaseService<
   create = async (
     createCurrencyInput: CreateCurrencyInput,
   ): Promise<CurrencyEntity> => {
-    const { symbol, code } = createCurrencyInput;
+    const { id } = createCurrencyInput;
 
-    const currency = await this.currencyRepository.findOneBy([
-      { code },
-      { symbol },
-    ]);
+    const currency = await this.currencyRepository.findOneBy([{ id }]);
 
     if (currency) {
-      throw new AlreadyExistsError(
-        `Currency with code "${code}" or symbol "${symbol}" already exists!`,
-      );
+      throw new AlreadyExistsError(`Currency with id "${id}" already exists!`);
     }
 
     return this.currencyRepository.save(createCurrencyInput);

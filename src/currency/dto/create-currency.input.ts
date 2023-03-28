@@ -6,9 +6,13 @@ import { CurrencyEntity } from '../entities/currency.entity';
 export class CreateCurrencyInput implements Partial<CurrencyEntity> {
   @Field()
   @Length(3, 3)
+  id: string;
+
+  @Field()
+  @Length(1, 3)
   symbol: string;
 
   @Field()
-  @Length(3, 3)
-  code: string;
+  @Length(2, 255)
+  name: string;
 }

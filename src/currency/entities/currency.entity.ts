@@ -1,19 +1,19 @@
 import { ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { FilterableField } from '@common/filter';
 
 @ObjectType('Currency')
 @Entity('currencies')
 export class CurrencyEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn({ type: 'int2' })
-  id: number;
+  @PrimaryColumn({ type: 'char', length: 3 })
+  id: string;
 
   @FilterableField()
   @Column({ length: 3 })
   symbol: string;
 
   @FilterableField()
-  @Column({ unique: true, length: 3 })
-  code: string;
+  @Column({ length: 255 })
+  name: string;
 }

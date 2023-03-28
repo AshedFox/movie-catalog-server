@@ -1,4 +1,4 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GetCurrenciesArgs } from './dto/get-currencies.args';
 import { CurrencyEntity } from './entities/currency.entity';
 import { CreateCurrencyInput } from './dto/create-currency.input';
@@ -30,20 +30,20 @@ export class CurrencyResolver {
   }
 
   @Query(() => CurrencyEntity)
-  getCurrency(@Args('id', { type: () => Int }) id: number) {
+  getCurrency(@Args('id') id: string) {
     return this.currencyService.readOne(id);
   }
 
   @Mutation(() => CurrencyEntity)
   updateCurrency(
-    @Args('id', { type: () => Int }) id: number,
+    @Args('id') id: string,
     @Args('input') input: UpdateCurrencyInput,
   ) {
     return this.currencyService.update(id, input);
   }
 
   @Mutation(() => CurrencyEntity)
-  deleteCurrency(@Args('id', { type: () => Int }) id: number) {
+  deleteCurrency(@Args('id') id: string) {
     return this.currencyService.delete(id);
   }
 }

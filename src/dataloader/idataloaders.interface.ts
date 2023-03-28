@@ -29,7 +29,7 @@ export interface IDataLoaders {
   countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countryLoader: DataLoader<string, CountryEntity>;
-  currencyLoader: DataLoader<number, CurrencyEntity>;
+  currencyLoader: DataLoader<string, CurrencyEntity>;
   emailConfirmationLoader: DataLoader<string, EmailConfirmationEntity>;
   episodeLoader: DataLoader<string, EpisodeEntity>;
   episodesBySeasonLoader: DataLoader<string, EpisodeEntity[]>;

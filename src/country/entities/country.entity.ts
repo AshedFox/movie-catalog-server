@@ -16,9 +16,9 @@ export class CountryEntity {
   name: string;
 
   @FilterableField()
-  @Column()
+  @Column({ type: 'char', length: 3 })
   @Index()
-  currencyId: number;
+  currencyId: string;
 
   @FilterableRelation(() => CurrencyEntity)
   @ManyToOne(() => CurrencyEntity, {
