@@ -19,8 +19,6 @@ enum MediaTypeEnum {
 
 type Language {
   id: ID!
-  languageCode: String!
-  countryCode: String!
   name: String!
 }
 
@@ -88,13 +86,13 @@ type MovieGenre {
 type Currency {
   id: ID!
   symbol: String!
-  code: String!
+  name: String!
 }
 
 type Country {
   id: ID!
   name: String!
-  currencyId: Float!
+  currencyId: String!
   currency: Currency!
   languageId: String!
   language: Language!
@@ -549,7 +547,6 @@ type Query {
   getCountries(sort: CountrySort, filter: CountryFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedCountries!
   getCountry(id: String!): Country!
   getCurrencies(sort: CurrencySort, filter: CurrencyFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedCurrencies!
-  getCurrency(id: Int!): Currency!
   getMe: User
   getUsers(sort: UserSort, filter: UserFilter, pagination: GqlOffsetPagination = {skip: 0, take: 20}): PaginatedUsers!
   getUser(id: String!): User!
@@ -784,13 +781,11 @@ input CountrySort {
 input CurrencyEntity_CountrySort {
   id: SortOptions
   symbol: SortOptions
-  code: SortOptions
+  name: SortOptions
 }
 
 input LanguageEntity_CountrySort {
   id: SortOptions
-  languageCode: SortOptions
-  countryCode: SortOptions
   name: SortOptions
 }
 
@@ -799,7 +794,7 @@ input CountryFilter {
   or: [CountryFilter!]
   id: IDFilter
   name: StringFilter
-  currencyId: NumberFilter
+  currencyId: StringFilter
   languageId: StringFilter
   currency: CurrencyEntity_CountryFilter
   language: LanguageEntity_CountryFilter
@@ -810,22 +805,20 @@ input CurrencyEntity_CountryFilter {
   or: [CurrencyEntity_CountryFilter!]
   id: IDFilter
   symbol: StringFilter
-  code: StringFilter
+  name: StringFilter
 }
 
 input LanguageEntity_CountryFilter {
   and: [LanguageEntity_CountryFilter!]
   or: [LanguageEntity_CountryFilter!]
   id: IDFilter
-  languageCode: StringFilter
-  countryCode: StringFilter
   name: StringFilter
 }
 
 input CurrencySort {
   id: SortOptions
   symbol: SortOptions
-  code: SortOptions
+  name: SortOptions
 }
 
 input CurrencyFilter {
@@ -833,7 +826,7 @@ input CurrencyFilter {
   or: [CurrencyFilter!]
   id: IDFilter
   symbol: StringFilter
-  code: StringFilter
+  name: StringFilter
 }
 
 input UserSort {
@@ -979,8 +972,6 @@ input GenreFilter {
 
 input LanguageSort {
   id: SortOptions
-  languageCode: SortOptions
-  countryCode: SortOptions
   name: SortOptions
 }
 
@@ -988,8 +979,6 @@ input LanguageFilter {
   and: [LanguageFilter!]
   or: [LanguageFilter!]
   id: IDFilter
-  languageCode: StringFilter
-  countryCode: StringFilter
   name: StringFilter
 }
 
@@ -1150,7 +1139,6 @@ input RoomSort {
   inviteKey: SortOptions
   name: SortOptions
   ownerId: SortOptions
-  currentVideoId: SortOptions
 }
 
 input RoomFilter {
@@ -1160,7 +1148,6 @@ input RoomFilter {
   inviteKey: StringFilter
   name: StringFilter
   ownerId: StringFilter
-  currentVideoId: NumberFilter
 }
 
 input RoomVideoSort {
@@ -1390,13 +1377,12 @@ type Mutation {
   updateCountry(id: String!, input: UpdateCountryInput!): Country!
   deleteCountry(id: String!): Country!
   createCurrency(input: CreateCurrencyInput!): Currency!
-  updateCurrency(id: Int!, input: UpdateCurrencyInput!): Currency!
-  deleteCurrency(id: Int!): Currency!
+  updateCurrency(id: String!, input: UpdateCurrencyInput!): Currency!
+  deleteCurrency(id: String!): Currency!
   sendConfirmation: Boolean!
   confirmEmail(input: ConfirmEmailInput!): Boolean!
   deleteExpiredConfirmations: Boolean!
-  updateMe(input: UpdateUserInput!): User!
-  deleteMe: User!
+  updateUser(id: String!, input: UpdateUserInput!): User!
   deleteUser(id: String!): User!
   createEpisode(input: CreateEpisodeInput!): Episode!
   updateEpisode(id: String!, input: UpdateEpisodeInput!): Episode!
@@ -1495,23 +1481,27 @@ input UpdateCollectionInput {
 input CreateCountryInput {
   id: String!
   name: String!
-  currencyId: Int!
+  currencyId: String!
+  languageId: String!
 }
 
 input UpdateCountryInput {
   id: String
   name: String
-  currencyId: Int
+  currencyId: String
+  languageId: String
 }
 
 input CreateCurrencyInput {
+  id: String!
   symbol: String!
-  code: String!
+  name: String!
 }
 
 input UpdateCurrencyInput {
+  id: String!
   symbol: String!
-  code: String!
+  name: String!
 }
 
 input ConfirmEmailInput {
@@ -1584,14 +1574,12 @@ input UpdateGenreInput {
 }
 
 input CreateLanguageInput {
-  languageCode: String!
-  countryCode: String!
+  id: String!
   name: String!
 }
 
 input UpdateLanguageInput {
-  languageCode: String
-  countryCode: String
+  id: String
   name: String
 }
 
