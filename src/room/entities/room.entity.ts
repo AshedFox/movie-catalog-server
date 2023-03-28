@@ -38,11 +38,6 @@ export class RoomEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   owner: UserEntity;
 
-  @FilterableField({ nullable: true })
-  @Column({ nullable: true, type: 'int8' })
-  @Index()
-  currentVideoId?: number;
-
   @Field(() => [VideoEntity])
   videos: VideoEntity[];
 
