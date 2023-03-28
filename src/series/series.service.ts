@@ -8,6 +8,7 @@ import { MovieCountryEntity } from '../movie-country/entities/movie-country.enti
 import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
 import { MovieGenreEntity } from '../movie-genre/entities/movie-genre.entity';
 import { BaseService } from '@common/services/base.service';
+import { MovieTypeEnum } from '@utils/enums';
 
 @Injectable()
 export class SeriesService extends BaseService<
@@ -34,10 +35,10 @@ export class SeriesService extends BaseService<
 
     try {
       const { genresIds, studiosIds, countriesIds } = createSeriesInput;
-      const series = await queryRunner.manager.save(
-        SeriesEntity,
-        createSeriesInput,
-      );
+      const series = await queryRunner.manager.save(SeriesEntity, {
+        ...createSeriesInput,
+        type: MovieTypeEnum.Series,
+      });
 
       if (countriesIds) {
         series.countriesConnection = await queryRunner.manager.save(
