@@ -12,11 +12,7 @@ export class LanguageResolver {
 
   @Mutation(() => LanguageEntity)
   createLanguage(@Args('input') createLanguageInput: CreateLanguageInput) {
-    const { countryCode, languageCode } = createLanguageInput;
-    return this.languageService.create({
-      ...createLanguageInput,
-      id: `${languageCode}-${countryCode}`,
-    });
+    return this.languageService.create(createLanguageInput);
   }
 
   @Query(() => PaginatedLanguages)

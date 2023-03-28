@@ -28,7 +28,7 @@ export class CountryEntity {
   currency: CurrencyEntity;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 3, type: 'char' })
   @Index()
   languageId: string;
 

@@ -15,4 +15,8 @@ export class CreateCountryInput implements Partial<CountryEntity> {
   @Field()
   @Length(3, 3)
   currencyId: string;
+
+  @Field()
+  @Length(3, 3)
+  languageId: string;
 }

@@ -1,18 +1,11 @@
-import { Field, HideField, InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { Length } from 'class-validator';
 
 @InputType()
 export class CreateLanguageInput {
-  @HideField()
+  @Field()
+  @Length(3, 3)
   id: string;
-
-  @Field()
-  @Length(2, 2)
-  languageCode: string;
-
-  @Field()
-  @Length(2, 3)
-  countryCode: string;
 
   @Field()
   @Length(2, 255)
