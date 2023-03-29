@@ -11,7 +11,7 @@ export class MediaEntity {
   id: number;
 
   @FilterableField()
-  @Column({ type: 'varchar', unique: true, length: 255 })
+  @Column({ unique: true, length: 255 })
   publicId: string;
 
   @FilterableField(() => MediaTypeEnum)
