@@ -26,14 +26,14 @@ export class MovieService {
     const { entities: data } = await qb.getRawAndEntities();
     const count = await qb.getCount();
 
-    const { take, skip } = pagination;
+    const { limit, offset } = pagination;
 
     return {
       nodes: data,
       pageInfo: {
         totalCount: count,
-        hasNextPage: count > take + skip,
-        hasPreviousPage: skip > 0,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
       },
     };
   };
@@ -47,8 +47,8 @@ export class MovieService {
     `;
 
     const data = (await this.movieRepository.query(queryText, [
-      pagination.take,
-      pagination.skip,
+      pagination.limit,
+      pagination.offset,
     ])) as MovieEntity[];
 
     return plainToInstance(MovieEntity, data);

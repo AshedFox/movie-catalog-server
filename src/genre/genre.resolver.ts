@@ -31,14 +31,14 @@ export class GenreResolver {
       this.genreService.count(filter),
     ]);
 
-    const { take, skip } = pagination;
+    const { limit, offset } = pagination;
 
     return {
       nodes: data,
       pageInfo: {
         totalCount: count,
-        hasNextPage: count > take + skip,
-        hasPreviousPage: skip > 0,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
       },
     };
   }

@@ -1,6 +1,6 @@
 export type OffsetPaginationArgsType = {
-  skip: number;
-  take: number;
+  offset: number;
+  limit: number;
 };
 
 export type PageInfoType = {

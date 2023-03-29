@@ -6,9 +6,9 @@ import { OffsetPaginationArgsType } from './types';
 export class OffsetPaginationArgs implements OffsetPaginationArgsType {
   @Field(() => Int, { defaultValue: 0 })
   @Min(0)
-  skip: number;
+  offset: number;
 
   @Field(() => Int, { defaultValue: 20 })
   @Min(1)
-  take: number;
+  limit: number;
 }

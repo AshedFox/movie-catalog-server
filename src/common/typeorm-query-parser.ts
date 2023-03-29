@@ -175,8 +175,8 @@ export const applyOffsetPagination = <T>(
   qb: SelectQueryBuilder<T>,
   pagination: OffsetPaginationArgsType,
 ) => {
-  qb.take(pagination.take);
-  qb.skip(pagination.skip);
+  qb.take(pagination.limit);
+  qb.skip(pagination.offset);
 };
 
 export const applyRelayPagination = <T>(
@@ -315,7 +315,7 @@ export function parseArgsToQuery<T>(
 function isOffsetPagination(
   pagination: PaginationArgsType,
 ): pagination is OffsetPaginationArgsType {
-  return (pagination as OffsetPaginationArgsType).skip !== undefined;
+  return (pagination as OffsetPaginationArgsType).offset !== undefined;
 }
 
 export function applyArgs<T>(
