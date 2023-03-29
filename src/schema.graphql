@@ -260,27 +260,15 @@ type Film {
   video: Video
 }
 
-type RelayPageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
-type FilmEdge {
-  node: Film!
-  cursor: String!
-}
-
-type PaginatedFilms {
-  pageInfo: RelayPageInfo!
-  edges: [FilmEdge!]!
-}
-
 type OffsetPageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   totalCount: Float!
+}
+
+type PaginatedFilms {
+  pageInfo: OffsetPageInfo!
+  nodes: [Film!]!
 }
 
 type PaginatedUsers {
@@ -530,66 +518,66 @@ type PaginatedMoviesVisits {
 }
 
 type Query {
-  getCollections(sort: CollectionSort, filter: CollectionFilter, skip: Int! = 0, take: Int! = 20): PaginatedCollections!
+  getCollections(sort: CollectionSort, filter: CollectionFilter, offset: Int! = 0, limit: Int! = 20): PaginatedCollections!
   getCollection(id: Int!): Collection!
-  getMoviesProtected(sort: MovieSort, filter: MovieFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesUnion!
-  getMovies(sort: MovieSort, filter: MovieFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesUnion!
-  getMostPopularMovies(skip: Int! = 0, take: Int! = 20): [MovieUnion!]!
+  getMoviesProtected(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesUnion!
+  getMovies(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesUnion!
+  getMostPopularMovies(offset: Int! = 0, limit: Int! = 20): [MovieUnion!]!
   getMovie(id: String!): Movie!
-  getCountries(sort: CountrySort, filter: CountryFilter, skip: Int! = 0, take: Int! = 20): PaginatedCountries!
+  getCountries(sort: CountrySort, filter: CountryFilter, offset: Int! = 0, limit: Int! = 20): PaginatedCountries!
   getCountry(id: String!): Country!
-  getCurrencies(sort: CurrencySort, filter: CurrencyFilter, skip: Int! = 0, take: Int! = 20): PaginatedCurrencies!
+  getCurrencies(sort: CurrencySort, filter: CurrencyFilter, offset: Int! = 0, limit: Int! = 20): PaginatedCurrencies!
   getCurrency(id: String!): Currency!
   getMe: User
-  getUsers(sort: UserSort, filter: UserFilter, skip: Int! = 0, take: Int! = 20): PaginatedUsers!
+  getUsers(sort: UserSort, filter: UserFilter, offset: Int! = 0, limit: Int! = 20): PaginatedUsers!
   getUser(id: String!): User!
-  getEpisodesProtected(sort: EpisodeSort, filter: EpisodeFilter, skip: Int! = 0, take: Int! = 20): PaginatedEpisodes!
-  getEpisodes(sort: EpisodeSort, filter: EpisodeFilter, skip: Int! = 0, take: Int! = 20): PaginatedEpisodes!
+  getEpisodesProtected(sort: EpisodeSort, filter: EpisodeFilter, offset: Int! = 0, limit: Int! = 20): PaginatedEpisodes!
+  getEpisodes(sort: EpisodeSort, filter: EpisodeFilter, offset: Int! = 0, limit: Int! = 20): PaginatedEpisodes!
   getEpisode(id: String!): Episode!
-  getFilmsProtected(sort: FilmSort, filter: FilmFilter, first: Int, after: String, last: Int, before: String): PaginatedFilms!
-  getFilms(sort: FilmSort, filter: FilmFilter, first: Int, after: String, last: Int, before: String): PaginatedFilms!
+  getFilmsProtected(sort: FilmSort, filter: FilmFilter, offset: Int! = 0, limit: Int! = 20): PaginatedFilms!
+  getFilms(sort: FilmSort, filter: FilmFilter, offset: Int! = 0, limit: Int! = 20): PaginatedFilms!
   getFilm(id: String!): Film!
-  getGenres(sort: GenreSort, filter: GenreFilter, skip: Int! = 0, take: Int! = 20): PaginatedGenres!
+  getGenres(sort: GenreSort, filter: GenreFilter, offset: Int! = 0, limit: Int! = 20): PaginatedGenres!
   getGenre(id: String!): Genre!
-  getLanguages(sort: LanguageSort, filter: LanguageFilter, skip: Int! = 0, take: Int! = 20): PaginatedLanguages!
+  getLanguages(sort: LanguageSort, filter: LanguageFilter, offset: Int! = 0, limit: Int! = 20): PaginatedLanguages!
   getLanguage(id: String!): Language!
-  getManyMedia(sort: MediaSort, filter: MediaFilter, skip: Int! = 0, take: Int! = 20): PaginatedMedia!
+  getManyMedia(sort: MediaSort, filter: MediaFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMedia!
   getOneMedia(id: Float!): Media!
-  getMoviesImages(sort: MovieImageSort, filter: MovieImageFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesImages!
+  getMoviesImages(sort: MovieImageSort, filter: MovieImageFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesImages!
   getMovieImage(id: Int!): MovieImage!
-  getMoviePersonTypes(sort: MoviePersonTypeSort, filter: MoviePersonTypeFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviePersonTypes!
+  getMoviePersonTypes(sort: MoviePersonTypeSort, filter: MoviePersonTypeFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviePersonTypes!
   getMoviePersonType(id: Int!): MoviePersonType!
-  getMoviesPersons(sort: MoviePersonSort, filter: MoviePersonFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesPersons!
+  getMoviesPersons(sort: MoviePersonSort, filter: MoviePersonFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesPersons!
   getMoviePerson(id: Int!): MoviePerson!
-  getPersons(sort: PersonSort, filter: PersonFilter, skip: Int! = 0, take: Int! = 20): PaginatedPersons!
+  getPersons(sort: PersonSort, filter: PersonFilter, offset: Int! = 0, limit: Int! = 20): PaginatedPersons!
   getPerson(id: Int!): Person!
-  getMoviesReviews(sort: MovieReviewSort, filter: MovieReviewFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesReviews!
+  getMoviesReviews(sort: MovieReviewSort, filter: MovieReviewFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesReviews!
   getMovieReview(id: Int!): MovieReview!
-  getStudios(sort: StudioSort, filter: StudioFilter, skip: Int! = 0, take: Int! = 20): PaginatedStudios!
+  getStudios(sort: StudioSort, filter: StudioFilter, offset: Int! = 0, limit: Int! = 20): PaginatedStudios!
   getStudio(id: Int!): Studio!
-  getMovieImageTypes(sort: MovieImageTypeSort, filter: MovieImageTypeFilter, skip: Int! = 0, take: Int! = 20): PaginatedMovieImageTypes!
+  getMovieImageTypes(sort: MovieImageTypeSort, filter: MovieImageTypeFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMovieImageTypes!
   getMovieImageType(id: Int!): MovieImageType!
-  getRooms(sort: RoomSort, filter: RoomFilter, skip: Int! = 0, take: Int! = 20): PaginatedRooms!
+  getRooms(sort: RoomSort, filter: RoomFilter, offset: Int! = 0, limit: Int! = 20): PaginatedRooms!
   getRoom(id: String!): Room!
-  getRoomsVideos(sort: RoomVideoSort, filter: RoomVideoFilter, skip: Int! = 0, take: Int! = 20): PaginatedRoomsVideos!
+  getRoomsVideos(sort: RoomVideoSort, filter: RoomVideoFilter, offset: Int! = 0, limit: Int! = 20): PaginatedRoomsVideos!
   roomVideo(roomId: String!, videoId: Int!): RoomVideo!
-  getVideos(sort: VideoSort, filter: VideoFilter, skip: Int! = 0, take: Int! = 20): PaginatedVideos!
+  getVideos(sort: VideoSort, filter: VideoFilter, offset: Int! = 0, limit: Int! = 20): PaginatedVideos!
   getVideo(id: Int!): Video!
-  getSeasonsProtected(sort: SeasonSort, filter: SeasonFilter, skip: Int! = 0, take: Int! = 20): PaginatedSeasons!
-  getSeasons(sort: SeasonSort, filter: SeasonFilter, skip: Int! = 0, take: Int! = 20): PaginatedSeasons!
+  getSeasonsProtected(sort: SeasonSort, filter: SeasonFilter, offset: Int! = 0, limit: Int! = 20): PaginatedSeasons!
+  getSeasons(sort: SeasonSort, filter: SeasonFilter, offset: Int! = 0, limit: Int! = 20): PaginatedSeasons!
   getSeason(id: String!): Season!
-  getManySeriesProtected(sort: SeriesSort, filter: SeriesFilter, skip: Int! = 0, take: Int! = 20): PaginatedSeries!
-  getManySeries(sort: SeriesSort, filter: SeriesFilter, skip: Int! = 0, take: Int! = 20): PaginatedSeries!
+  getManySeriesProtected(sort: SeriesSort, filter: SeriesFilter, offset: Int! = 0, limit: Int! = 20): PaginatedSeries!
+  getManySeries(sort: SeriesSort, filter: SeriesFilter, offset: Int! = 0, limit: Int! = 20): PaginatedSeries!
   getOneSeries(id: String!): Series!
   getManySubtitles: [Subtitles!]!
   getOneSubtitles(id: Int!): Subtitles!
-  getTrailers(sort: TrailerSort, filter: TrailerFilter, skip: Int! = 0, take: Int! = 20): PaginatedTrailers!
+  getTrailers(sort: TrailerSort, filter: TrailerFilter, offset: Int! = 0, limit: Int! = 20): PaginatedTrailers!
   getTrailer(id: Int!): Trailer!
   getVideosVariants: [VideoVariant!]!
   getVideoVariant(id: Int!): VideoVariant!
-  getMoviesUsers(sort: MovieUserSort, filter: MovieUserFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesUsers!
+  getMoviesUsers(sort: MovieUserSort, filter: MovieUserFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesUsers!
   getMovieUser(movieId: String!, userId: String!): MovieUser!
-  getLastMonthMoviesVisits(sort: MovieVisitStatsLastMonthSort, filter: MovieVisitStatsLastMonthFilter, skip: Int! = 0, take: Int! = 20): PaginatedMoviesVisits!
+  getLastMonthMoviesVisits(sort: MovieVisitStatsLastMonthSort, filter: MovieVisitStatsLastMonthFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesVisits!
 }
 
 input CollectionSort {
