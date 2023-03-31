@@ -5,39 +5,27 @@ export type BooleanFilterType = {
   neq?: boolean;
 };
 
-export type NumberFilterType = {
+export type NumberFilterType = UniversalFilter<number> & {
   gt?: number;
   gte?: number;
   lt?: number;
   lte?: number;
-  eq?: number;
-  neq?: number;
-  in?: number[];
-  nin?: number[];
   btwn?: BetweenType<number>;
   nbtwn?: BetweenType<number>;
 };
 
-export type StringFilterType = {
-  eq?: string;
-  neq?: string;
-  in?: string[];
-  nin?: string[];
+export type StringFilterType = UniversalFilter<string> & {
   like?: string;
   nlike?: string;
   ilike?: string;
   nilike?: string;
 };
 
-export type DateFilterType = {
+export type DateFilterType = UniversalFilter<Date> & {
   gt?: Date;
   gte?: Date;
   lt?: Date;
   lte?: Date;
-  eq?: Date;
-  neq?: Date;
-  in?: Date[];
-  nin?: Date[];
   btwn?: BetweenType<Date>;
   nbtwn?: BetweenType<Date>;
 };
