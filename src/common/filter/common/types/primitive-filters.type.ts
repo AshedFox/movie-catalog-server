@@ -6,7 +6,7 @@ export type BooleanFilterType = {
 };
 
 export type NumberFilterType = {
-  ge?: number;
+  gt?: number;
   gte?: number;
   lt?: number;
   lte?: number;
@@ -30,7 +30,7 @@ export type StringFilterType = {
 };
 
 export type DateFilterType = {
-  ge?: Date;
+  gt?: Date;
   gte?: Date;
   lt?: Date;
   lte?: Date;
