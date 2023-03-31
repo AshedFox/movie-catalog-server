@@ -10,13 +10,11 @@ import { BetweenType, UniversalFilter } from '../../common';
 
 @InputType()
 class IDBetween implements BetweenType<string | number> {
-  @Field(() => ID, { nullable: true })
-  @IsOptional()
-  start?: string | number;
+  @Field(() => ID)
+  start: string | number;
 
-  @Field(() => ID, { nullable: true })
-  @IsOptional()
-  end?: string | number;
+  @Field(() => ID)
+  end: string | number;
 }
 
 @InputType()

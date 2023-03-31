@@ -1,6 +1,6 @@
 import {
   BooleanFilter,
-  DateTimeFilter,
+  DateFilter,
   FloatFilter,
   IDFilter,
   IntFilter,
@@ -19,5 +19,5 @@ export const FilterStorage: Map<
   [FloatFilter.name, FloatFilter],
   [StringFilter.name, StringFilter],
   [BooleanFilter.name, BooleanFilter],
-  [DateTimeFilter.name, DateTimeFilter],
+  [DateFilter.name, DateFilter],
 ]));

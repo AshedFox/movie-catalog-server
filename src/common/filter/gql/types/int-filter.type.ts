@@ -11,15 +11,13 @@ import { BetweenType, NumberFilterType } from '../../common';
 
 @InputType()
 class IntBetween implements BetweenType<number> {
-  @Field(() => Int, { nullable: true })
+  @Field(() => Int)
   @IsInt()
-  @IsOptional()
-  start?: number;
+  start: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Int)
   @IsInt()
-  @IsOptional()
-  end?: number;
+  end: number;
 }
 
 @InputType()
@@ -27,7 +25,7 @@ export class IntFilter implements NumberFilterType {
   @Field(() => Int, { nullable: true })
   @IsInt()
   @IsOptional()
-  ge?: number;
+  gt?: number;
 
   @Field(() => Int, { nullable: true })
   @IsInt()

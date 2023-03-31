@@ -11,15 +11,13 @@ import { BetweenType, NumberFilterType } from '../../common';
 
 @InputType()
 class FloatBetween implements BetweenType<number> {
-  @Field(() => Float, { nullable: true })
+  @Field(() => Float)
   @IsDecimal()
-  @IsOptional()
-  start?: number;
+  start: number;
 
-  @Field(() => Float, { nullable: true })
+  @Field(() => Float)
   @IsDecimal()
-  @IsOptional()
-  end?: number;
+  end: number;
 }
 
 @InputType()
@@ -27,7 +25,7 @@ export class FloatFilter implements NumberFilterType {
   @Field(() => Float, { nullable: true })
   @IsDecimal()
   @IsOptional()
-  ge?: number;
+  gt?: number;
 
   @Field(() => Float, { nullable: true })
   @IsDecimal()

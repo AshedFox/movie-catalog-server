@@ -2,82 +2,79 @@ import { Field, GraphQLTimestamp, InputType } from '@nestjs/graphql';
 import {
   ArrayNotEmpty,
   IsArray,
-  IsDateString,
   IsInt,
   IsOptional,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BetweenType, DateFilterType } from '../../common';
+import { BetweenType, NumberFilterType } from '../../common';
 
 @InputType()
-class TimestampBetween implements BetweenType<Date> {
-  @Field(() => GraphQLTimestamp, { nullable: true })
+class TimestampBetween implements BetweenType<number> {
+  @Field(() => GraphQLTimestamp)
   @IsInt()
-  @IsOptional()
-  start?: Date;
+  start: number;
 
-  @Field(() => GraphQLTimestamp, { nullable: true })
+  @Field(() => GraphQLTimestamp)
   @IsInt()
-  @IsOptional()
-  end?: Date;
+  end: number;
 }
 
 @InputType()
-export class TimestampFilter implements DateFilterType {
+export class TimestampFilter implements NumberFilterType {
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  ge?: Date;
+  gt?: number;
 
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  gte?: Date;
+  gte?: number;
 
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  lt?: Date;
+  lt?: number;
 
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  lte?: Date;
+  lte?: number;
 
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  eq?: Date;
+  eq?: number;
 
   @Field(() => GraphQLTimestamp, { nullable: true })
-  @IsDateString()
+  @IsInt()
   @IsOptional()
-  neq?: Date;
+  neq?: number;
 
   @Field(() => [GraphQLTimestamp], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
-  @IsDateString({}, { each: true })
+  @IsInt({ each: true })
   @IsOptional()
-  in?: Date[];
+  in?: number[];
 
   @Field(() => [GraphQLTimestamp], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
-  @IsDateString({}, { each: true })
+  @IsInt({ each: true })
   @IsOptional()
-  nin?: Date[];
+  nin?: number[];
 
   @Field(() => TimestampBetween, { nullable: true })
   @IsOptional()
   @ValidateNested()
   @Type(() => TimestampBetween)
-  btwn?: BetweenType<Date>;
+  btwn?: BetweenType<number>;
 
   @Field(() => TimestampBetween, { nullable: true })
   @IsOptional()
   @ValidateNested()
   @Type(() => TimestampBetween)
-  nbtwn?: BetweenType<Date>;
+  nbtwn?: BetweenType<number>;
 }
