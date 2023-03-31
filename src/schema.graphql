@@ -639,8 +639,8 @@ input IDFilter {
 }
 
 input IDBetween {
-  start: ID
-  end: ID
+  start: ID!
+  end: ID!
 }
 
 input StringFilter {
@@ -660,10 +660,21 @@ input BooleanFilter {
 }
 
 input DateFilter {
+  gt: DateTime
+  gte: DateTime
+  lt: DateTime
+  lte: DateTime
   eq: DateTime
   neq: DateTime
   in: [DateTime!]
   nin: [DateTime!]
+  btwn: DateBetween
+  nbtwn: DateBetween
+}
+
+input DateBetween {
+  start: DateTime!
+  end: DateTime!
 }
 
 input NumberFilter {
@@ -870,7 +881,7 @@ input EpisodeFilter {
 }
 
 input IntFilter {
-  ge: Int
+  gt: Int
   gte: Int
   lt: Int
   lte: Int
@@ -883,8 +894,8 @@ input IntFilter {
 }
 
 input IntBetween {
-  start: Int
-  end: Int
+  start: Int!
+  end: Int!
 }
 
 input FilmSort {
