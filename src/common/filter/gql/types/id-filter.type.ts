@@ -9,77 +9,77 @@ import { Type } from 'class-transformer';
 import { BetweenType, UniversalFilter } from '../../common';
 
 @InputType()
-class IDBetween implements BetweenType<string | number> {
+class IDBetween implements BetweenType<string> {
   @Field(() => ID)
-  start: string | number;
+  start: string;
 
   @Field(() => ID)
-  end: string | number;
+  end: string;
 }
 
 @InputType()
-export class IDFilter implements UniversalFilter<string | number> {
+export class IDFilter implements UniversalFilter<string> {
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  lt: string | number;
+  lt: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  lte: string | number;
+  lte: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  gt: string | number;
+  gt: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  gte: string | number;
+  gte: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  eq?: string | number;
+  eq?: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  neq?: string | number;
+  neq?: string;
 
   @Field(() => [ID], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
   @IsOptional()
-  in?: (string | number)[];
+  in?: string[];
 
   @Field(() => [ID], { nullable: true })
   @IsArray()
   @ArrayNotEmpty()
   @IsOptional()
-  nin?: (string | number)[];
+  nin?: string[];
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  like?: string | number;
+  like?: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  nlike?: string | number;
+  nlike?: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  ilike?: string | number;
+  ilike?: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()
-  nilike?: string | number;
+  nilike?: string;
 
   @Field(() => IDBetween, { nullable: true })
   @IsOptional()
   @ValidateNested()
   @Type(() => IDBetween)
-  btwn?: BetweenType<string | number>;
+  btwn?: BetweenType<string>;
 
   @Field(() => IDBetween, { nullable: true })
   @IsOptional()
   @ValidateNested()
   @Type(() => IDBetween)
-  nbtwn?: BetweenType<string | number>;
+  nbtwn?: BetweenType<string>;
 }
