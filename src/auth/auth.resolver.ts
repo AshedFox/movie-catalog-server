@@ -26,46 +26,24 @@ export class AuthResolver {
   async login(
     @Args('input') loginInput: LoginInput,
     @CurrentUser() user: UserEntity,
-    @Context('req') request: Request,
+    @Context('res') res: Response,
   ) {
     const result = await this.authService.login(user);
-    request.res.cookie('X-REFRESH-TOKEN', result.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: 'none',
-      maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
-    });
-    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: 'none',
-      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
-    });
+
+    this.saveRefreshCookie(res, result.refreshToken);
+
     return result;
   }
 
   @Mutation(() => AuthResult)
   async register(
     @Args('input') registerInput: RegisterInput,
-    @Context('req') request: Request,
+    @Context('res') res: Response,
   ) {
     const result = await this.authService.register(registerInput);
-    request.res.cookie('X-REFRESH-TOKEN', result.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: 'none',
-      maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
-    });
-    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: 'none',
-      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
-    });
+
+    this.saveRefreshCookie(res, result.refreshToken);
+
     return result;
   }
 
@@ -73,31 +51,48 @@ export class AuthResolver {
   @UseGuards(RefreshTokenGuard)
   async refresh(
     @CurrentUser() user: UserEntity,
-    @Context('req') request: Request,
+    @Context('res') res: Response,
   ) {
     const result = await this.authService.login(user);
-    request.res.cookie('X-REFRESH-TOKEN', result.refreshToken, {
+
+    this.saveRefreshCookie(res, result.refreshToken);
+
+    return result;
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard, RefreshTokenGuard)
+  async logout(
+    @CurrentUser() user: CurrentUserDto,
+    @Context('req') req: Request,
+    @Context('res') res: Response,
+  ) {
+    let refreshToken = null;
+
+    if (req && req.signedCookies) {
+      refreshToken =
+        req.signedCookies[
+          this.configService.get<string>('REFRESH_COOKIE_NAME')
+        ];
+    }
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token!');
+    }
+
+    await this.authService.logout(refreshToken);
+    res.clearCookie(this.configService.get<string>('REFRESH_COOKIE_NAME'));
+
+    return true;
+  }
+
+  private saveRefreshCookie(res: Response, value: string) {
+    res.cookie(this.configService.get<string>('REFRESH_COOKIE_NAME'), value, {
       httpOnly: true,
       secure: true,
       signed: true,
       sameSite: 'none',
       maxAge: ms(this.configService.get<string>('REFRESH_TOKEN_LIFETIME')),
     });
-    request.res.cookie('X-ACCESS-TOKEN', result.accessToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: 'none',
-      maxAge: ms(this.configService.get<string>('ACCESS_TOKEN_LIFETIME')),
-    });
-    return result;
-  }
-
-  @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard, RefreshTokenGuard)
-  logout(@Context('req') request: Request) {
-    request.res.clearCookie('X-ACCESS-TOKEN');
-    request.res.clearCookie('X-REFRESH-TOKEN');
-    return true;
   }
 }

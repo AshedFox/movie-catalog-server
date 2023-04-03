@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { accessTokenExtractor } from '../cookie.extractor';
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([accessTokenExtractor]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       algorithms: ['HS512'],
       secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
       ignoreExpiration: false,

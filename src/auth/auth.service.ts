@@ -76,6 +76,7 @@ export class AuthService {
     );
 
   login = async (user: UserEntity): Promise<AuthResult> => ({
+    user,
     refreshToken: await this.generateRefreshToken(user),
     accessToken: await this.generateAccessToken(user),
   });
@@ -91,5 +92,14 @@ export class AuthService {
       password: await argon2.hash(registerInput.password),
     });
     return this.login(user);
+  };
+
+  logout = async (token: string) => {
+    const { sub } = this.jwtService.verify<{ sub: string }>(token, {
+      algorithms: ['HS512'],
+      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+    });
+
+    await this.refreshTokenService.delete(sub);
   };
 }
