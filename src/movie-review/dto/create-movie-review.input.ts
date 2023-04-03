@@ -10,7 +10,7 @@ export class CreateMovieReviewInput implements Partial<MovieReviewEntity> {
   mark: number;
 
   @Field({ nullable: true })
-  @Length(1, 3000)
+  @Length(3, 4096)
   @IsOptional()
   text?: string;
 
