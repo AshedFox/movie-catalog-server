@@ -2,17 +2,15 @@ import { Module } from '@nestjs/common';
 import { MailingService } from './services/mailing.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
-import { EmailConfirmationService } from './services/email-confirmation.service';
 import { EmailResolver } from './email.resolver';
 import { UserModule } from '../user/user.module';
 import { EmailService } from './services/email.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmailConfirmationEntity } from './entities/email-confirmation.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([EmailConfirmationEntity]),
+    JwtModule,
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -29,12 +27,7 @@ import { EmailConfirmationEntity } from './entities/email-confirmation.entity';
       }),
     }),
   ],
-  providers: [
-    MailingService,
-    EmailConfirmationService,
-    EmailResolver,
-    EmailService,
-  ],
-  exports: [MailingService, EmailConfirmationService, EmailService],
+  providers: [MailingService, EmailResolver, EmailService],
+  exports: [MailingService, EmailService],
 })
 export class EmailModule {}
