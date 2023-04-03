@@ -3,8 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { DirectiveLocation, GraphQLDirective } from 'graphql';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { FilmModule } from './film/film.module';
 import { UserModule } from './user/user.module';
 import { EpisodeModule } from './episode/episode.module';
@@ -30,7 +28,6 @@ import { MovieGenreModule } from './movie-genre/movie-genre.module';
 import { MovieStudioModule } from './movie-studio/movie-studio.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { v2 } from 'cloudinary';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
 import { TrailerModule } from './trailer/trailer.module';
@@ -52,6 +49,9 @@ import { VideoModule } from './video/video.module';
 import { SubtitlesModule } from './subtitles/subtitles.module';
 import { VideoVariantModule } from './video-variant/video-variant.module';
 import { CaslModule } from './casl/casl.module';
+import { GraphQLConfig } from './config/graphql.config';
+import { TypeOrmConfig } from './config/typeorm.config';
+import { ThrottlerConfig } from './config/throttler.config';
 
 @Module({
   imports: [
@@ -59,50 +59,16 @@ import { CaslModule } from './casl/casl.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get('CONNECTION_STRING'),
-        synchronize: true,
-        autoLoadEntities: true,
-        logging: true,
-        namingStrategy: new SnakeNamingStrategy(),
-      }),
+      useClass: TypeOrmConfig,
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [DataLoaderModule],
       inject: [DataLoaderService],
-      useFactory: (dataLoaderService: DataLoaderService) => ({
-        context: ({ req, res }) => ({
-          req,
-          res,
-          loaders: dataLoaderService.createLoaders(),
-        }),
-        introspection: true,
-        autoSchemaFile: 'src/schema.graphql',
-        cors: {
-          credentials: true,
-          origin: true,
-        },
-        buildSchemaOptions: {
-          directives: [
-            new GraphQLDirective({
-              name: 'upper',
-              locations: [DirectiveLocation.FIELD_DEFINITION],
-            }),
-          ],
-        },
-        playground: false,
-        plugins: [ApolloServerPluginLandingPageLocalDefault()],
-      }),
+      useClass: GraphQLConfig,
     }),
     ThrottlerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        ttl: configService.get('THROTTLER_TTL'),
-        limit: configService.get('THROTTLER_LIMIT'),
-      }),
+      useClass: ThrottlerConfig,
     }),
     ScheduleModule.forRoot(),
     AuthModule,
