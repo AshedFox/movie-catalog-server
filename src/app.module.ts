@@ -13,7 +13,7 @@ import { PersonModule } from './person/person.module';
 import { StudioModule } from './studio/studio.module';
 import { MoviePersonModule } from './movie-person/movie-person.module';
 import { AuthModule } from './auth/auth.module';
-import { EmailModule } from './email/email.module';
+import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
 import { DataLoaderService } from './dataloader/data-loader.service';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
@@ -77,7 +77,7 @@ import { ThrottlerConfig } from './config/throttler.config';
     CollectionMovieModule,
     CountryModule,
     DataLoaderModule,
-    EmailModule,
+    EmailConfirmationModule,
     EpisodeModule,
     FilmModule,
     GenreModule,
