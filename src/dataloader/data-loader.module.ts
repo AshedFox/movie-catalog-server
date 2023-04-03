@@ -2,7 +2,6 @@ import { Global, Module } from '@nestjs/common';
 import { DataLoaderService } from './data-loader.service';
 import { MoviePersonModule } from '../movie-person/movie-person.module';
 import { SeriesModule } from '../series/series.module';
-import { EmailModule } from '../email/email.module';
 import { FilmModule } from '../film/film.module';
 import { PersonModule } from '../person/person.module';
 import { SeasonModule } from '../season/season.module';
@@ -40,7 +39,6 @@ import { VideoVariantModule } from '../video-variant/video-variant.module';
     CollectionMovieModule,
     CountryModule,
     CurrencyModule,
-    EmailModule,
     EpisodeModule,
     FilmModule,
     GenreModule,

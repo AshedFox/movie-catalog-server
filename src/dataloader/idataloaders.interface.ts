@@ -1,5 +1,4 @@
 import DataLoader from 'dataloader';
-import { EmailConfirmationEntity } from '../email/entities/email-confirmation.entity';
 import { SeriesEntity } from '../series/entities/series.entity';
 import { PersonEntity } from '../person/entities/person.entity';
 import { SeasonEntity } from '../season/entities/season.entity';
@@ -30,7 +29,6 @@ export interface IDataLoaders {
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countryLoader: DataLoader<string, CountryEntity>;
   currencyLoader: DataLoader<string, CurrencyEntity>;
-  emailConfirmationLoader: DataLoader<string, EmailConfirmationEntity>;
   episodeLoader: DataLoader<string, EpisodeEntity>;
   episodesBySeasonLoader: DataLoader<string, EpisodeEntity[]>;
   episodesBySeriesLoader: DataLoader<string, EpisodeEntity[]>;

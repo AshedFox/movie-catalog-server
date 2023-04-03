@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { MoviePersonService } from '../movie-person/movie-person.service';
 import { IDataLoaders } from './idataloaders.interface';
 import DataLoader from 'dataloader';
-import { EmailConfirmationService } from '../email/services/email-confirmation.service';
 import { SeriesService } from '../series/series.service';
 import { FilmService } from '../film/film.service';
 import { PersonService } from '../person/person.service';
@@ -42,7 +41,6 @@ export class DataLoaderService {
     private readonly collectionService: CollectionService,
     private readonly countryService: CountryService,
     private readonly currencyService: CurrencyService,
-    private readonly emailConfirmationService: EmailConfirmationService,
     private readonly episodeService: EpisodeService,
     private readonly filmService: FilmService,
     private readonly genreService: GenreService,
@@ -168,9 +166,6 @@ export class DataLoaderService {
     ),
     countryLoader: this.createSingleLoader(this.countryService.readManyByIds),
     currencyLoader: this.createSingleLoader(this.currencyService.readManyByIds),
-    emailConfirmationLoader: this.createSingleLoader(
-      this.emailConfirmationService.readManyByIds,
-    ),
     episodeLoader: this.createSingleLoader(this.episodeService.readManyByIds),
     episodesBySeasonLoader: this.createMultipleLoader(
       this.episodeService.readManyBySeasons,
