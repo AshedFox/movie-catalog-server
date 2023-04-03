@@ -39,20 +39,27 @@ export class MovieReviewResolver {
   @Query(() => PaginatedMoviesReviews)
   async getMoviesReviews(
     @Args() { sort, filter, ...pagination }: GetMoviesReviewsArgs,
-  ) {
-    const [data, count] = await Promise.all([
-      this.reviewService.readMany(pagination, sort, filter),
-      this.reviewService.count(filter),
-    ]);
+  ): Promise<PaginatedMoviesReviews> {
+    const data = await this.reviewService.readMany(pagination, sort, filter);
 
-    const { limit, offset } = pagination;
+    const { first, last } = pagination;
+
+    let edges = data.map((node) => ({
+      node,
+      cursor: String(node.id),
+    }));
+
+    if ((!last && data.length > first) || (!first && data.length > last)) {
+      edges.pop();
+    }
 
     return {
-      nodes: data,
+      edges: !!last ? edges.reverse() : edges,
       pageInfo: {
-        totalCount: count,
-        hasNextPage: count > limit + offset,
-        hasPreviousPage: offset > 0,
+        hasNextPage: !last && data.length > first,
+        hasPreviousPage: !first && data.length > last,
+        startCursor: edges[0]?.cursor,
+        endCursor: edges[edges.length - 1]?.cursor,
       },
     };
   }
