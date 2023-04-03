@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
-import { FilterableField } from '@common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
 
 @ObjectType('MovieReview')
 @Entity('movies_reviews')
@@ -33,7 +33,7 @@ export class MovieReviewEntity {
   @Index()
   movieId: string;
 
-  @Field(() => MovieEntity)
+  @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   movie: MovieEntity;
 

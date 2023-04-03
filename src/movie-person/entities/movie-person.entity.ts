@@ -18,7 +18,7 @@ export class MoviePersonEntity {
   @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
-  @Field(() => MovieEntity)
+  @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   movie: MovieEntity;
 

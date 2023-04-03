@@ -45,7 +45,7 @@ export class MovieImageEntity {
   @ManyToOne(() => MediaEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   image: MediaEntity;
 
-  @Field(() => MovieEntity)
+  @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   movie: MovieEntity;
 }

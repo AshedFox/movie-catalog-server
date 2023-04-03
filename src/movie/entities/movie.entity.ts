@@ -106,7 +106,7 @@ export class MovieEntity {
   @Field(() => [GenreEntity])
   genres: GenreEntity[];
 
-  @HideField()
+  @FilterableRelation(() => [MovieGenreEntity])
   @OneToMany(() => MovieGenreEntity, (filmGenre) => filmGenre.movie)
   genresConnection: MovieGenreEntity[];
 
