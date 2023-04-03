@@ -15,13 +15,13 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         transport: {
-          secure: true,
-          port: 465,
+          secure: config.get<boolean>('MAIL_SECURE'),
+          port: config.get<number>('MAIL_PORT'),
           authMethod: 'PLAIN',
-          host: config.get('MAIL_HOST'),
+          host: config.get<string>('MAIL_HOST'),
           auth: {
-            user: config.get('MAIL_USER'),
-            pass: config.get('MAIL_PASS'),
+            user: config.get<string>('MAIL_USER'),
+            pass: config.get<string>('MAIL_PASSWORD'),
           },
         },
       }),
