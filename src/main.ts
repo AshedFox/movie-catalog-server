@@ -4,12 +4,17 @@ import cookieParser from 'cookie-parser';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  //app.use(helmet());
+  app.use(helmet());
+  app.enableCors({
+    credentials: true,
+    origin: config.get<string>('CLIENT_URL'),
+  });
   app.use(cookieParser(config.get('COOKIE_SECRET')));
   app.use(graphqlUploadExpress());
 
