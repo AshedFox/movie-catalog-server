@@ -175,8 +175,8 @@ export const applyOffsetPagination = <T>(
   qb: SelectQueryBuilder<T>,
   pagination: OffsetPaginationArgsType,
 ) => {
-  qb.take(pagination.limit);
-  qb.skip(pagination.offset);
+  qb.limit(pagination.limit);
+  qb.offset(pagination.offset);
 };
 
 export const applyRelayPagination = <T>(
@@ -192,13 +192,13 @@ export const applyRelayPagination = <T>(
       qb.andWhere(`${idFieldName} > :after`, { after });
     }
     qb.addOrderBy(idFieldName, 'ASC');
-    qb.take(first + 1);
+    qb.limit(first + 1);
   } else if (last) {
     if (before) {
       qb.andWhere(`${idFieldName} < :before`, { before });
     }
     qb.addOrderBy(idFieldName, 'DESC');
-    qb.take(last + 1);
+    qb.limit(last + 1);
   }
 };
 
