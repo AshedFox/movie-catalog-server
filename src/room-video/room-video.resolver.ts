@@ -33,7 +33,7 @@ export class RoomVideoResolver {
     return this.roomVideoService.readMany(pagination, sort, filter);
   }
 
-  @Query(() => RoomVideoEntity, { name: 'roomVideo' })
+  @Query(() => RoomVideoEntity)
   getRoomVideo(
     @Args('roomId', ParseUUIDPipe) roomId: string,
     @Args('videoId', { type: () => Int }) videoId: number,
