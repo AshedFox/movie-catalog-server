@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
-import { CreateUserInput } from '../user/dto/create-user.input';
+import { RegisterInput } from './dto/register.input';
 import { AuthResult } from './dto/auth.result';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
@@ -78,9 +78,14 @@ export class AuthService {
     accessToken: await this.generateAccessToken(user),
   });
 
-  register = async (registerInput: CreateUserInput): Promise<AuthResult> => {
+  register = async (registerInput: RegisterInput): Promise<AuthResult> => {
+    if (registerInput.password !== registerInput.passwordRepeat) {
+      throw new Error('Password and password repetition are not equal!');
+    }
+
     const user = await this.userService.create({
-      ...registerInput,
+      email: registerInput.email,
+      name: registerInput.name,
       password: await argon2.hash(registerInput.password),
     });
     return this.login(user);

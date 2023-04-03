@@ -1,17 +1,18 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { UseGuards } from '@nestjs/common';
+import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { UserEntity } from '../user/entities/user.entity';
 import { AuthResult } from './dto/auth.result';
-import { CreateUserInput } from '../user/dto/create-user.input';
+import { RegisterInput } from './dto/register.input';
 import { LoginInput } from './dto/login.input';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
+import { CurrentUserDto } from '../user/dto/current-user.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -47,7 +48,7 @@ export class AuthResolver {
 
   @Mutation(() => AuthResult)
   async register(
-    @Args('input') registerInput: CreateUserInput,
+    @Args('input') registerInput: RegisterInput,
     @Context('req') request: Request,
   ) {
     const result = await this.authService.register(registerInput);
