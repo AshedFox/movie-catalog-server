@@ -54,6 +54,7 @@ export class AuthService {
     return this.jwtService.sign(
       { sub: refreshToken.id },
       {
+        algorithm: 'HS512',
         expiresIn: this.configService.get('REFRESH_TOKEN_LIFETIME'),
         secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       },
@@ -68,6 +69,7 @@ export class AuthService {
         role: user.role,
       },
       {
+        algorithm: 'HS512',
         expiresIn: this.configService.get('ACCESS_TOKEN_LIFETIME'),
         secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       },

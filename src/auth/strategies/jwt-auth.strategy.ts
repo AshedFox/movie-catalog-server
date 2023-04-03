@@ -9,6 +9,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([accessTokenExtractor]),
+      algorithms: ['HS512'],
       secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
       ignoreExpiration: false,
     });
