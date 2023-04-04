@@ -1,6 +1,6 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { UserEntity } from '../user/entities/user.entity';
@@ -67,20 +67,6 @@ export class AuthResolver {
     @Context('req') req: Request,
     @Context('res') res: Response,
   ) {
-    let refreshToken = null;
-
-    if (req && req.signedCookies) {
-      refreshToken =
-        req.signedCookies[
-          this.configService.get<string>('REFRESH_COOKIE_NAME')
-        ];
-    }
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token!');
-    }
-
-    await this.authService.logout(refreshToken);
     res.clearCookie(this.configService.get<string>('REFRESH_COOKIE_NAME'), {
       httpOnly: true,
       secure: true,
