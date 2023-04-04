@@ -81,7 +81,12 @@ export class AuthResolver {
     }
 
     await this.authService.logout(refreshToken);
-    res.clearCookie(this.configService.get<string>('REFRESH_COOKIE_NAME'));
+    res.clearCookie(this.configService.get<string>('REFRESH_COOKIE_NAME'), {
+      httpOnly: true,
+      secure: true,
+      signed: true,
+      sameSite: 'none',
+    });
 
     return true;
   }
