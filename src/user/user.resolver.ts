@@ -30,7 +30,7 @@ export class UserResolver {
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
-  @Query(() => UserEntity, { nullable: true })
+  @Query(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
   getMe(@CurrentUser() currentUser: CurrentUserDto) {
     return this.userService.readOneById(currentUser.id);
