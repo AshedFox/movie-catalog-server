@@ -25,6 +25,7 @@ import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
 
 export interface IDataLoaders {
   collectionLoader: DataLoader<number, CollectionEntity>;
+  collectionsByMovieLoader: DataLoader<string, CollectionEntity[]>;
   countriesByMovieLoader: DataLoader<string, CountryEntity[]>;
   countriesByStudioLoader: DataLoader<number, CountryEntity[]>;
   countryLoader: DataLoader<string, CountryEntity>;

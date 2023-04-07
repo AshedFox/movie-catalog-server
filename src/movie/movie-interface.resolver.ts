@@ -15,6 +15,7 @@ import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
+import { CollectionEntity } from '../collection/entities/collection.entity';
 
 @Resolver(MovieEntity)
 export class MovieInterfaceResolver {
@@ -95,5 +96,13 @@ export class MovieInterfaceResolver {
           return prev + curr.mark;
         }, 0) / movie.reviews.length
       : 0;
+  }
+
+  @ResolveField(() => [CollectionEntity])
+  collections(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    return loaders.collectionsByMovieLoader.load(movie.id);
   }
 }

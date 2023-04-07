@@ -33,10 +33,15 @@ import { RoomVideoService } from '../room-video/room-video.service';
 import { LanguageService } from '../language/language.service';
 import { VideoVariantService } from '../video-variant/video-variant.service';
 import { SubtitlesService } from '../subtitles/subtitles.service';
+import { EntityManager, In } from 'typeorm';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { CollectionMovieEntity } from '../collection-movie/entities/collection-movie.entity';
 
 @Injectable()
 export class DataLoaderService {
   constructor(
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
     private readonly collectionMovieService: CollectionMovieService,
     private readonly collectionService: CollectionService,
     private readonly countryService: CountryService,
@@ -153,6 +158,14 @@ export class DataLoaderService {
   createLoaders = (): IDataLoaders => ({
     collectionLoader: this.createSingleLoader(
       this.collectionService.readManyByIds,
+    ),
+    collectionsByMovieLoader: this.createMultipleRelationLoader(
+      (ids) =>
+        this.entityManager.findBy(CollectionMovieEntity, {
+          movieId: In(ids),
+        }),
+      'movieId',
+      'collection',
     ),
     countriesByStudioLoader: this.createMultipleRelationLoader(
       this.studioCountryService.readManyByStudios,

@@ -1,4 +1,4 @@
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, InterfaceType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -26,6 +26,8 @@ import { MovieReviewEntity } from '../../movie-review/entities/movie-review.enti
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
+import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
+import { CollectionEntity } from '../../collection/entities/collection.entity';
 
 @InterfaceType('Movie')
 @Entity('movies')
@@ -134,4 +136,14 @@ export class MovieEntity {
 
   @Field()
   rating: number;
+
+  @Field(() => [CollectionEntity])
+  collections: CollectionEntity[];
+
+  @FilterableRelation(() => [CollectionMovieEntity])
+  @OneToMany(
+    () => CollectionMovieEntity,
+    (collectionMovie) => collectionMovie.movie,
+  )
+  collectionsConnection: CollectionMovieEntity[];
 }
