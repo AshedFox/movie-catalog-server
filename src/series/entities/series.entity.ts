@@ -6,7 +6,9 @@ import { MovieTypeEnum } from '@utils/enums';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
 
-@ObjectType('Series')
+@ObjectType('Series', {
+  implements: [MovieEntity],
+})
 @ChildEntity(MovieTypeEnum.Series)
 export class SeriesEntity extends MovieEntity {
   @FilterableField({ nullable: true })

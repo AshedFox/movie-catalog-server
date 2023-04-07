@@ -27,7 +27,7 @@ import { CountryEntity } from '../../country/entities/country.entity';
 import { MovieCountryEntity } from '../../movie-country/entities/movie-country.entity';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
-@ObjectType('Movie')
+@InterfaceType('Movie')
 @Entity('movies')
 @TableInheritance({
   column: { type: 'enum', enum: MovieTypeEnum, enumName: 'movie_type_enum' },

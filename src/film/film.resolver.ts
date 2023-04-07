@@ -19,26 +19,19 @@ import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
-import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
-import { GenreEntity } from '../genre/entities/genre.entity';
-import { StudioEntity } from '../studio/entities/studio.entity';
 import { VideoEntity } from '../video/entities/video.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MediaService } from '../media/media.service';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
-import { MediaEntity } from '../media/entities/media.entity';
-import { MovieEntity } from '../movie/entities/movie.entity';
-import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
-import { TrailerEntity } from '../trailer/entities/trailer.entity';
-import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
-import { CountryEntity } from '../country/entities/country.entity';
+import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
 
 @Resolver(FilmEntity)
-export class FilmResolver {
+export class FilmResolver extends MovieInterfaceResolver {
   constructor(
     private readonly filmService: FilmService,
     private readonly mediaService: MediaService,
   ) {
+    super();
   }
 
   @Mutation(() => FilmEntity)
@@ -141,69 +134,5 @@ export class FilmResolver {
   @ResolveField(() => VideoEntity, { nullable: true })
   video(@Parent() film: FilmEntity, @Context('loaders') loaders: IDataLoaders) {
     return film.videoId ? loaders.videoLoader.load(film.videoId) : undefined;
-  }
-
-  @ResolveField(() => MediaEntity, { nullable: true })
-  cover(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return movie.coverId ? loaders.mediaLoader.load(movie.coverId) : undefined;
-  }
-
-  @ResolveField(() => [TrailerEntity])
-  trailers(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.trailersByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [MovieReviewEntity])
-  reviews(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.movieReviewsByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [MoviePersonEntity])
-  moviePersons(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.moviePersonsByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [MovieImageEntity])
-  movieImages(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.movieImagesByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [GenreEntity])
-  genres(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.genresByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [CountryEntity])
-  countries(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.countriesByMovieLoader.load(movie.id);
-  }
-
-  @ResolveField(() => [StudioEntity])
-  studios(
-    @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.studiosByMovieLoader.load(movie.id);
   }
 }
