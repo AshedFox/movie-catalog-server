@@ -21,7 +21,9 @@ export class MediaService {
   ) {}
 
   create = async (input: CreateMediaInput): Promise<MediaEntity> => {
-    const { type, file } = input;
+    let { type, file } = input;
+
+    file = await file;
 
     switch (type) {
       case MediaTypeEnum.VIDEO: {
