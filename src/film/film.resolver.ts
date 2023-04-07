@@ -24,6 +24,8 @@ import { GenreEntity } from '../genre/entities/genre.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
 import { VideoEntity } from '../video/entities/video.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { MediaService } from '../media/media.service';
+import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MediaEntity } from '../media/entities/media.entity';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { MovieImageEntity } from '../movie-image/entities/movie-image.entity';
@@ -33,12 +35,26 @@ import { CountryEntity } from '../country/entities/country.entity';
 
 @Resolver(FilmEntity)
 export class FilmResolver {
-  constructor(private readonly filmService: FilmService) {}
+  constructor(
+    private readonly filmService: FilmService,
+    private readonly mediaService: MediaService,
+  ) {
+  }
 
   @Mutation(() => FilmEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  createFilm(@Args('input') input: CreateFilmInput) {
+  async createFilm(@Args('input') input: CreateFilmInput) {
+    if (input.cover) {
+      const media = await this.mediaService.create({
+        file: input.cover,
+        type: MediaTypeEnum.IMAGE,
+      });
+
+      input.coverId = media.id;
+      input.cover = undefined;
+    }
+
     return this.filmService.create(input);
   }
 
@@ -98,10 +114,20 @@ export class FilmResolver {
   @Mutation(() => FilmEntity)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  updateFilm(
+  async updateFilm(
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateFilmInput,
   ) {
+    if (input.cover) {
+      const media = await this.mediaService.create({
+        file: input.cover,
+        type: MediaTypeEnum.IMAGE,
+      });
+
+      input.coverId = media.id;
+      input.cover = undefined;
+    }
+
     return this.filmService.update(id, input);
   }
 

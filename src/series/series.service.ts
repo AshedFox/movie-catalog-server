@@ -13,8 +13,8 @@ import { MovieTypeEnum } from '@utils/enums';
 @Injectable()
 export class SeriesService extends BaseService<
   SeriesEntity,
-  CreateSeriesInput,
-  UpdateSeriesInput
+  Omit<CreateSeriesInput, 'cover'>,
+  Omit<UpdateSeriesInput, 'cover'>
 > {
   constructor(
     @InjectRepository(SeriesEntity)
@@ -26,7 +26,7 @@ export class SeriesService extends BaseService<
   }
 
   create = async (
-    createSeriesInput: CreateSeriesInput,
+    createSeriesInput: Omit<CreateSeriesInput, 'cover'>,
   ): Promise<SeriesEntity> => {
     const queryRunner = this.dataSource.createQueryRunner();
 

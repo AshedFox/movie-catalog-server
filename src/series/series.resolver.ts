@@ -24,6 +24,8 @@ import { StudioEntity } from '../studio/entities/studio.entity';
 import { SeasonEntity } from '../season/entities/season.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
+import { MediaService } from '../media/media.service';
+import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { MediaEntity } from '../media/entities/media.entity';
 import { TrailerEntity } from '../trailer/entities/trailer.entity';
@@ -34,12 +36,26 @@ import { CountryEntity } from '../country/entities/country.entity';
 
 @Resolver(SeriesEntity)
 export class SeriesResolver {
-  constructor(private readonly seriesService: SeriesService) {}
+  constructor(
+    private readonly seriesService: SeriesService,
+    private readonly mediaService: MediaService,
+  ) {
+  }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => SeriesEntity)
-  createSeries(@Args('input') input: CreateSeriesInput) {
+  async createSeries(@Args('input') input: CreateSeriesInput) {
+    if (input.cover) {
+      const media = await this.mediaService.create({
+        file: input.cover,
+        type: MediaTypeEnum.IMAGE,
+      });
+
+      input.coverId = media.id;
+      input.cover = undefined;
+    }
+
     return this.seriesService.create(input);
   }
 
@@ -98,10 +114,20 @@ export class SeriesResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => SeriesEntity)
-  updateSeries(
+  async updateSeries(
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateSeriesInput,
   ) {
+    if (input.cover) {
+      const media = await this.mediaService.create({
+        file: input.cover,
+        type: MediaTypeEnum.IMAGE,
+      });
+
+      input.coverId = media.id;
+      input.cover = undefined;
+    }
+
     return this.seriesService.update(id, input);
   }
 

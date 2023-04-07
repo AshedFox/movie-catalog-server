@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, HideField, InputType, Int } from '@nestjs/graphql';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -7,11 +7,12 @@ import {
   Length,
 } from 'class-validator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { MovieEntity } from '../entities/movie.entity';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
+import { FileUpload } from 'graphql-upload';
 
 @InputType()
-export class CreateMovieInput implements Partial<MovieEntity> {
+export class CreateMovieInput {
   @Field()
   @Length(1, 255)
   title: string;
@@ -30,9 +31,12 @@ export class CreateMovieInput implements Partial<MovieEntity> {
   @IsEnum(AccessModeEnum)
   accessMode: AccessModeEnum;
 
-  @Field({ nullable: true })
+  @HideField()
+  coverId: number;
+
+  @Field(() => GraphQLUpload, { nullable: true })
   @IsOptional()
-  coverId?: number;
+  cover?: FileUpload;
 
   @Field({ nullable: true })
   @IsOptional()

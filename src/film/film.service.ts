@@ -13,8 +13,8 @@ import { MovieTypeEnum } from '@utils/enums';
 @Injectable()
 export class FilmService extends BaseService<
   FilmEntity,
-  CreateFilmInput,
-  UpdateFilmInput
+  Omit<CreateFilmInput, 'cover'>,
+  Omit<UpdateFilmInput, 'cover'>
 > {
   constructor(
     @InjectRepository(FilmEntity)
@@ -25,7 +25,9 @@ export class FilmService extends BaseService<
     super(filmRepository);
   }
 
-  create = async (createFilmInput: CreateFilmInput): Promise<FilmEntity> => {
+  create = async (
+    createFilmInput: Omit<CreateFilmInput, 'cover'>,
+  ): Promise<FilmEntity> => {
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
