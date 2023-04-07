@@ -4,7 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { DirectiveLocation, GraphQLDirective } from 'graphql/index';
 import { DataLoaderService } from '../dataloader/data-loader.service';
 import { ApolloDriverConfig } from '@nestjs/apollo';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import {
+  ApolloServerPluginLandingPageLocalDefault,
+  ApolloServerPluginLandingPageProductionDefault,
+} from '@apollo/server/plugin/landingPage/default';
 
 @Injectable()
 export class GraphQLConfig implements GqlOptionsFactory {
@@ -32,7 +35,11 @@ export class GraphQLConfig implements GqlOptionsFactory {
         ],
       },
       playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      plugins: [
+        this.configService.get<string>('NODE_ENV') === 'development'
+          ? ApolloServerPluginLandingPageLocalDefault()
+          : ApolloServerPluginLandingPageProductionDefault(),
+      ],
     };
   }
 }
