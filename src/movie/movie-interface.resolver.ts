@@ -1,4 +1,10 @@
-import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Context,
+  Float,
+  Parent,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { MovieEntity } from './entities/movie.entity';
 import { MediaEntity } from '../media/entities/media.entity';
 import { IDataLoaders } from '../dataloader/idataloaders.interface';
@@ -74,5 +80,20 @@ export class MovieInterfaceResolver {
     @Context('loaders') loaders: IDataLoaders,
   ) {
     return loaders.studiosByMovieLoader.load(movie.id);
+  }
+
+  @ResolveField(() => Float)
+  async rating(
+    @Parent() movie: MovieEntity,
+    @Context('loaders') loaders: IDataLoaders,
+  ) {
+    if (!movie.reviews) {
+      movie.reviews = await loaders.movieReviewsByMovieLoader.load(movie.id);
+    }
+    return movie.reviews.length > 0
+      ? movie.reviews.reduce((prev, curr) => {
+          return prev + curr.mark;
+        }, 0) / movie.reviews.length
+      : 0;
   }
 }

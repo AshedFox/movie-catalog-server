@@ -131,4 +131,7 @@ export class MovieEntity {
   @Field(() => [MoviePersonEntity])
   @OneToMany(() => MoviePersonEntity, (filmPerson) => filmPerson.movie)
   moviePersons: MoviePersonEntity[];
+
+  @Field()
+  rating: number;
 }
