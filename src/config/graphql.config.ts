@@ -17,9 +17,8 @@ export class GraphQLConfig implements GqlOptionsFactory {
     | Promise<Omit<ApolloDriverConfig, 'driver'>>
     | Omit<ApolloDriverConfig, 'driver'> {
     return {
-      context: ({ req, res }) => ({
-        req,
-        res,
+      context: (ctx) => ({
+        ...ctx,
         loaders: this.dataLoaderService.createLoaders(),
       }),
       introspection: true,
