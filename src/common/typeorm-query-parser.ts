@@ -17,16 +17,17 @@ import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ArgsType } from '@common/args';
 import { OffsetPaginationArgsType } from './pagination/offset';
 import { RelayPaginationArgsType } from './pagination/relay';
+import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 
-const applyFieldFilter = (
+const applyFieldFilter = <T>(
   where: WhereExpressionBuilder,
   fieldName: string,
-  filter: FilterComparisonType<any>,
+  filter: FilterComparisonType<T>,
   operator: 'and' | 'or',
   alias?: string,
 ) => {
   const operatorProp = operator === 'and' ? 'andWhere' : 'orWhere';
-  const name = alias ? `${alias}_${fieldName}` : fieldName;
+  const name = randomStringGenerator();
   const snakeName = alias
     ? `"${alias}"."${snakeCase(fieldName)}"`
     : `"${snakeCase(fieldName)}"`;
@@ -141,25 +142,30 @@ const applyFieldFilter = (
 };
 
 const applyFilterTreeLevel = <T>(
-  qb: SelectQueryBuilder<T>,
+  qb: WhereExpressionBuilder,
   filter: FilterType<T>,
   operator: 'or' | 'and',
+  alias?: string,
 ) => {
   Object.keys(filter).forEach((key) => {
     if (key === 'and') {
       qb.andWhere(
-        new Brackets(() =>
-          filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'and')),
+        new Brackets((where) =>
+          filter[key].forEach((q) =>
+            applyFilterTreeLevel(where, q, 'and', alias),
+          ),
         ),
       );
     } else if (key === 'or') {
-      qb.andWhere(
-        new Brackets(() =>
-          filter[key].forEach((q) => applyFilterTreeLevel(qb, q, 'or')),
+      qb.orWhere(
+        new Brackets((where) =>
+          filter[key].forEach((q) =>
+            applyFilterTreeLevel(where, q, 'or', alias),
+          ),
         ),
       );
     } else {
-      applyFieldFilter(qb, key, filter[key], operator, qb.alias);
+      applyFieldFilter(qb, key, filter[key], operator, alias);
     }
   });
 };
@@ -168,7 +174,7 @@ export const applyFilter = <T>(
   qb: SelectQueryBuilder<T>,
   filter: FilterType<T>,
 ) => {
-  applyFilterTreeLevel(qb, filter, 'and');
+  applyFilterTreeLevel(qb, filter, 'and', qb.alias);
 };
 
 export const applyOffsetPagination = <T>(
