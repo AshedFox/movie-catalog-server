@@ -4,6 +4,54 @@
 
 directive @upper on FIELD_DEFINITION
 
+interface Movie {
+  id: ID!
+  type: MovieTypeEnum!
+  title: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ageRestriction: AgeRestrictionEnum
+  accessMode: AccessModeEnum!
+  coverId: Float
+  cover: Media
+  trailers: [Trailer!]!
+  reviews: [MovieReview!]!
+  genres: [Genre!]!
+  genresConnection: [MovieGenre!]!
+  studios: [Studio!]!
+  countries: [Country!]!
+  movieImages: [MovieImage!]!
+  moviePersons: [MoviePerson!]!
+  rating: Float!
+  collections: [Collection!]!
+  collectionsConnection: [CollectionMovie!]!
+}
+
+enum MovieTypeEnum {
+  Film
+  Series
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""Movies age restrictions in MPAA system"""
+enum AgeRestrictionEnum {
+  G
+  PG
+  PG13
+  R
+  NC17
+}
+
+enum AccessModeEnum {
+  PUBLIC
+  PRIVATE
+}
+
 type Media {
   id: ID!
   publicId: String!
@@ -65,6 +113,25 @@ type MovieGenre {
   genreId: ID!
   movieId: ID!
   genre: Genre!
+  movie: Movie!
+}
+
+type Collection {
+  id: ID!
+  name: String!
+  description: String
+  isSystem: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  coverId: Float
+  cover: Media
+  movies: [Movie!]!
+}
+
+type CollectionMovie {
+  collectionId: ID!
+  movieId: ID!
+  collection: Collection!
   movie: Movie!
 }
 
@@ -153,11 +220,6 @@ type Trailer {
   video: Video!
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type User {
   id: ID!
   email: String!
@@ -198,7 +260,7 @@ type MovieCountry {
   movie: Movie!
 }
 
-type Movie {
+type Film implements Movie {
   id: ID!
   type: MovieTypeEnum!
   title: String!
@@ -217,46 +279,9 @@ type Movie {
   countries: [Country!]!
   movieImages: [MovieImage!]!
   moviePersons: [MoviePerson!]!
-}
-
-enum MovieTypeEnum {
-  Film
-  Series
-}
-
-"""Movies age restrictions in MPAA system"""
-enum AgeRestrictionEnum {
-  G
-  PG
-  PG13
-  R
-  NC17
-}
-
-enum AccessModeEnum {
-  PUBLIC
-  PRIVATE
-}
-
-type Film {
-  id: ID!
-  type: MovieTypeEnum!
-  title: String!
-  description: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  ageRestriction: AgeRestrictionEnum
-  accessMode: AccessModeEnum!
-  coverId: Float
-  cover: Media
-  trailers: [Trailer!]!
-  reviews: [MovieReview!]!
-  genres: [Genre!]!
-  genresConnection: [MovieGenre!]!
-  studios: [Studio!]!
-  countries: [Country!]!
-  movieImages: [MovieImage!]!
-  moviePersons: [MoviePerson!]!
+  rating: Float!
+  collections: [Collection!]!
+  collectionsConnection: [CollectionMovie!]!
   releaseDate: DateTime
   videoId: Float
   video: Video
@@ -271,6 +296,11 @@ type OffsetPageInfo {
 type PaginatedFilms {
   pageInfo: OffsetPageInfo!
   nodes: [Film!]!
+}
+
+type PaginatedMedia {
+  pageInfo: OffsetPageInfo!
+  nodes: [Media!]!
 }
 
 type PaginatedUsers {
@@ -313,7 +343,7 @@ type Season {
   episodes: [Episode!]!
 }
 
-type Series {
+type Series implements Movie {
   id: ID!
   type: MovieTypeEnum!
   title: String!
@@ -332,6 +362,9 @@ type Series {
   countries: [Country!]!
   movieImages: [MovieImage!]!
   moviePersons: [MoviePerson!]!
+  rating: Float!
+  collections: [Collection!]!
+  collectionsConnection: [CollectionMovie!]!
   startReleaseDate: DateTime
   endReleaseDate: DateTime
   seasons: [Season!]!
@@ -403,12 +436,10 @@ type PaginatedMoviesPersons {
   nodes: [MoviePerson!]!
 }
 
-type PaginatedMoviesUnion {
-  nodes: [MovieUnion!]!
+type PaginatedMovies {
   pageInfo: OffsetPageInfo!
+  nodes: [Movie!]!
 }
-
-union MovieUnion = Film | Series
 
 type AuthResult {
   user: User!
@@ -416,33 +447,9 @@ type AuthResult {
   refreshToken: String!
 }
 
-type CollectionMovie {
-  collectionId: ID!
-  movieId: ID!
-  collection: Collection!
-  movie: Movie!
-}
-
-type Collection {
-  id: ID!
-  name: String!
-  description: String
-  isSystem: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  coverId: Float
-  cover: Media
-  movies: [Movie!]!
-}
-
 type PaginatedMoviesImages {
   pageInfo: OffsetPageInfo!
   nodes: [MovieImage!]!
-}
-
-type PaginatedMedia {
-  pageInfo: OffsetPageInfo!
-  nodes: [Media!]!
 }
 
 type RelayPageInfo {
@@ -536,9 +543,9 @@ type PaginatedMoviesVisits {
 type Query {
   getCollections(sort: CollectionSort, filter: CollectionFilter, offset: Int! = 0, limit: Int! = 20): PaginatedCollections!
   getCollection(id: Int!): Collection!
-  getMoviesProtected(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesUnion!
-  getMovies(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesUnion!
-  getMostPopularMovies(offset: Int! = 0, limit: Int! = 20): [MovieUnion!]!
+  getMoviesProtected(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMovies!
+  getMovies(sort: MovieSort, filter: MovieFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMovies!
+  getMostPopularMovies(offset: Int! = 0, limit: Int! = 20): [Movie!]!
   getMovie(id: String!): Movie!
   getCountries(sort: CountrySort, filter: CountryFilter, offset: Int! = 0, limit: Int! = 20): PaginatedCountries!
   getCountry(id: String!): Country!
@@ -550,12 +557,12 @@ type Query {
   getFilmsProtected(sort: FilmSort, filter: FilmFilter, offset: Int! = 0, limit: Int! = 20): PaginatedFilms!
   getFilms(sort: FilmSort, filter: FilmFilter, offset: Int! = 0, limit: Int! = 20): PaginatedFilms!
   getFilm(id: String!): Film!
+  getManyMedia(sort: MediaSort, filter: MediaFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMedia!
+  getOneMedia(id: Float!): Media!
   getGenres(sort: GenreSort, filter: GenreFilter, offset: Int! = 0, limit: Int! = 20): PaginatedGenres!
   getGenre(id: String!): Genre!
   getLanguages(sort: LanguageSort, filter: LanguageFilter, offset: Int! = 0, limit: Int! = 20): PaginatedLanguages!
   getLanguage(id: String!): Language!
-  getManyMedia(sort: MediaSort, filter: MediaFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMedia!
-  getOneMedia(id: Float!): Media!
   getMoviesImages(sort: MovieImageSort, filter: MovieImageFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviesImages!
   getMovieImage(id: Int!): MovieImage!
   getMoviePersonTypes(sort: MoviePersonTypeSort, filter: MoviePersonTypeFilter, offset: Int! = 0, limit: Int! = 20): PaginatedMoviePersonTypes!
@@ -572,7 +579,7 @@ type Query {
   getMovieImageType(id: Int!): MovieImageType!
   getRooms(sort: RoomSort, filter: RoomFilter, offset: Int! = 0, limit: Int! = 20): PaginatedRooms!
   getRoom(id: String!): Room!
-  getMe: User
+  getMe: User!
   getUsers(sort: UserSort, filter: UserFilter, offset: Int! = 0, limit: Int! = 20): PaginatedUsers!
   getUser(id: String!): User!
   getRoomsVideos(sort: RoomVideoSort, filter: RoomVideoFilter, offset: Int! = 0, limit: Int! = 20): PaginatedRoomsVideos!
@@ -715,6 +722,7 @@ input MovieSort {
   endReleaseDate: SortOptions
   cover: MediaEntity_MovieSort
   genresConnection: MovieGenreEntity_MovieSort
+  collectionsConnection: CollectionMovieEntity_MovieSort
 }
 
 input MediaEntity_MovieSort {
@@ -726,6 +734,11 @@ input MediaEntity_MovieSort {
 
 input MovieGenreEntity_MovieSort {
   genreId: SortOptions
+  movieId: SortOptions
+}
+
+input CollectionMovieEntity_MovieSort {
+  collectionId: SortOptions
   movieId: SortOptions
 }
 
@@ -746,6 +759,7 @@ input MovieFilter {
   endReleaseDate: DateFilter
   cover: MediaEntity_MovieFilter
   genresConnection: MovieGenreEntity_MovieFilter
+  collectionsConnection: CollectionMovieEntity_MovieFilter
 }
 
 input AgeRestrictionEnumFilter {
@@ -782,6 +796,13 @@ input MovieGenreEntity_MovieFilter {
   and: [MovieGenreEntity_MovieFilter!]
   or: [MovieGenreEntity_MovieFilter!]
   genreId: IDFilter
+  movieId: IDFilter
+}
+
+input CollectionMovieEntity_MovieFilter {
+  and: [CollectionMovieEntity_MovieFilter!]
+  or: [CollectionMovieEntity_MovieFilter!]
+  collectionId: IDFilter
   movieId: IDFilter
 }
 
@@ -908,6 +929,7 @@ input FilmSort {
   videoId: SortOptions
   cover: MediaEntity_FilmSort
   genresConnection: MovieGenreEntity_FilmSort
+  collectionsConnection: CollectionMovieEntity_FilmSort
 }
 
 input MediaEntity_FilmSort {
@@ -919,6 +941,11 @@ input MediaEntity_FilmSort {
 
 input MovieGenreEntity_FilmSort {
   genreId: SortOptions
+  movieId: SortOptions
+}
+
+input CollectionMovieEntity_FilmSort {
+  collectionId: SortOptions
   movieId: SortOptions
 }
 
@@ -937,6 +964,7 @@ input FilmFilter {
   videoId: NumberFilter
   cover: MediaEntity_FilmFilter
   genresConnection: MovieGenreEntity_FilmFilter
+  collectionsConnection: CollectionMovieEntity_FilmFilter
 }
 
 input MediaEntity_FilmFilter {
@@ -953,6 +981,29 @@ input MovieGenreEntity_FilmFilter {
   or: [MovieGenreEntity_FilmFilter!]
   genreId: IDFilter
   movieId: IDFilter
+}
+
+input CollectionMovieEntity_FilmFilter {
+  and: [CollectionMovieEntity_FilmFilter!]
+  or: [CollectionMovieEntity_FilmFilter!]
+  collectionId: IDFilter
+  movieId: IDFilter
+}
+
+input MediaSort {
+  id: SortOptions
+  publicId: SortOptions
+  type: SortOptions
+  url: SortOptions
+}
+
+input MediaFilter {
+  and: [MediaFilter!]
+  or: [MediaFilter!]
+  id: IDFilter
+  publicId: StringFilter
+  type: MediaTypeEnumFilter
+  url: StringFilter
 }
 
 input GenreSort {
@@ -977,22 +1028,6 @@ input LanguageFilter {
   or: [LanguageFilter!]
   id: IDFilter
   name: StringFilter
-}
-
-input MediaSort {
-  id: SortOptions
-  publicId: SortOptions
-  type: SortOptions
-  url: SortOptions
-}
-
-input MediaFilter {
-  and: [MediaFilter!]
-  or: [MediaFilter!]
-  id: IDFilter
-  publicId: StringFilter
-  type: MediaTypeEnumFilter
-  url: StringFilter
 }
 
 input MovieImageSort {
@@ -1383,6 +1418,7 @@ input SeriesSort {
   endReleaseDate: SortOptions
   cover: MediaEntity_SeriesSort
   genresConnection: MovieGenreEntity_SeriesSort
+  collectionsConnection: CollectionMovieEntity_SeriesSort
 }
 
 input MediaEntity_SeriesSort {
@@ -1394,6 +1430,11 @@ input MediaEntity_SeriesSort {
 
 input MovieGenreEntity_SeriesSort {
   genreId: SortOptions
+  movieId: SortOptions
+}
+
+input CollectionMovieEntity_SeriesSort {
+  collectionId: SortOptions
   movieId: SortOptions
 }
 
@@ -1414,6 +1455,7 @@ input SeriesFilter {
   endReleaseDate: DateFilter
   cover: MediaEntity_SeriesFilter
   genresConnection: MovieGenreEntity_SeriesFilter
+  collectionsConnection: CollectionMovieEntity_SeriesFilter
 }
 
 input MediaEntity_SeriesFilter {
@@ -1429,6 +1471,13 @@ input MovieGenreEntity_SeriesFilter {
   and: [MovieGenreEntity_SeriesFilter!]
   or: [MovieGenreEntity_SeriesFilter!]
   genreId: IDFilter
+  movieId: IDFilter
+}
+
+input CollectionMovieEntity_SeriesFilter {
+  and: [CollectionMovieEntity_SeriesFilter!]
+  or: [CollectionMovieEntity_SeriesFilter!]
+  collectionId: IDFilter
   movieId: IDFilter
 }
 
@@ -1531,14 +1580,14 @@ type Mutation {
   createFilm(input: CreateFilmInput!): Film!
   updateFilm(id: String!, input: UpdateFilmInput!): Film!
   deleteFilm(id: String!): Film!
+  uploadMedia(input: CreateMediaInput!): Media!
+  deleteMedia(id: Float!): Media!
   createGenre(input: CreateGenreInput!): Genre!
   updateGenre(id: String!, input: UpdateGenreInput!): Genre!
   deleteGenre(id: String!): Genre!
   createLanguage(input: CreateLanguageInput!): Language!
   updateLanguage(id: String!, input: UpdateLanguageInput!): Language!
   deleteLanguage(id: String!): Language!
-  uploadMedia(input: CreateMediaInput!): Media!
-  deleteMedia(id: Float!): Media!
   createMovieCountry(movieId: String!, countryId: String!): MovieCountry!
   deleteMovieCountry(movieId: String!, countryId: String!): Movie!
   createMovieGenre(movieId: String!, genreId: String!): MovieGenre!
@@ -1574,6 +1623,7 @@ type Mutation {
   createRoomParticipant(roomId: String!, userId: String!): RoomParticipant!
   deleteRoomParticipant(roomId: String!, userId: String!): RoomParticipant!
   updateUser(id: String!, input: UpdateUserInput!): User!
+  updateAvatar(file: Upload!): User!
   deleteUser(id: String!): User!
   createRoomVideo(input: CreateRoomVideoInput!): RoomVideo!
   moveRoomVideo(roomId: String!, input: MoveRoomVideoInput!): RoomVideo!
@@ -1680,7 +1730,7 @@ input CreateFilmInput {
   description: String
   ageRestriction: AgeRestrictionEnum
   accessMode: AccessModeEnum!
-  coverId: Float
+  cover: Upload
   countriesIds: [String!]
   studiosIds: [Int!]
   genresIds: [String!]
@@ -1688,14 +1738,22 @@ input CreateFilmInput {
   videoId: Float
 }
 
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
 input UpdateFilmInput {
   title: String
   description: String
   ageRestriction: AgeRestrictionEnum
   accessMode: AccessModeEnum
-  coverId: Float
+  cover: Upload
   releaseDate: DateTime
   videoId: Float
+}
+
+input CreateMediaInput {
+  file: Upload!
+  type: MediaTypeEnum!
 }
 
 input CreateGenreInput {
@@ -1715,14 +1773,6 @@ input UpdateLanguageInput {
   id: String
   name: String
 }
-
-input CreateMediaInput {
-  file: Upload!
-  type: MediaTypeEnum!
-}
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
 
 input CreateMovieImageInput {
   movieId: String!
@@ -1867,7 +1917,7 @@ input CreateSeriesInput {
   description: String
   ageRestriction: AgeRestrictionEnum
   accessMode: AccessModeEnum!
-  coverId: Float
+  cover: Upload
   countriesIds: [String!]
   studiosIds: [Int!]
   genresIds: [String!]
@@ -1880,7 +1930,7 @@ input UpdateSeriesInput {
   description: String
   ageRestriction: AgeRestrictionEnum
   accessMode: AccessModeEnum
-  coverId: Float
+  cover: Upload
   startReleaseDate: DateTime
   endReleaseDate: DateTime
 }
