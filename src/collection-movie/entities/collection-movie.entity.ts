@@ -2,15 +2,16 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { CollectionEntity } from '../../collection/entities/collection.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { FilterableField } from '@common/filter';
 
 @ObjectType('CollectionMovie')
 @Entity('collections_movies')
 export class CollectionMovieEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn()
   collectionId: number;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn()
   movieId: string;
 
