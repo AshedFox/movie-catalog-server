@@ -7,7 +7,7 @@ import { CountryEntity } from '../../country/entities/country.entity';
 @Entity('movies_countries')
 export class MovieCountryEntity {
   @Field(() => ID)
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'character', length: 2 })
   countryId: string;
 
   @Field(() => ID)
