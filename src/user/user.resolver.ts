@@ -22,10 +22,15 @@ import { MediaEntity } from '../media/entities/media.entity';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { ActionEnum } from '@utils/enums/action.enum';
 import { plainToClass } from 'class-transformer';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
+import { FileUpload } from 'graphql-upload';
+import { MediaService } from '../media/media.service';
+import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 
 @Resolver(UserEntity)
 export class UserResolver {
   constructor(
+    private readonly mediaService: MediaService,
     private readonly userService: UserService,
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
@@ -60,6 +65,22 @@ export class UserResolver {
     }
 
     return this.userService.update(id, updateUserInput);
+  }
+
+  @Mutation(() => UserEntity)
+  @UseGuards(GqlJwtAuthGuard)
+  async updateAvatar(
+    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    const media = await this.mediaService.create({
+      type: MediaTypeEnum.IMAGE,
+      file,
+    });
+
+    return this.userService.update(currentUser.id, {
+      avatarId: media.id,
+    });
   }
 
   @UseGuards(GqlJwtAuthGuard)
