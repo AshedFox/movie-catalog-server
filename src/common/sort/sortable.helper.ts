@@ -13,7 +13,10 @@ import { SortStorage } from '@common/sort/sort-storage';
 export function Sortable<T>(classRef: Type<T>) {
   const filterableRelations = getFilterableRelations(classRef);
 
-  const name = TypeMetadataStorage.getObjectTypeMetadataByTarget(classRef).name;
+  const name = (
+    TypeMetadataStorage.getObjectTypeMetadataByTarget(classRef) ??
+    TypeMetadataStorage.getInterfaceMetadataByTarget(classRef)
+  ).name;
 
   return createSortableType(
     classRef,
