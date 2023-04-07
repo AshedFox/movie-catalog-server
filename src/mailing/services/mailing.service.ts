@@ -16,23 +16,12 @@ export class MailingService {
       to: user.email,
       from: this.configService.get<string>('MAIL_USER'),
       subject: 'Confirm your email!',
-      html: `
-        <html lang='en'>
-          <body>
-            <p>Hello ${user.name}</p>
-            <br/>
-            <p>Welcome to MovieView,</p>
-            <p>
-                Click
-                <b><a href="https://localhost:3001/confirm-email/${confirmationToken}">here</a></b>
-                to confirm your account.
-            </p>
-            <br/>
-            <p>Best of luck,</p>
-            <p>MovieView Team</p>
-          </body>
-        </html>
-      `,
+      template: 'confirmation',
+      context: {
+        user,
+        confirmationToken,
+        addressBase: this.configService.get<string>('CLIENT_URL'),
+      },
     });
   };
 }
