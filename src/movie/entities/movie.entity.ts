@@ -82,7 +82,7 @@ export class MovieEntity {
   accessMode: AccessModeEnum;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true, type: 'uuid' })
+  @Column({ nullable: true, type: 'int8' })
   @Expose({ name: 'cover_id' })
   @Index({ where: 'cover_id IS NOT NULL' })
   coverId?: number;
