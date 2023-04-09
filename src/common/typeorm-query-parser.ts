@@ -173,8 +173,9 @@ const applyFilterTreeLevel = <T>(
 export const applyFilter = <T>(
   qb: SelectQueryBuilder<T>,
   filter: FilterType<T>,
+  alias?: string,
 ) => {
-  applyFilterTreeLevel(qb, filter, 'and', qb.alias);
+  applyFilterTreeLevel(qb, filter, 'and', alias ?? qb.alias);
 };
 
 export const applyOffsetPagination = <T>(
@@ -339,7 +340,7 @@ export function applyArgs<T>(
     applyPagination(qb, pagination);
   }
   if (filter) {
-    applyFilter(qb, filter);
+    applyFilter(qb, filter, alias);
   }
 
   return qb;
