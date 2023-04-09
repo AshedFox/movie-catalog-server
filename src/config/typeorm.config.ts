@@ -8,9 +8,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-op
 export class TypeOrmConfig implements TypeOrmOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
-  createTypeOrmOptions(
-    connectionName?: string,
-  ): Promise<TypeOrmModuleOptions> | TypeOrmModuleOptions {
+  createTypeOrmOptions(): Promise<TypeOrmModuleOptions> | TypeOrmModuleOptions {
     return {
       type: 'postgres',
       url: this.configService.get('CONNECTION_STRING'),
