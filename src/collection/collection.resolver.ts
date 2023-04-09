@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -13,7 +12,6 @@ import { CollectionEntity } from './entities/collection.entity';
 import { CreateCollectionInput } from './dto/create-collection.input';
 import { UpdateCollectionInput } from './dto/update-collection.input';
 import { MediaEntity } from '../media/entities/media.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { PaginatedCollections } from './dto/paginated-collections';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { GetCollectionsArgs } from './dto/get-collections.args';
@@ -24,6 +22,10 @@ import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CollectionMovieEntity } from '../collection-movie/entities/collection-movie.entity';
+import { GetMoviesArgs } from '../movie/dto/get-movies.args';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => CollectionEntity)
 export class CollectionResolver {
@@ -92,18 +94,37 @@ export class CollectionResolver {
   @ResolveField(() => MediaEntity, { nullable: true })
   cover(
     @Parent() collection: CollectionEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return collection.coverId
-      ? loaders.mediaLoader.load(collection.coverId)
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(collection.coverId)
       : undefined;
   }
 
   @ResolveField(() => [MovieEntity])
   movies(
     @Parent() collection: CollectionEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+    @Args() { sort, filter, ...pagination }: GetMoviesArgs,
   ) {
-    return loaders.moviesByCollectionLoader.load(collection.id);
+    return loadersFactory
+      .createOrGetLoader(
+        CollectionMovieEntity,
+        'collectionId',
+        CollectionEntity,
+        'id',
+        'movie',
+        MovieEntity,
+      )
+      .load({
+        id: collection.id,
+        args: {
+          sort,
+          filter,
+        },
+        pagination,
+      });
   }
 }

@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -11,12 +10,13 @@ import { CollectionMovieEntity } from './entities/collection-movie.entity';
 import { CollectionMovieService } from './collection-movie.service';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { CollectionEntity } from '../collection/entities/collection.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 
 @Resolver(() => CollectionMovieEntity)
 export class CollectionMovieResolver {
@@ -47,16 +47,20 @@ export class CollectionMovieResolver {
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() collectionMovie: CollectionMovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(collectionMovie.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(collectionMovie.movieId);
   }
 
   @ResolveField(() => CollectionEntity)
   collection(
     @Parent() collectionMovie: CollectionMovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.collectionLoader.load(collectionMovie.collectionId);
+    return loadersFactory
+      .createOrGetLoader(CollectionEntity, 'id')
+      .load(collectionMovie.collectionId);
   }
 }

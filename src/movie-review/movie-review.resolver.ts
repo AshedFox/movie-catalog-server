@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -15,12 +14,13 @@ import { UpdateMovieReviewInput } from './dto/update-movie-review.input';
 import { GetMoviesReviewsArgs } from './dto/get-movies-reviews.args';
 import { PaginatedMoviesReviews } from './dto/paginated-movies-reviews';
 import { UserEntity } from '../user/entities/user.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MovieEntity } from '../movie/entities/movie.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => MovieReviewEntity)
 export class MovieReviewResolver {
@@ -44,7 +44,7 @@ export class MovieReviewResolver {
 
     const { first, last } = pagination;
 
-    let edges = data.map((node) => ({
+    const edges = data.map((node) => ({
       node,
       cursor: String(node.id),
     }));
@@ -87,16 +87,20 @@ export class MovieReviewResolver {
   @ResolveField(() => UserEntity)
   user(
     @Parent() review: MovieReviewEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.userLoader.load(review.userId);
+    return loadersFactory
+      .createOrGetLoader(UserEntity, 'id')
+      .load(review.userId);
   }
 
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() review: MovieReviewEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(review.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(review.movieId);
   }
 }

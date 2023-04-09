@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -15,13 +14,14 @@ import { SeasonEntity } from './entities/season.entity';
 import { PaginatedSeasons } from './dto/paginated-seasons';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { SeriesEntity } from '../series/entities/series.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { RoleEnum } from '@utils/enums';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(SeasonEntity)
 export class SeasonResolver {
@@ -105,16 +105,20 @@ export class SeasonResolver {
   @ResolveField(() => SeriesEntity)
   series(
     @Parent() season: SeasonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.seriesLoader.load(season.seriesId);
+    return loadersFactory
+      .createOrGetLoader(SeriesEntity, 'id')
+      .load(season.seriesId);
   }
 
   @ResolveField(() => [EpisodeEntity])
   episodes(
     @Parent() season: SeasonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.episodesBySeasonLoader.load(season.id);
+    return loadersFactory
+      .createOrGetLoader(EpisodeEntity, 'seasonId', SeasonEntity, 'id')
+      .load({ id: season.id });
   }
 }

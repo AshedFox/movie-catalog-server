@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -15,9 +14,10 @@ import { RoomVideoEntity } from './entities/room-video.entity';
 import { PaginatedRoomsVideos } from './dto/paginated-rooms-videos';
 import { GetRoomsVideosArgs } from './dto/get-rooms-videos.args';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { VideoEntity } from '../video/entities/video.entity';
 import { RoomEntity } from '../room/entities/room.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => RoomVideoEntity)
 export class RoomVideoResolver {
@@ -60,16 +60,20 @@ export class RoomVideoResolver {
   @ResolveField(() => RoomEntity)
   room(
     @Parent() roomVideo: RoomVideoEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.roomLoader.load(roomVideo.roomId);
+    return loadersFactory
+      .createOrGetLoader(RoomEntity, 'id')
+      .load(roomVideo.roomId);
   }
 
   @ResolveField(() => VideoEntity)
   video(
     @Parent() roomVideo: RoomVideoEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.videoLoader.load(roomVideo.videoId);
+    return loadersFactory
+      .createOrGetLoader(VideoEntity, 'id')
+      .load(roomVideo.videoId);
   }
 }

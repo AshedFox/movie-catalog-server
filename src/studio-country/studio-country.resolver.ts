@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -11,12 +10,13 @@ import { StudioCountryService } from './studio-country.service';
 import { StudioCountryEntity } from './entities/studio-country.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => StudioCountryEntity)
 export class StudioCountryResolver {
@@ -45,16 +45,20 @@ export class StudioCountryResolver {
   @ResolveField(() => StudioEntity)
   studio(
     @Parent() studioCountry: StudioCountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.studioLoader.load(studioCountry.studioId);
+    return loadersFactory
+      .createOrGetLoader(StudioEntity, 'id')
+      .load(studioCountry.studioId);
   }
 
   @ResolveField(() => CountryEntity)
   country(
     @Parent() studioCountry: StudioCountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.countryLoader.load(studioCountry.countryId);
+    return loadersFactory
+      .createOrGetLoader(CountryEntity, 'id')
+      .load(studioCountry.countryId);
   }
 }

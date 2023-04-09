@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -16,13 +15,14 @@ import { UseGuards } from '@nestjs/common';
 import { GetMoviesPersonsArgs } from './dto/get-movies-persons.args';
 import { PaginatedMoviesPersons } from './dto/paginated-movies-persons';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { PersonEntity } from '../person/entities/person.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { MoviePersonTypeEntity } from '../movie-person-type/entities/movie-person-type.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(MoviePersonEntity)
 export class MoviePersonResolver {
@@ -83,24 +83,30 @@ export class MoviePersonResolver {
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() moviePerson: MoviePersonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(moviePerson.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(moviePerson.movieId);
   }
 
   @ResolveField(() => PersonEntity)
   person(
     @Parent() moviePerson: MoviePersonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.personLoader.load(moviePerson.personId);
+    return loadersFactory
+      .createOrGetLoader(PersonEntity, 'id')
+      .load(moviePerson.personId);
   }
 
   @ResolveField(() => MoviePersonTypeEntity)
   type(
     @Parent() moviePerson: MoviePersonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.moviePersonTypeLoader.load(moviePerson.typeId);
+    return loadersFactory
+      .createOrGetLoader(MoviePersonTypeEntity, 'id')
+      .load(moviePerson.typeId);
   }
 }

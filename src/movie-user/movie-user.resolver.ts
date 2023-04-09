@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -13,7 +12,6 @@ import { CreateMovieUserInput } from './dto/create-movie-user.input';
 import { UpdateMovieUserInput } from './dto/update-movie-user.input';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GetMoviesUsersArgs } from './dto/get-movies-users.args';
 import { PaginatedMoviesUsers } from './dto/paginated-movies-users';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
@@ -23,6 +21,8 @@ import { RoleEnum } from '@utils/enums';
 import { UserEntity } from '../user/entities/user.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => MovieUserEntity)
 export class MovieUserResolver {
@@ -91,16 +91,20 @@ export class MovieUserResolver {
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() movieUser: MovieUserEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(movieUser.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(movieUser.movieId);
   }
 
   @ResolveField(() => UserEntity)
   user(
     @Parent() movieUser: MovieUserEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.userLoader.load(movieUser.userId);
+    return loadersFactory
+      .createOrGetLoader(UserEntity, 'id')
+      .load(movieUser.userId);
   }
 }

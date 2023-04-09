@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Query,
@@ -13,7 +12,6 @@ import { CreateSubtitlesInput } from './dto/create-subtitles.input';
 import { UpdateSubtitlesInput } from './dto/update-subtitles.input';
 import { SubtitlesEntity } from './entities/subtitles.entity';
 import { VideoEntity } from '../video/entities/video.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { LanguageEntity } from '../language/entities/language.entity';
 import { MediaEntity } from '../media/entities/media.entity';
 import { UseGuards } from '@nestjs/common';
@@ -21,6 +19,8 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => SubtitlesEntity)
 export class SubtitlesResolver {
@@ -61,24 +61,30 @@ export class SubtitlesResolver {
   @ResolveField(() => VideoEntity)
   video(
     @Root() subtitles: SubtitlesEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.videoLoader.load(subtitles.videoId);
+    return loadersFactory
+      .createOrGetLoader(VideoEntity, 'id')
+      .load(subtitles.videoId);
   }
 
   @ResolveField(() => LanguageEntity)
   language(
     @Root() subtitles: SubtitlesEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.languageLoader.load(subtitles.languageId);
+    return loadersFactory
+      .createOrGetLoader(LanguageEntity, 'id')
+      .load(subtitles.languageId);
   }
 
   @ResolveField(() => MediaEntity)
   file(
     @Root() subtitles: SubtitlesEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.mediaLoader.load(subtitles.fileId);
+    return loadersFactory
+      .createOrGetLoader(MediaEntity, 'id')
+      .load(subtitles.fileId);
   }
 }

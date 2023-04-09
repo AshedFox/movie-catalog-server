@@ -1,13 +1,6 @@
-import {
-  Context,
-  Float,
-  Parent,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Float, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { MovieEntity } from './entities/movie.entity';
 import { MediaEntity } from '../media/entities/media.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MoviePersonEntity } from '../movie-person/entities/movie-person.entity';
 import { GenreEntity } from '../genre/entities/genre.entity';
 import { StudioEntity } from '../studio/entities/studio.entity';
@@ -16,84 +9,127 @@ import { TrailerEntity } from '../trailer/entities/trailer.entity';
 import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { CollectionEntity } from '../collection/entities/collection.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { MovieGenreEntity } from '../movie-genre/entities/movie-genre.entity';
+import { MovieCountryEntity } from '../movie-country/entities/movie-country.entity';
+import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
+import { CollectionMovieEntity } from '../collection-movie/entities/collection-movie.entity';
 
 @Resolver(MovieEntity)
 export class MovieInterfaceResolver {
   @ResolveField(() => MediaEntity, { nullable: true })
   cover(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return movie.coverId ? loaders.mediaLoader.load(movie.coverId) : undefined;
+    return movie.coverId
+      ? loadersFactory.createOrGetLoader(MediaEntity, 'id').load(movie.coverId)
+      : undefined;
   }
 
   @ResolveField(() => [TrailerEntity])
   trailers(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.trailersByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(TrailerEntity, 'movieId', MovieEntity, 'id')
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [MovieReviewEntity])
   reviews(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieReviewsByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(MovieReviewEntity, 'movieId', MovieEntity, 'id')
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [MoviePersonEntity])
   moviePersons(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.moviePersonsByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(MoviePersonEntity, 'movieId', MovieEntity, 'id')
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [MovieImageEntity])
   movieImages(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieImagesByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(MovieImageEntity, 'movieId', MovieEntity, 'id')
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [GenreEntity])
   genres(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.genresByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(
+        MovieGenreEntity,
+        'movieId',
+        MovieEntity,
+        'id',
+        'genre',
+        GenreEntity,
+      )
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [CountryEntity])
   countries(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.countriesByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(
+        MovieCountryEntity,
+        'movieId',
+        MovieEntity,
+        'id',
+        'country',
+        CountryEntity,
+      )
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => [StudioEntity])
   studios(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.studiosByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(
+        MovieStudioEntity,
+        'movieId',
+        MovieEntity,
+        'id',
+        'studio',
+        StudioEntity,
+      )
+      .load({ id: movie.id });
   }
 
   @ResolveField(() => Float)
   async rating(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     if (!movie.reviews) {
-      movie.reviews = await loaders.movieReviewsByMovieLoader.load(movie.id);
+      movie.reviews = await this.reviews(movie, loadersFactory);
     }
     return movie.reviews.length > 0
-      ? movie.reviews.reduce((prev, curr) => {
-          return prev + curr.mark;
+      ? movie.reviews.reduce((totalMark, review) => {
+          return totalMark + review.mark;
         }, 0) / movie.reviews.length
       : 0;
   }
@@ -101,8 +137,17 @@ export class MovieInterfaceResolver {
   @ResolveField(() => [CollectionEntity])
   collections(
     @Parent() movie: MovieEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.collectionsByMovieLoader.load(movie.id);
+    return loadersFactory
+      .createOrGetLoader(
+        CollectionMovieEntity,
+        'movieId',
+        MovieEntity,
+        'id',
+        'collection',
+        CollectionEntity,
+      )
+      .load({ id: movie.id });
   }
 }

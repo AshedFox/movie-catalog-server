@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -18,9 +17,10 @@ import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { PaginatedVideos } from './dto/paginated-videos';
 import { GetVideosArgs } from './dto/get-videos.args';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { VideoVariantEntity } from '../video-variant/entities/video-variant.entity';
 import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -67,16 +67,20 @@ export class VideoResolver {
   @ResolveField(() => [VideoVariantEntity])
   variants(
     @Parent() video: VideoEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.videoVariantsByVideoLoader.load(video.id);
+    return loadersFactory
+      .createOrGetLoader(VideoVariantEntity, 'videoId', VideoEntity, 'id')
+      .load({ id: video.id });
   }
 
   @ResolveField(() => [SubtitlesEntity])
   subtitles(
     @Parent() video: VideoEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.subtitlesByVideoLoader.load(video.id);
+    return loadersFactory
+      .createOrGetLoader(SubtitlesEntity, 'videoId', VideoEntity, 'id')
+      .load({ id: video.id });
   }
 }

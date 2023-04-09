@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -20,7 +19,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../country/entities/country.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(PersonEntity)
 export class PersonResolver {
@@ -77,10 +77,12 @@ export class PersonResolver {
   @ResolveField(() => CountryEntity)
   country(
     @Parent() person: PersonEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return person.countryId
-      ? loaders.countryLoader.load(person.countryId)
+      ? loadersFactory
+          .createOrGetLoader(CountryEntity, 'id')
+          .load(person.countryId)
       : undefined;
   }
 }

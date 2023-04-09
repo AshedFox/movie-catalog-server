@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -16,13 +15,14 @@ import { GetEpisodesArgs } from './dto/get-episodes.args';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { SeasonEntity } from '../season/entities/season.entity';
 import { SeriesEntity } from '../series/entities/series.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { VideoEntity } from '../video/entities/video.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(EpisodeEntity)
 export class EpisodeResolver {
@@ -106,28 +106,34 @@ export class EpisodeResolver {
   @ResolveField(() => SeasonEntity)
   season(
     @Parent() episode: EpisodeEntity,
-    @Context('loader') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return episode.seasonId
-      ? loaders.seasonLoader.load(episode.seasonId)
+      ? loadersFactory
+          .createOrGetLoader(SeasonEntity, 'id')
+          .load(episode.seasonId)
       : undefined;
   }
 
   @ResolveField(() => SeriesEntity)
   series(
     @Parent() episode: EpisodeEntity,
-    @Context('loader') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.seriesLoader.load(episode.seriesId);
+    return loadersFactory
+      .createOrGetLoader(SeriesEntity, 'id')
+      .load(episode.seriesId);
   }
 
   @ResolveField(() => VideoEntity)
   video(
     @Parent() episode: EpisodeEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return episode.videoId
-      ? loaders.videoLoader.load(episode.videoId)
+      ? loadersFactory
+          .createOrGetLoader(VideoEntity, 'id')
+          .load(episode.videoId)
       : undefined;
   }
 }

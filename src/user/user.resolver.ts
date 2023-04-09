@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -17,7 +16,6 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from './dto/current-user.dto';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CountryEntity } from '../country/entities/country.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MediaEntity } from '../media/entities/media.entity';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { ActionEnum } from '@utils/enums/action.enum';
@@ -26,6 +24,8 @@ import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { FileUpload } from 'graphql-upload';
 import { MediaService } from '../media/media.service';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -101,20 +101,24 @@ export class UserResolver {
   @ResolveField(() => CountryEntity)
   country(
     @Parent() parent: UserEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return parent.countryId
-      ? loaders.countryLoader.load(parent.countryId)
+      ? loadersFactory
+          .createOrGetLoader(CountryEntity, 'id')
+          .load(parent.countryId)
       : undefined;
   }
 
   @ResolveField(() => MediaEntity)
   avatar(
     @Parent() parent: UserEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return parent.avatarId
-      ? loaders.mediaLoader.load(parent.avatarId)
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(parent.avatarId)
       : undefined;
   }
 }

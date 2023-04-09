@@ -15,7 +15,7 @@ import { MoviePersonModule } from './movie-person/movie-person.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
-import { DataLoaderService } from './dataloader/data-loader.service';
+import { DataLoaderFactory } from './dataloader/data-loader.factory';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -52,6 +52,8 @@ import { CaslModule } from './casl/casl.module';
 import { GraphQLConfig } from './config/graphql.config';
 import { TypeOrmConfig } from './config/typeorm.config';
 import { ThrottlerConfig } from './config/throttler.config';
+import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
+import path from 'path';
 
 @Module({
   imports: [
@@ -64,7 +66,7 @@ import { ThrottlerConfig } from './config/throttler.config';
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [DataLoaderModule],
-      inject: [DataLoaderService],
+      inject: [DataLoaderFactory],
       useClass: GraphQLConfig,
     }),
     ThrottlerModule.forRootAsync({

@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -15,16 +14,19 @@ import { GetCountriesArgs } from './dto/get-countries.args';
 import { PaginatedCountries } from './dto/paginated-countries';
 import { CurrencyEntity } from '../currency/entities/currency.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
-  constructor(private readonly countryService: CountryService) {}
+  constructor(
+    private readonly countryService: CountryService,
+    private readonly dataloaderFactory: DataLoaderFactory,
+  ) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
@@ -77,18 +79,16 @@ export class CountryResolver {
   }
 
   @ResolveField(() => CurrencyEntity)
-  currency(
-    @Parent() country: CountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.currencyLoader.load(country.currencyId);
+  currency(@Parent() country: CountryEntity) {
+    return this.dataloaderFactory
+      .createOrGetLoader(CurrencyEntity, 'id')
+      .load(country.currencyId);
   }
 
   @ResolveField(() => LanguageEntity)
-  language(
-    @Parent() country: CountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
-  ) {
-    return loaders.languageLoader.load(country.languageId);
+  language(@Parent() country: CountryEntity) {
+    return this.dataloaderFactory
+      .createOrGetLoader(LanguageEntity, 'id')
+      .load(country.languageId);
   }
 }

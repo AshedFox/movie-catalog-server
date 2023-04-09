@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   ResolveField,
@@ -9,13 +8,14 @@ import {
 import { MovieCountryService } from './movie-country.service';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MovieCountryEntity } from './entities/movie-country.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 
 @Resolver(() => MovieCountryEntity)
 export class MovieCountryResolver {
@@ -44,16 +44,20 @@ export class MovieCountryResolver {
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() movieCountry: MovieCountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(movieCountry.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(movieCountry.movieId);
   }
 
   @ResolveField(() => CountryEntity)
   country(
     @Parent() movieCountry: MovieCountryEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.countryLoader.load(movieCountry.countryId);
+    return loadersFactory
+      .createOrGetLoader(CountryEntity, 'id')
+      .load(movieCountry.countryId);
   }
 }

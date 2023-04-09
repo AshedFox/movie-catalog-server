@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -14,7 +13,6 @@ import { RoomEntity } from './entities/room.entity';
 import { PaginatedRooms } from './dto/paginated-rooms';
 import { GetRoomsArgs } from './dto/get-rooms.args';
 import { ForbiddenException, ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { UserEntity } from '../user/entities/user.entity';
 import { VideoEntity } from '../video/entities/video.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -22,6 +20,10 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { ActionEnum } from '@utils/enums/action.enum';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { RoomParticipantEntity } from '../room-participant/entities/room-participant.entity';
+import { RoomVideoEntity } from '../room-video/entities/room-video.entity';
 
 @Resolver(() => RoomEntity)
 export class RoomResolver {
@@ -151,21 +153,44 @@ export class RoomResolver {
   @ResolveField(() => [UserEntity])
   participants(
     @Parent() room: RoomEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.usersByRoomLoader.load(room.id);
+    return loadersFactory
+      .createOrGetLoader(
+        RoomParticipantEntity,
+        'roomId',
+        RoomEntity,
+        'id',
+        'user',
+        UserEntity,
+      )
+      .load({ id: room.id });
   }
 
   @ResolveField(() => VideoEntity, { nullable: true })
   videos(
     @Parent() room: RoomEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.videosByRoomLoader.load(room.id);
+    return loadersFactory
+      .createOrGetLoader(
+        RoomVideoEntity,
+        'roomId',
+        RoomEntity,
+        'id',
+        'video',
+        VideoEntity,
+      )
+      .load({ id: room.id });
   }
 
   @ResolveField(() => UserEntity)
-  owner(@Parent() room: RoomEntity, @Context('loaders') loaders: IDataLoaders) {
-    return room.ownerId ? loaders.userLoader.load(room.ownerId) : null;
+  owner(
+    @Parent() room: RoomEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return room.ownerId
+      ? loadersFactory.createOrGetLoader(UserEntity, 'id').load(room.ownerId)
+      : null;
   }
 }

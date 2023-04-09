@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Parent,
@@ -20,7 +19,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../country/entities/country.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { StudioCountryEntity } from '../studio-country/entities/studio-country.entity';
 
 @Resolver(StudioEntity)
 export class StudioResolver {
@@ -77,8 +78,17 @@ export class StudioResolver {
   @ResolveField(() => [CountryEntity])
   countries(
     @Parent() studio: StudioEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.countriesByStudioLoader.load(studio.id);
+    return loadersFactory
+      .createOrGetLoader(
+        StudioCountryEntity,
+        'studioId',
+        StudioEntity,
+        'id',
+        'country',
+        CountryEntity,
+      )
+      .load({ id: studio.id });
   }
 }

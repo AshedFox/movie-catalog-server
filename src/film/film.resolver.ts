@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -18,12 +17,13 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { VideoEntity } from '../video/entities/video.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MediaService } from '../media/media.service';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(FilmEntity)
 export class FilmResolver extends MovieInterfaceResolver {
@@ -132,7 +132,12 @@ export class FilmResolver extends MovieInterfaceResolver {
   }
 
   @ResolveField(() => VideoEntity, { nullable: true })
-  video(@Parent() film: FilmEntity, @Context('loaders') loaders: IDataLoaders) {
-    return film.videoId ? loaders.videoLoader.load(film.videoId) : undefined;
+  video(
+    @Parent() film: FilmEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return film.videoId
+      ? loadersFactory.createOrGetLoader(VideoEntity, 'id').load(film.videoId)
+      : undefined;
   }
 }

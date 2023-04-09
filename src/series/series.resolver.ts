@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -18,13 +17,14 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { SeasonEntity } from '../season/entities/season.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MediaService } from '../media/media.service';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(SeriesEntity)
 export class SeriesResolver extends MovieInterfaceResolver {
@@ -134,16 +134,20 @@ export class SeriesResolver extends MovieInterfaceResolver {
   @ResolveField(() => [SeasonEntity])
   seasons(
     @Parent() series: SeriesEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.seasonsBySeriesLoader.load(series.id);
+    return loadersFactory
+      .createOrGetLoader(SeasonEntity, 'seriesId', SeriesEntity, 'id')
+      .load({ id: series.id });
   }
 
   @ResolveField(() => [EpisodeEntity])
   episodes(
     @Parent() series: SeriesEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.episodesBySeriesLoader.load(series.id);
+    return loadersFactory
+      .createOrGetLoader(EpisodeEntity, 'seriesId', SeriesEntity, 'id')
+      .load({ id: series.id });
   }
 }

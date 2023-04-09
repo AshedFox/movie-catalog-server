@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Int,
   Mutation,
   Query,
@@ -17,10 +16,11 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { VideoEntity } from '../video/entities/video.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { MediaEntity } from '../media/entities/media.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
 import { UpdateVideoVariantInput } from './dto/update-video-variant.input';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => VideoVariantEntity)
 export class VideoVariantResolver {
@@ -63,24 +63,30 @@ export class VideoVariantResolver {
   @ResolveField(() => VideoEntity)
   video(
     @Root() videoVariant: VideoVariantEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.videoLoader.load(videoVariant.videoId);
+    return loadersFactory
+      .createOrGetLoader(VideoEntity, 'id')
+      .load(videoVariant.videoId);
   }
 
   @ResolveField(() => MediaEntity)
   file(
     @Root() videoVariant: VideoVariantEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.mediaLoader.load(videoVariant.fileId);
+    return loadersFactory
+      .createOrGetLoader(MediaEntity, 'id')
+      .load(videoVariant.fileId);
   }
 
   @ResolveField(() => LanguageEntity)
   language(
     @Root() videoVariant: VideoVariantEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.languageLoader.load(videoVariant.languageId);
+    return loadersFactory
+      .createOrGetLoader(LanguageEntity, 'id')
+      .load(videoVariant.languageId);
   }
 }

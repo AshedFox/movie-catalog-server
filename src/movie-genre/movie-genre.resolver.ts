@@ -1,6 +1,5 @@
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   ResolveField,
@@ -10,12 +9,13 @@ import { MovieGenreService } from './movie-genre.service';
 import { MovieGenreEntity } from './entities/movie-genre.entity';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { IDataLoaders } from '../dataloader/idataloaders.interface';
 import { GenreEntity } from '../genre/entities/genre.entity';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => MovieGenreEntity)
 export class MovieGenreResolver {
@@ -44,16 +44,20 @@ export class MovieGenreResolver {
   @ResolveField(() => MovieEntity)
   movie(
     @Parent() movieGenre: MovieGenreEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.movieLoader.load(movieGenre.movieId);
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(movieGenre.movieId);
   }
 
   @ResolveField(() => GenreEntity)
   genre(
     @Parent() movieGenre: MovieGenreEntity,
-    @Context('loaders') loaders: IDataLoaders,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loaders.genreLoader.load(movieGenre.genreId);
+    return loadersFactory
+      .createOrGetLoader(GenreEntity, 'id')
+      .load(movieGenre.genreId);
   }
 }
