@@ -29,7 +29,16 @@ import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { CollectionEntity } from '../../collection/entities/collection.entity';
 
-@InterfaceType('Movie')
+@InterfaceType('Movie', {
+  resolveType(value) {
+    if (value.type === MovieTypeEnum.Film) {
+      return 'Film';
+    } else if (value.type === MovieTypeEnum.Series) {
+      return 'Series';
+    }
+    return null;
+  },
+})
 @Entity('movies')
 @TableInheritance({
   column: { type: 'enum', enum: MovieTypeEnum, enumName: 'movie_type_enum' },
