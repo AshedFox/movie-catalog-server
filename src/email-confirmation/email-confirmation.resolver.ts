@@ -3,7 +3,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
-import { EmailConfirmationService } from './services/email-confirmation.service';
+import { EmailConfirmationService } from './email-confirmation.service';
 
 @Resolver()
 export class EmailConfirmationResolver {

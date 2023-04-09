@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { MailingService } from '../../mailing/services/mailing.service';
-import { UserService } from '../../user/user.service';
+import { MailingService } from '../mailing/services/mailing.service';
+import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundError } from '@utils/errors';
