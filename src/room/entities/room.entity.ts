@@ -20,10 +20,6 @@ export class RoomEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @FilterableField({ nullable: true })
-  @Column({ unique: true, nullable: true, length: 255 })
-  inviteKey?: string;
-
   @FilterableField()
   @Column({ length: 255 })
   @Index()

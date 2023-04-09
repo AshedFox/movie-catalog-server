@@ -123,6 +123,31 @@ export class RoomResolver {
     return this.roomService.delete(id);
   }
 
+  @Mutation(() => String)
+  @UseGuards(GqlJwtAuthGuard)
+  async makeInviteForRoom(
+    @Args('id', ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    const room = await this.roomService.readOne(id);
+    const ability = this.caslAbilityFactory.createForUser(currentUser);
+
+    if (ability.cannot(ActionEnum.UPDATE, room)) {
+      throw new ForbiddenException();
+    }
+
+    return this.roomService.makeInviteToken(room);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  async joinRoomWithInvite(
+    @Args('inviteToken') inviteToken: string,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    return this.roomService.joinWithInvite(inviteToken, currentUser.id);
+  }
+
   @ResolveField(() => [UserEntity])
   participants(
     @Parent() room: RoomEntity,
