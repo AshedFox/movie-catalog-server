@@ -29,7 +29,8 @@ export class GraphQLConfig implements GqlOptionsFactory {
         loadersFactory: new DataLoaderFactory(this.entityManager),
       }),
       introspection: true,
-      autoSchemaFile: 'src/schema.graphql',
+      autoSchemaFile: join(process.cwd(), 'src/schema.graphql'),
+      sortSchema: true,
       buildSchemaOptions: {
         directives: [
           new GraphQLDirective({
