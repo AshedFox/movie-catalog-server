@@ -4,16 +4,20 @@ import { ConfigService } from '@nestjs/config';
 import { DirectiveLocation, GraphQLDirective } from 'graphql/index';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { ApolloDriverConfig } from '@nestjs/apollo';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { EntityManager } from 'typeorm';
 import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default';
+import { join } from 'path';
 
 @Injectable()
 export class GraphQLConfig implements GqlOptionsFactory {
   constructor(
     private readonly configService: ConfigService,
-    private readonly dataLoaderFactory: DataLoaderFactory,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) {}
 
   createGqlOptions():
@@ -22,7 +26,7 @@ export class GraphQLConfig implements GqlOptionsFactory {
     return {
       context: (ctx) => ({
         ...ctx,
-        loadersFactory: this.dataLoaderFactory,
+        loadersFactory: new DataLoaderFactory(this.entityManager),
       }),
       introspection: true,
       autoSchemaFile: 'src/schema.graphql',
