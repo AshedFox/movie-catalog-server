@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { RoomResolver } from './room.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,7 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [
     TypeOrmModule.forFeature([RoomEntity]),
     CaslModule,
-    RoomParticipantModule,
+    forwardRef(() => RoomParticipantModule),
     JwtModule,
   ],
   providers: [RoomResolver, RoomService],

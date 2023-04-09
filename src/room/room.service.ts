@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
 import { RoomEntity } from './entities/room.entity';
@@ -20,6 +25,7 @@ export class RoomService extends BaseService<
     private readonly roomRepository: Repository<RoomEntity>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RoomParticipantService))
     private readonly roomParticipantService: RoomParticipantService,
   ) {
     super(roomRepository);
