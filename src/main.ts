@@ -10,7 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  app.use(helmet());
+  if (config.get<string>('NODE_ENV') === 'production') {
+    app.use(helmet());
+  }
   app.enableCors({
     credentials: true,
     origin: config.get<string>('CLIENT_URL'),
