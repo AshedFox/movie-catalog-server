@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { MovieEntity } from './entities/movie.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PaginatedMovies } from './dto/paginated-movies';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NotFoundError } from '@utils/errors';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
-import { plainToInstance } from 'class-transformer';
 import { OffsetPaginationArgsType } from '@common/pagination/offset';
+import { MovieVisitStatsLastMonthView } from '../movie-visit-stats/entities/movie-visit-stats-last-month.view';
 
 @Injectable()
 export class MovieService {
@@ -38,24 +38,28 @@ export class MovieService {
     };
   };
 
-  readManyMostPopular = async (
+  readManyMostViewed = async (
     pagination: OffsetPaginationArgsType,
   ): Promise<MovieEntity[]> => {
-    const queryText = `
-      SELECT * FROM public.get_most_popular_movies()
-      LIMIT $1 OFFSET $2
-    `;
-
-    const data = (await this.movieRepository.query(queryText, [
-      pagination.limit,
-      pagination.offset,
-    ])) as MovieEntity[];
-
-    return plainToInstance(MovieEntity, data);
-  };
-
-  readManyByIds = async (ids: string[]): Promise<MovieEntity[]> => {
-    return this.movieRepository.findBy({ id: In(ids) });
+    return this.movieRepository
+      .createQueryBuilder('m')
+      .select()
+      .leftJoin(
+        (qb) => {
+          return qb
+            .select(
+              '"mv"."movie_id" as movie_id, count("mv"."movie_id") as visits_count',
+            )
+            .from(MovieVisitStatsLastMonthView, 'mv')
+            .groupBy('"mv"."movie_id"');
+        },
+        'mvs',
+        '"mvs"."movie_id"="m"."id"',
+      )
+      .orderBy('"mvs"."visits_count"', 'DESC', 'NULLS LAST')
+      .limit(pagination.limit)
+      .offset(pagination.offset)
+      .getMany();
   };
 
   readManyRandom = async (
