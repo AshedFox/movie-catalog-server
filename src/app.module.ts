@@ -19,7 +19,7 @@ import { DataLoaderFactory } from './dataloader/data-loader.factory';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { GqlThrottlerGuard } from '@utils/gql-throttler.guard';
+import { CustomThrottlerGuard } from '@utils/custom-throttler.guard';
 import { ErrorInterceptor } from '@utils/error.interceptor';
 import { MediaModule } from './media/media.module';
 import { CountryModule } from './country/country.module';
@@ -53,7 +53,12 @@ import { GraphQLConfig } from './config/graphql.config';
 import { TypeOrmConfig } from './config/typeorm.config';
 import { ThrottlerConfig } from './config/throttler.config';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
+import { VideoAudioModule } from './video-audio/video-audio.module';
 import path from 'path';
+import { PurchaseModule } from './purchase/purchase.module';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { PriceModule } from './price/price.module';
+import { ProductPriceModule } from './product-price/product-price.module';
 
 @Module({
   imports: [
@@ -115,7 +120,7 @@ import path from 'path';
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
-    { provide: APP_GUARD, useClass: GqlThrottlerGuard },
+    { provide: APP_GUARD, useClass: CustomThrottlerGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
     {
       provide: 'CLOUDINARY',
