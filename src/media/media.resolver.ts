@@ -1,14 +1,15 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MediaService } from './media.service';
 import { MediaEntity } from './entities/media.entity';
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { GetMediaArgs } from './dto/get-media.args';
 import { PaginatedMedia } from './dto/paginated-media';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
-import { CreateMediaInput } from './dto/create-media.input';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
+import { FileUpload } from 'graphql-upload';
 
 @UseGuards(GqlJwtAuthGuard, RolesGuard)
 @Role([RoleEnum.Admin, RoleEnum.Moderator])
@@ -17,8 +18,10 @@ export class MediaResolver {
   constructor(private readonly mediaService: MediaService) {}
 
   @Mutation(() => MediaEntity)
-  uploadMedia(@Args('input') input: CreateMediaInput) {
-    return this.mediaService.create(input);
+  async uploadImage(
+    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
+  ) {
+    return this.mediaService.uploadImage((await file).createReadStream());
   }
 
   @Query(() => PaginatedMedia)

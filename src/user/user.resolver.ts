@@ -23,7 +23,6 @@ import { plainToClass } from 'class-transformer';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { FileUpload } from 'graphql-upload';
 import { MediaService } from '../media/media.service';
-import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
@@ -73,10 +72,9 @@ export class UserResolver {
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
     @CurrentUser() currentUser: CurrentUserDto,
   ) {
-    const media = await this.mediaService.create({
-      type: MediaTypeEnum.IMAGE,
-      file,
-    });
+    const media = await this.mediaService.uploadImage(
+      (await file).createReadStream(),
+    );
 
     return this.userService.update(currentUser.id, {
       avatarId: media.id,
