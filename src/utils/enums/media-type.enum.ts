@@ -1,9 +1,9 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum MediaTypeEnum {
-  VIDEO = 'video',
-  IMAGE = 'image',
-  SUBTITLES = 'subtitles',
+  VIDEO = 'VIDEO',
+  IMAGE = 'IMAGE',
+  RAW = 'RAW',
 }
 
 registerEnumType(MediaTypeEnum, {
