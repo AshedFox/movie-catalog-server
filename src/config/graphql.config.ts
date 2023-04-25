@@ -24,10 +24,25 @@ export class GraphQLConfig implements GqlOptionsFactory {
     | Promise<Omit<ApolloDriverConfig, 'driver'>>
     | Omit<ApolloDriverConfig, 'driver'> {
     return {
-      context: (ctx) => ({
-        ...ctx,
-        loadersFactory: new DataLoaderFactory(this.entityManager),
-      }),
+      context: (ctx) => {
+        if (ctx?.extra?.request) {
+          return {
+            ...ctx,
+            req: {
+              ...ctx?.extra?.request,
+              headers: {
+                ...ctx?.extra?.request?.headers,
+                ...ctx?.connectionParams,
+              },
+            },
+            loadersFactory: new DataLoaderFactory(this.entityManager),
+          };
+        }
+        return {
+          ...ctx,
+          loadersFactory: new DataLoaderFactory(this.entityManager),
+        };
+      },
       introspection: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.graphql'),
       sortSchema: true,
@@ -38,6 +53,9 @@ export class GraphQLConfig implements GqlOptionsFactory {
             locations: [DirectiveLocation.FIELD_DEFINITION],
           }),
         ],
+      },
+      subscriptions: {
+        'graphql-ws': true,
       },
       playground: false,
       plugins: [
