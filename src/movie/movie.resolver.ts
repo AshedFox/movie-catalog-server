@@ -39,6 +39,11 @@ export class MovieResolver extends MovieInterfaceResolver {
     return this.movieService.readManyMostPopular(pagination);
   }
 
+  @Query(() => [MovieEntity])
+  getRandomMovies(@Args() pagination: OffsetPaginationArgs) {
+    return this.movieService.readManyRandom(pagination);
+  }
+
   @Query(() => MovieEntity)
   getMovie(@Args('id', ParseUUIDPipe) id: string) {
     return this.movieService.readOne(id);

@@ -58,6 +58,17 @@ export class MovieService {
     return this.movieRepository.findBy({ id: In(ids) });
   };
 
+  readManyRandom = async (
+    pagination?: OffsetPaginationArgsType,
+  ): Promise<MovieEntity[]> => {
+    return this.movieRepository
+      .createQueryBuilder('m')
+      .select()
+      .orderBy('random()')
+      .limit(pagination.limit)
+      .getMany();
+  };
+
   readOne = async (id: string): Promise<MovieEntity> => {
     const movie = await this.movieRepository.findOneBy({ id });
     if (!movie) {
