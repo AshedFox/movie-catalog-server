@@ -3,10 +3,9 @@ import { FilmResolver } from './film.resolver';
 import { FilmService } from './film.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilmEntity } from './entities/film.entity';
-import { MediaModule } from '../media/media.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FilmEntity]), MediaModule],
+  imports: [TypeOrmModule.forFeature([FilmEntity])],
   providers: [FilmResolver, FilmService],
   exports: [FilmService],
 })

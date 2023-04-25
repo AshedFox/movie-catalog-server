@@ -4,12 +4,11 @@ import {
   IsArray,
   IsEnum,
   IsOptional,
+  IsUUID,
   Length,
 } from 'class-validator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
-import { FileUpload } from 'graphql-upload';
 
 @InputType()
 export class CreateMovieInput {

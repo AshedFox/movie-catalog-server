@@ -20,18 +20,13 @@ import { RoleEnum } from '@utils/enums';
 import { SeasonEntity } from '../season/entities/season.entity';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { MediaService } from '../media/media.service';
-import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(SeriesEntity)
 export class SeriesResolver extends MovieInterfaceResolver {
-  constructor(
-    private readonly seriesService: SeriesService,
-    private readonly mediaService: MediaService,
-  ) {
+  constructor(private readonly seriesService: SeriesService) {
     super();
   }
 
@@ -39,16 +34,6 @@ export class SeriesResolver extends MovieInterfaceResolver {
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => SeriesEntity)
   async createSeries(@Args('input') input: CreateSeriesInput) {
-    if (input.cover) {
-      const media = await this.mediaService.create({
-        file: input.cover,
-        type: MediaTypeEnum.IMAGE,
-      });
-
-      input.coverId = media.id;
-      input.cover = undefined;
-    }
-
     return this.seriesService.create(input);
   }
 
@@ -111,16 +96,6 @@ export class SeriesResolver extends MovieInterfaceResolver {
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateSeriesInput,
   ) {
-    if (input.cover) {
-      const media = await this.mediaService.create({
-        file: input.cover,
-        type: MediaTypeEnum.IMAGE,
-      });
-
-      input.coverId = media.id;
-      input.cover = undefined;
-    }
-
     return this.seriesService.update(id, input);
   }
 

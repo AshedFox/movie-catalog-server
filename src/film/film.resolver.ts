@@ -19,18 +19,13 @@ import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { VideoEntity } from '../video/entities/video.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { MediaService } from '../media/media.service';
-import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(FilmEntity)
 export class FilmResolver extends MovieInterfaceResolver {
-  constructor(
-    private readonly filmService: FilmService,
-    private readonly mediaService: MediaService,
-  ) {
+  constructor(private readonly filmService: FilmService) {
     super();
   }
 
@@ -38,16 +33,6 @@ export class FilmResolver extends MovieInterfaceResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async createFilm(@Args('input') input: CreateFilmInput) {
-    if (input.cover) {
-      const media = await this.mediaService.create({
-        file: input.cover,
-        type: MediaTypeEnum.IMAGE,
-      });
-
-      input.coverId = media.id;
-      input.cover = undefined;
-    }
-
     return this.filmService.create(input);
   }
 
@@ -111,16 +96,6 @@ export class FilmResolver extends MovieInterfaceResolver {
     @Args('id', ParseUUIDPipe) id: string,
     @Args('input') input: UpdateFilmInput,
   ) {
-    if (input.cover) {
-      const media = await this.mediaService.create({
-        file: input.cover,
-        type: MediaTypeEnum.IMAGE,
-      });
-
-      input.coverId = media.id;
-      input.cover = undefined;
-    }
-
     return this.filmService.update(id, input);
   }
 
