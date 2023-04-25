@@ -1,10 +1,22 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { TrailerService } from './trailer.service';
 import { TrailerEntity } from './entities/trailer.entity';
 import { CreateTrailerInput } from './dto/create-trailer.input';
 import { UpdateTrailerInput } from './dto/update-trailer.input';
 import { GetTrailersArgs } from './dto/get-trailers.args';
 import { PaginatedTrailers } from './dto/paginated-trailers';
+import { MovieEntity } from '../movie/entities/movie.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { VideoEntity } from '../video/entities/video.entity';
 
 @Resolver(() => TrailerEntity)
 export class TrailerResolver {
@@ -50,5 +62,25 @@ export class TrailerResolver {
   @Mutation(() => TrailerEntity)
   deleteTrailer(@Args('id', { type: () => Int }) id: number) {
     return this.trailerService.delete(id);
+  }
+
+  @ResolveField(() => MovieEntity)
+  movie(
+    @Parent() trailer: TrailerEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(MovieEntity, 'id')
+      .load(trailer.movieId);
+  }
+
+  @ResolveField(() => VideoEntity)
+  video(
+    @Parent() trailer: TrailerEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(VideoEntity, 'id')
+      .load(trailer.videoId);
   }
 }
