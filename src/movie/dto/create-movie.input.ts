@@ -1,4 +1,4 @@
-import { Field, HideField, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import {
   ArrayNotEmpty,
   IsArray,
