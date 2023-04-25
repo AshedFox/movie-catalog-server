@@ -28,9 +28,9 @@ export class SubtitlesEntity {
   @ManyToOne(() => LanguageEntity)
   language: LanguageEntity;
 
-  @Field(() => Int)
-  @Column({ type: 'int8' })
-  fileId: number;
+  @Field()
+  @Column({ type: 'uuid' })
+  fileId: string;
 
   @Field(() => MediaEntity)
   @ManyToOne(() => MediaEntity)
