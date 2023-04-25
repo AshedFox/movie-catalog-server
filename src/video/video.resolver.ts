@@ -74,6 +74,16 @@ export class VideoResolver {
       .load({ id: video.id });
   }
 
+  @ResolveField(() => [VideoAudioEntity])
+  audios(
+    @Parent() video: VideoEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(VideoAudioEntity, 'videoId', VideoEntity, 'id')
+      .load({ id: video.id });
+  }
+
   @ResolveField(() => [SubtitlesEntity])
   subtitles(
     @Parent() video: VideoEntity,

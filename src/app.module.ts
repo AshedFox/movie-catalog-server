@@ -117,6 +117,7 @@ import { ProductPriceModule } from './product-price/product-price.module';
     VideoVariantModule,
     SubtitlesModule,
     CaslModule,
+    VideoAudioModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },

@@ -15,6 +15,10 @@ export class VideoEntity {
   @OneToMany(() => VideoVariantEntity, (videoVariant) => videoVariant.videoId)
   variants: VideoVariantEntity[];
 
+  @Field(() => [VideoAudioEntity])
+  @OneToMany(() => VideoAudioEntity, (videoAudio) => videoAudio.video)
+  audios: VideoAudioEntity[];
+
   @Field(() => [SubtitlesEntity])
   @OneToMany(() => SubtitlesEntity, (subtitles) => subtitles.videoId)
   subtitles: SubtitlesEntity[];
