@@ -4,7 +4,7 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { UserEntity } from './entities/user.entity';
 import { PaginatedUsers } from './dto/paginated-users';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
@@ -51,9 +51,6 @@ export class UserService {
       },
     };
   };
-
-  readManyByIds = async (ids: string[]): Promise<UserEntity[]> =>
-    await this.userRepository.findBy({ id: In(ids) });
 
   readOneById = async (id: string): Promise<UserEntity> => {
     const user = await this.userRepository.findOneBy({ id });
