@@ -17,7 +17,7 @@ export class MovieVisitStatsLastMonthService {
 
   updateView = async () => {
     await this.movieVisitStatsLastMonthRepository.query(
-      'REFRESH MATERIALIZED VIEW "movie_visit_stats_last_month"',
+      'REFRESH MATERIALIZED VIEW "movies_visits_stats_last_month"',
     );
     return true;
   };
