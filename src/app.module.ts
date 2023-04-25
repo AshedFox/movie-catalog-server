@@ -1,5 +1,5 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -26,7 +26,6 @@ import { CountryModule } from './country/country.module';
 import { StudioCountryModule } from './studio-country/studio-country.module';
 import { MovieGenreModule } from './movie-genre/movie-genre.module';
 import { MovieStudioModule } from './movie-studio/movie-studio.module';
-import { v2 } from 'cloudinary';
 import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
 import { TrailerModule } from './trailer/trailer.module';
@@ -58,6 +57,7 @@ import { PurchaseModule } from './purchase/purchase.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PriceModule } from './price/price.module';
 import { ProductPriceModule } from './product-price/product-price.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -121,16 +121,6 @@ import { ProductPriceModule } from './product-price/product-price.module';
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
     { provide: APP_GUARD, useClass: CustomThrottlerGuard },
     { provide: APP_PIPE, useClass: ValidationPipe },
-    {
-      provide: 'CLOUDINARY',
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        v2.config({
-          api_key: configService.get('CLOUD_API_KEY'),
-          api_secret: configService.get('CLOUD_API_SECRET'),
-          cloud_name: configService.get('CLOUD_NAME'),
-        }),
-    },
   ],
 })
 export class AppModule {}
