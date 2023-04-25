@@ -24,10 +24,10 @@ export class MovieUserEntity {
   movie: MovieEntity;
 
   @FilterableField()
-  @Column()
+  @Column({ default: false })
   isWatched: boolean;
 
   @FilterableField()
-  @Column()
+  @Column({ default: false })
   isBookmarked: boolean;
 }
