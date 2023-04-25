@@ -46,9 +46,9 @@ export class CollectionEntity {
   updatedAt: Date;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true, type: 'int8' })
+  @Column({ nullable: true, type: 'uuid' })
   @Index({ where: 'cover_id IS NOT NULL' })
-  coverId?: number;
+  coverId?: string;
 
   @Field(() => MediaEntity, { nullable: true })
   @ManyToOne(() => MediaEntity, {

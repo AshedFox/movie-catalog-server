@@ -27,12 +27,12 @@ export class MediaResolver {
   }
 
   @Query(() => MediaEntity)
-  getOneMedia(@Args('id') id: number) {
+  getOneMedia(@Args('id', ParseUUIDPipe) id: string) {
     return this.mediaService.readOne(id);
   }
 
   @Mutation(() => MediaEntity)
-  deleteMedia(@Args('id') id: number) {
+  deleteMedia(@Args('id', ParseUUIDPipe) id: string) {
     return this.mediaService.delete(id);
   }
 }

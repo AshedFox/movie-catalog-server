@@ -93,10 +93,10 @@ export class MovieEntity {
   accessMode: AccessModeEnum;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true, type: 'int8' })
+  @Column({ nullable: true, type: 'uuid' })
   @Expose({ name: 'cover_id' })
   @Index({ where: 'cover_id IS NOT NULL' })
-  coverId?: number;
+  coverId?: string;
 
   @FilterableRelation(() => MediaEntity, { nullable: true })
   @ManyToOne(() => MediaEntity, {

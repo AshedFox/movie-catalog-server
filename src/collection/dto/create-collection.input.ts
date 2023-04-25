@@ -1,6 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { CollectionEntity } from '../entities/collection.entity';
-import { ArrayNotEmpty, IsArray, IsOptional, Length } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsOptional,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 @InputType()
 export class CreateCollectionInput implements Partial<CollectionEntity> {
@@ -19,7 +25,8 @@ export class CreateCollectionInput implements Partial<CollectionEntity> {
 
   @Field({ nullable: true })
   @IsOptional()
-  coverId?: number;
+  @IsUUID()
+  coverId?: string;
 
   @Field(() => [String], { nullable: true })
   @IsOptional()

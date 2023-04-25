@@ -9,7 +9,8 @@ export class CreateMovieImageInput implements Partial<MovieImageEntity> {
   movieId: string;
 
   @Field()
-  imageId: number;
+  @IsUUID()
+  imageId: string;
 
   @Field()
   typeId: number;

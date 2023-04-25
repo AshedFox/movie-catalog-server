@@ -32,9 +32,9 @@ export class MovieImageEntity {
   type?: MovieImageTypeEntity;
 
   @FilterableField(() => ID)
-  @Column({ type: 'int8' })
+  @Column({ type: 'uuid' })
   @Index()
-  imageId: number;
+  imageId: string;
 
   @FilterableField(() => ID)
   @Column({ type: 'uuid' })

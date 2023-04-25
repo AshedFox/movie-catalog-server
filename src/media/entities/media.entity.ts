@@ -7,12 +7,8 @@ import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 @Entity('media')
 export class MediaEntity {
   @FilterableField(() => ID)
-  @PrimaryGeneratedColumn({ type: 'int8' })
-  id: number;
-
-  @FilterableField()
-  @Column({ unique: true, length: 255 })
-  publicId: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @FilterableField(() => MediaTypeEnum)
   @Column({ type: 'enum', enum: MediaTypeEnum, enumName: 'media_type_enum' })

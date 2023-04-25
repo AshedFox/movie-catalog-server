@@ -71,9 +71,9 @@ export class UserEntity {
   country?: CountryEntity;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'uuid' })
   @Index({ where: 'avatar_id IS NOT NULL' })
-  avatarId?: number;
+  avatarId?: string;
 
   @Field(() => MediaEntity, { nullable: true })
   @ManyToOne(() => MediaEntity, {

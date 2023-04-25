@@ -31,12 +31,10 @@ export class CreateMovieInput {
   @IsEnum(AccessModeEnum)
   accessMode: AccessModeEnum;
 
-  @HideField()
-  coverId: number;
-
-  @Field(() => GraphQLUpload, { nullable: true })
+  @Field({ nullable: true })
+  @IsUUID()
   @IsOptional()
-  cover?: FileUpload;
+  coverId?: string;
 
   @Field({ nullable: true })
   @IsOptional()

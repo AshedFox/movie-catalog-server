@@ -20,5 +20,6 @@ export class UpdateUserInput implements Partial<UserEntity> {
 
   @Field({ nullable: true })
   @IsOptional()
-  avatarId?: number;
+  @IsUUID()
+  avatarId?: string;
 }
