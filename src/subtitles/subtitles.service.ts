@@ -4,7 +4,7 @@ import { UpdateSubtitlesInput } from './dto/update-subtitles.input';
 import { BaseService } from '@common/services';
 import { SubtitlesEntity } from './entities/subtitles.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SubtitlesService extends BaseService<
@@ -18,9 +18,4 @@ export class SubtitlesService extends BaseService<
   ) {
     super(subtitlesRepository);
   }
-
-  readManyByVideos = async (videosIds: number[]) =>
-    this.subtitlesRepository.findBy({
-      videoId: In(videosIds),
-    });
 }
