@@ -26,7 +26,6 @@ import { CountryModule } from './country/country.module';
 import { StudioCountryModule } from './studio-country/studio-country.module';
 import { MovieGenreModule } from './movie-genre/movie-genre.module';
 import { MovieStudioModule } from './movie-studio/movie-studio.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { v2 } from 'cloudinary';
 import { MovieImageModule } from './movie-image/movie-image.module';
 import { MovieModule } from './movie/movie.module';
@@ -79,7 +78,6 @@ import { ProductPriceModule } from './product-price/product-price.module';
     }),
     ScheduleModule.forRoot(),
     AuthModule,
-    CloudinaryModule,
     CollectionModule,
     CollectionMovieModule,
     CountryModule,
