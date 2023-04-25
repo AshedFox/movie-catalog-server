@@ -30,7 +30,9 @@ export class MovieUserService {
     ).getCount();
   };
 
-  create = async (createMovieUserInput: CreateMovieUserInput) => {
+  create = async (
+    createMovieUserInput: CreateMovieUserInput & { userId: string },
+  ) => {
     const { userId, movieId } = createMovieUserInput;
     await this.movieService.readOne(movieId);
     await this.userService.readOneById(userId);

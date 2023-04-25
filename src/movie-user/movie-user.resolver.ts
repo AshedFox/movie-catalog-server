@@ -34,8 +34,7 @@ export class MovieUserResolver {
     @Args('input') input: CreateMovieUserInput,
     @CurrentUser() currentUser: CurrentUserDto,
   ) {
-    input.userId = currentUser.id;
-    return this.movieUserService.create(input);
+    return this.movieUserService.create({ ...input, userId: currentUser.id });
   }
 
   @Query(() => PaginatedMoviesUsers)
