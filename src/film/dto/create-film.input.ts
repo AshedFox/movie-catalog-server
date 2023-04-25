@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { CreateMovieInput } from '../../movie/dto/create-movie.input';
 
@@ -8,7 +8,7 @@ export class CreateFilmInput extends CreateMovieInput {
   @IsOptional()
   releaseDate?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   @IsOptional()
   videoId?: number;
 }
