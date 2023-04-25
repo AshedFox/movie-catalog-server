@@ -15,6 +15,6 @@ export class MediaEntity {
   type: MediaTypeEnum;
 
   @FilterableField()
-  @Column({ length: 1024 })
+  @Column({ length: 4096 })
   url: string;
 }
