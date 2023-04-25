@@ -1,5 +1,5 @@
 import DataLoader, { BatchLoadFn } from 'dataloader';
-import { Injectable, Scope, Type } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import crypto from 'crypto';
 import { IndexType } from '@utils/types';
@@ -10,7 +10,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { PaginationArgsType } from '@common/pagination';
 import { plainToInstance } from 'class-transformer';
 
-@Injectable({ scope: Scope.REQUEST, durable: false })
+@Injectable()
 export class DataLoaderFactory {
   constructor(
     @InjectEntityManager()
