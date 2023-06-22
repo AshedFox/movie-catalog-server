@@ -40,7 +40,8 @@ export class GoogleCloudService {
       fs.createReadStream(inputPath),
       file.createWriteStream({ public: isPublic }),
     );
-    return file.publicUrl();
+
+    return file.publicUrl().replace(/%2F/gi, '/');
   };
 
   uploadStream = async (
@@ -50,7 +51,7 @@ export class GoogleCloudService {
   ): Promise<string> => {
     const file = this.bucket.file(filePath);
     await pipeline(inputStream, file.createWriteStream({ public: isPublic }));
-    return file.publicUrl();
+    return file.publicUrl().replace(/%2F/gi, '/');
   };
 
   delete = async (filePath: string): Promise<void> => {
