@@ -23,6 +23,7 @@ export function Filterable<T>(classRef: Type<T>) {
   return createFilterableType(
     classRef,
     `${capitalize(name)}Filter`,
+    0,
     filterableRelations,
   );
 }
@@ -30,6 +31,7 @@ export function Filterable<T>(classRef: Type<T>) {
 function createFilterableType<T>(
   classRef: Type<T>,
   name: string,
+  level: number,
   relations?: FilterableRelationMetadata[],
 ) {
   const ExistingFilter = FilterStorage.get(name);
@@ -64,27 +66,33 @@ function createFilterableType<T>(
     Field(() => FCT, { nullable: true })(GqlFilter.prototype, propertyKey);
     TypeDecorator(() => FCT)(GqlFilter.prototype, propertyKey);
   });
-  relations?.forEach(({ returnTypeFunction, propertyKey, advancedOptions }) => {
-    if (!returnTypeFunction) {
-      throw new Error(
-        `No explicit type for filterable relation ${propertyKey} in ${classRef}`,
-      );
-    }
+  if (level <= 5) {
+    relations?.forEach(
+      ({ returnTypeFunction, propertyKey, advancedOptions }) => {
+        if (!returnTypeFunction) {
+          throw new Error(
+            `No explicit type for filterable relation ${propertyKey} in ${classRef}`,
+          );
+        }
 
-    const returnType = returnTypeFunction();
-    const type: Type = Array.isArray(returnType)
-      ? (returnType[0] as Type)
-      : (returnType as Type);
+        const returnType = returnTypeFunction();
+        const type: Type = Array.isArray(returnType)
+          ? (returnType[0] as Type)
+          : (returnType as Type);
 
-    const FT = createFilterableType(
-      type,
-      `${capitalize(advancedOptions?.name ?? type.name)}_${name}`,
+        const FT = createFilterableType(
+          type,
+          `${capitalize(advancedOptions?.name ?? type.name)}_${name}`,
+          level + 1,
+          getFilterableRelations(type),
+        );
+
+        ValidateNested()(GqlFilter.prototype, propertyKey);
+        Field(() => FT, { nullable: true })(GqlFilter.prototype, propertyKey);
+        TypeDecorator(() => FT)(GqlFilter.prototype, propertyKey);
+      },
     );
-
-    ValidateNested()(GqlFilter.prototype, propertyKey);
-    Field(() => FT, { nullable: true })(GqlFilter.prototype, propertyKey);
-    TypeDecorator(() => FT)(GqlFilter.prototype, propertyKey);
-  });
+  }
 
   FilterStorage.set(name, GqlFilter);
   return GqlFilter as Type<FilterType<T>>;
