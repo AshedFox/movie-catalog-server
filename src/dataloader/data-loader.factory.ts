@@ -1,6 +1,6 @@
 import DataLoader, { BatchLoadFn } from 'dataloader';
 import { Injectable, Type } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, SelectQueryBuilder } from 'typeorm';
 import crypto from 'crypto';
 import { IndexType } from '@utils/types';
 import { camelCase, snakeCase } from 'typeorm/util/StringUtils';
@@ -354,5 +354,51 @@ export class DataLoaderFactory {
     }
 
     return this.loaders[loaderName];
+  }
+
+  createOrGetCountLoader<
+    Entity extends object,
+    GroupKey extends keyof Entity,
+    CountKey extends keyof Entity,
+  >(
+    EntityClass: Type<Entity>,
+    groupKey: GroupKey,
+    countKey: CountKey,
+    extra?: (qb: SelectQueryBuilder<Entity>) => void,
+  ): DataLoader<Entity[GroupKey], number> {
+    const groupKeyName = String(groupKey);
+    const countKeyName = String(countKey);
+    const loaderName = `count_${EntityClass.name}_${groupKeyName}_${countKeyName}`;
+
+    if (!this.loaders[loaderName]) {
+      this.loaders[loaderName] = new DataLoader<Entity[GroupKey], number>(
+        async (keys) => {
+          const map: { [key: IndexType]: number } = {};
+          const snakeGroupKeyName = snakeCase(groupKeyName);
+          const snakeCountKeyName = snakeCase(countKeyName);
+
+          const qb = this.entityManager
+            .createQueryBuilder(EntityClass, 't')
+            .select(
+              `${snakeGroupKeyName}, count(${snakeGroupKeyName}) as count`,
+            )
+            .groupBy(`${snakeGroupKeyName}`)
+            .where(`${snakeGroupKeyName} IN (:...keys)`, { keys });
+
+          extra && extra(qb);
+
+          const data = await qb.getRawMany();
+
+          data.forEach((v) => {
+            map[v[snakeGroupKeyName]] = v.count;
+          });
+
+          // @ts-ignore
+          return keys.map((key) => map[key] ?? 0);
+        },
+      );
+    }
+
+    return this.loaders[loaderName] as DataLoader<Entity[GroupKey], number>;
   }
 }
