@@ -1,4 +1,4 @@
-import { DeepPartial, In, Repository } from 'typeorm';
+import { DeepPartial, FindOptionsWhere, In, Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { PaginationArgsType } from '@common/pagination';
 import { SortType } from '@common/sort';
@@ -6,11 +6,18 @@ import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
 
 export abstract class BaseService<
-  T,
+  T extends { id: string | number },
   C extends DeepPartial<T>,
   U extends DeepPartial<T>,
+  K extends keyof T = 'id',
 > {
   protected constructor(private readonly repository: Repository<T>) {}
+
+  exists = async (where: FindOptionsWhere<T>) => {
+    return this.repository.exist({
+      where,
+    });
+  };
 
   count = async (filter?: FilterType<T>): Promise<number> => {
     return parseArgsToQuery(
@@ -37,7 +44,7 @@ export abstract class BaseService<
     }
   };
 
-  readOne = async (id: string | number): Promise<T> => {
+  readOne = async (id: T[K]): Promise<T> => {
     const entity = await this.repository
       .createQueryBuilder()
       .whereInIds(id)
@@ -65,11 +72,7 @@ export abstract class BaseService<
     ).getMany();
   };
 
-  readManyByIds = async (ids: (number | string)[]): Promise<T[]> => {
-    return this.repository.createQueryBuilder().whereInIds(ids).getMany();
-  };
-
-  update = async (id: string | number, input: U): Promise<T> => {
+  update = async (id: T[K], input: U): Promise<T> => {
     if (this.repository.hasId(input as T)) {
       throw new Error('Could not specify id in update input!');
     }
@@ -82,12 +85,26 @@ export abstract class BaseService<
     });
   };
 
-  delete = async (id: string | number): Promise<T> => {
-    const entity = await this.readOne(id);
-    return this.repository.remove(entity);
+  delete = async (id: T[K]): Promise<T> => {
+    const entity = await this.repository
+      .createQueryBuilder()
+      .whereInIds(id)
+      .getOne();
+
+    if (!entity) {
+      throw new NotFoundError(
+        `${this.repository.target} with id ${id} not found!`,
+      );
+    }
+
+    const removed = await this.repository.remove(entity);
+    return {
+      ...removed,
+      id,
+    };
   };
 
-  deleteMany = async (ids: string[] | number[]): Promise<T[]> => {
+  deleteMany = async (ids: T[K][]): Promise<T[]> => {
     const entities = await this.repository.findBy({
       id: In(ids as any[]),
     } as any);
