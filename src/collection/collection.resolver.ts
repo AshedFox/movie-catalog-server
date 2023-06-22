@@ -82,7 +82,12 @@ export class CollectionResolver {
     @Args('input') input: UpdateCollectionInput,
     @CurrentUser() user: CurrentUserDto,
   ) {
-    input.isSystem = user.role !== RoleEnum.User;
+    if (user.role === RoleEnum.User) {
+      input = {
+        ...input,
+        isSystem: false,
+      };
+    }
     return this.collectionService.update(id, input);
   }
 
