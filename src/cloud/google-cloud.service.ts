@@ -20,6 +20,14 @@ export class GoogleCloudService {
     this.bucket = this.storage.bucket(
       this.configService.get('GCS_MEDIA_BUCKET'),
     );
+    this.bucket.setCorsConfiguration([
+      {
+        maxAgeSeconds: 3600,
+        method: ['GET'],
+        origin: ['*'],
+        responseHeader: ['Content-Type'],
+      },
+    ]);
   }
 
   upload = async (
