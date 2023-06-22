@@ -23,10 +23,7 @@ import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
-  constructor(
-    private readonly countryService: CountryService,
-    private readonly dataloaderFactory: DataLoaderFactory,
-  ) {}
+  constructor(private readonly countryService: CountryService) {}
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
@@ -79,15 +76,21 @@ export class CountryResolver {
   }
 
   @ResolveField(() => CurrencyEntity)
-  currency(@Parent() country: CountryEntity) {
-    return this.dataloaderFactory
+  currency(
+    @Parent() country: CountryEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
       .createOrGetLoader(CurrencyEntity, 'id')
       .load(country.currencyId);
   }
 
   @ResolveField(() => LanguageEntity)
-  language(@Parent() country: CountryEntity) {
-    return this.dataloaderFactory
+  language(
+    @Parent() country: CountryEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
       .createOrGetLoader(LanguageEntity, 'id')
       .load(country.languageId);
   }
