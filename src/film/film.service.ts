@@ -53,10 +53,7 @@ export class FilmService extends BaseService<
       if (studiosIds) {
         film.studiosConnection = await queryRunner.manager.save(
           MovieStudioEntity,
-          studiosIds.map((studioId) => ({
-            movieId: film.id,
-            genreId: studioId,
-          })),
+          studiosIds.map((studioId) => ({ movieId: film.id, studioId })),
         );
       }
       await queryRunner.commitTransaction();
