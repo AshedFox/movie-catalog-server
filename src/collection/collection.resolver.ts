@@ -26,6 +26,7 @@ import { CollectionMovieEntity } from '../collection-movie/entities/collection-m
 import { GetMoviesArgs } from '../movie/dto/get-movies.args';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { CollectionReviewEntity } from '../collection-review/entities/collection-review.entity';
 import { UserEntity } from '../user/entities/user.entity';
 
 @Resolver(() => CollectionEntity)
@@ -137,5 +138,35 @@ export class CollectionResolver {
         },
         pagination,
       });
+  }
+
+  @ResolveField(() => [CollectionReviewEntity])
+  reviews(
+    @Parent() collection: CollectionEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(
+        CollectionReviewEntity,
+        'collectionId',
+        CollectionEntity,
+        'id',
+      )
+      .load({ id: collection.id });
+  }
+
+  @ResolveField(() => Float)
+  async rating(
+    @Parent() collection: CollectionEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    if (!collection.reviews) {
+      collection.reviews = await this.reviews(collection, loadersFactory);
+    }
+    return collection.reviews.length > 0
+      ? collection.reviews.reduce((totalMark, review) => {
+          return totalMark + review.mark;
+        }, 0) / collection.reviews.length
+      : 0;
   }
 }

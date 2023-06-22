@@ -13,6 +13,7 @@ import { MediaEntity } from '../../media/entities/media.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
+import { CollectionReviewEntity } from '../../collection-review/entities/collection-review.entity';
 import { UserEntity } from '../../user/entities/user.entity';
 
 @ObjectType('Collection')
@@ -79,4 +80,11 @@ export class CollectionEntity {
     (collectionMovie) => collectionMovie.collection,
   )
   moviesConnection: CollectionMovieEntity[];
+
+  @Field(() => [CollectionReviewEntity])
+  @OneToMany(() => CollectionReviewEntity, (review) => review.collection)
+  reviews: CollectionReviewEntity[];
+
+  @Field()
+  rating: number;
 }
