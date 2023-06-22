@@ -35,107 +35,129 @@ const applyFieldFilter = <T>(
   Object.entries(filter).forEach((filterProp) => {
     const [filterName, value] = filterProp;
 
-    switch (filterName) {
-      case 'eq': {
-        where[operatorProp](`${snakeName} = :${name}EqValue`, {
-          [`${name}EqValue`]: value,
-        });
-        break;
+    if (value === null) {
+      switch (filterName) {
+        case 'eq': {
+          where[operatorProp](`${snakeName} IS NULL`);
+          break;
+        }
+        case 'neq': {
+          where[operatorProp](`${snakeName} IS NOT NULL`);
+          break;
+        }
+        default: {
+          applyFieldFilter(
+            where,
+            filterName,
+            filter[filterName],
+            operator,
+            fieldName,
+          );
+        }
       }
-      case 'neq': {
-        where[operatorProp](`${snakeName} != :${name}NEqValue`, {
-          [`${name}NEqValue`]: value,
-        });
-        break;
-      }
-      case 'gt': {
-        where[operatorProp](`${snakeName} > :${name}GtValue`, {
-          [`${name}GtValue`]: value,
-        });
-        break;
-      }
-      case 'gte': {
-        where[operatorProp](`${snakeName} >= :${name}GteValue`, {
-          [`${name}GteValue`]: value,
-        });
-        break;
-      }
-      case 'lt': {
-        where[operatorProp](`${snakeName} < :${name}LtValue`, {
-          [`${name}LtValue`]: value,
-        });
-        break;
-      }
-      case 'lte': {
-        where[operatorProp](`${snakeName} <= :${name}LteValue`, {
-          [`${name}LteValue`]: value,
-        });
-        break;
-      }
-      case 'like': {
-        where[operatorProp](`${snakeName} LIKE :${name}LikeValue`, {
-          [`${name}LikeValue`]: `%${value}%`,
-        });
-        break;
-      }
-      case 'nlike': {
-        where[operatorProp](`${snakeName} NOT LIKE :${name}NLikeValue`, {
-          [`${name}NLikeValue`]: `%${value}%`,
-        });
-        break;
-      }
-      case 'ilike': {
-        where[operatorProp](`${snakeName} ILIKE :${name}ILikeValue`, {
-          [`${name}ILikeValue`]: `%${value}%`,
-        });
-        break;
-      }
-      case 'nilike': {
-        where[operatorProp](`${snakeName} NOT ILIKE :${name}NILikeValue`, {
-          [`${name}NILikeValue`]: `%${value}%`,
-        });
-        break;
-      }
-      case 'in': {
-        where[operatorProp](`${snakeName} IN (:...${name}InValue)`, {
-          [`${name}InValue`]: value,
-        });
-        break;
-      }
-      case 'nin': {
-        where[operatorProp](`${snakeName} NOT IN (:...${name}NInValue)`, {
-          [`${name}NInValue`]: value,
-        });
-        break;
-      }
-      case 'btwn': {
-        where[operatorProp](
-          `${snakeName} BETWEEN :${name}BtwnStart AND :${name}BtwnEnd`,
-          {
-            [`${name}BtwnStart`]: value.start,
-            [`${name}BtwnEnd`]: value.end,
-          },
-        );
-        break;
-      }
-      case 'nbtwn': {
-        where[operatorProp](
-          `${snakeName} NOT BETWEEN :${name}NBtwnStart AND :${name}NBtwnEnd`,
-          {
-            [`${name}NBtwnStart`]: value.start,
-            [`${name}NBtwnEnd`]: value.end,
-          },
-        );
-        break;
-      }
-      default: {
-        applyFieldFilter(
-          where,
-          filterName,
-          filter[filterName],
-          operator,
-          fieldName,
-        );
+    } else {
+      switch (filterName) {
+        case 'eq': {
+          where[operatorProp](`${snakeName} = :${name}EqValue`, {
+            [`${name}EqValue`]: value,
+          });
+          break;
+        }
+        case 'neq': {
+          where[operatorProp](`${snakeName} != :${name}NEqValue`, {
+            [`${name}NEqValue`]: value,
+          });
+          break;
+        }
+        case 'gt': {
+          where[operatorProp](`${snakeName} > :${name}GtValue`, {
+            [`${name}GtValue`]: value,
+          });
+          break;
+        }
+        case 'gte': {
+          where[operatorProp](`${snakeName} >= :${name}GteValue`, {
+            [`${name}GteValue`]: value,
+          });
+          break;
+        }
+        case 'lt': {
+          where[operatorProp](`${snakeName} < :${name}LtValue`, {
+            [`${name}LtValue`]: value,
+          });
+          break;
+        }
+        case 'lte': {
+          where[operatorProp](`${snakeName} <= :${name}LteValue`, {
+            [`${name}LteValue`]: value,
+          });
+          break;
+        }
+        case 'like': {
+          where[operatorProp](`${snakeName} LIKE :${name}LikeValue`, {
+            [`${name}LikeValue`]: `%${value}%`,
+          });
+          break;
+        }
+        case 'nlike': {
+          where[operatorProp](`${snakeName} NOT LIKE :${name}NLikeValue`, {
+            [`${name}NLikeValue`]: `%${value}%`,
+          });
+          break;
+        }
+        case 'ilike': {
+          where[operatorProp](`${snakeName} ILIKE :${name}ILikeValue`, {
+            [`${name}ILikeValue`]: `%${value}%`,
+          });
+          break;
+        }
+        case 'nilike': {
+          where[operatorProp](`${snakeName} NOT ILIKE :${name}NILikeValue`, {
+            [`${name}NILikeValue`]: `%${value}%`,
+          });
+          break;
+        }
+        case 'in': {
+          where[operatorProp](`${snakeName} IN (:...${name}InValue)`, {
+            [`${name}InValue`]: value,
+          });
+          break;
+        }
+        case 'nin': {
+          where[operatorProp](`${snakeName} NOT IN (:...${name}NInValue)`, {
+            [`${name}NInValue`]: value,
+          });
+          break;
+        }
+        case 'btwn': {
+          where[operatorProp](
+            `${snakeName} BETWEEN :${name}BtwnStart AND :${name}BtwnEnd`,
+            {
+              [`${name}BtwnStart`]: value.start,
+              [`${name}BtwnEnd`]: value.end,
+            },
+          );
+          break;
+        }
+        case 'nbtwn': {
+          where[operatorProp](
+            `${snakeName} NOT BETWEEN :${name}NBtwnStart AND :${name}NBtwnEnd`,
+            {
+              [`${name}NBtwnStart`]: value.start,
+              [`${name}NBtwnEnd`]: value.end,
+            },
+          );
+          break;
+        }
+        default: {
+          applyFieldFilter(
+            where,
+            filterName,
+            filter[filterName],
+            operator,
+            fieldName,
+          );
+        }
       }
     }
   });
