@@ -23,7 +23,7 @@ export class CollectionService extends BaseService<
   }
 
   create = async (
-    createCollectionInput: CreateCollectionInput,
+    createCollectionInput: CreateCollectionInput & { ownerId: string },
   ): Promise<CollectionEntity> => {
     const queryRunner = this.dataSource.createQueryRunner();
 

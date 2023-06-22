@@ -13,6 +13,7 @@ import { MediaEntity } from '../../media/entities/media.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @ObjectType('Collection')
 @Entity('collections')
@@ -44,6 +45,17 @@ export class CollectionEntity {
   @UpdateDateColumn()
   @Index()
   updatedAt: Date;
+
+  @FilterableField()
+  @Column({ type: 'uuid' })
+  ownerId: string;
+
+  @Field(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  owner: UserEntity;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true, type: 'uuid' })

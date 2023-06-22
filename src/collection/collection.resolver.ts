@@ -26,6 +26,7 @@ import { CollectionMovieEntity } from '../collection-movie/entities/collection-m
 import { GetMoviesArgs } from '../movie/dto/get-movies.args';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { UserEntity } from '../user/entities/user.entity';
 
 @Resolver(() => CollectionEntity)
 export class CollectionResolver {
@@ -44,7 +45,7 @@ export class CollectionResolver {
       };
     }
 
-    return this.collectionService.create(input);
+    return this.collectionService.create({ ...input, ownerId: user.id });
   }
 
   @Query(() => PaginatedCollections)
@@ -101,6 +102,16 @@ export class CollectionResolver {
           .createOrGetLoader(MediaEntity, 'id')
           .load(collection.coverId)
       : undefined;
+  }
+
+  @ResolveField(() => UserEntity)
+  owner(
+    @Parent() collection: CollectionEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(UserEntity, 'id')
+      .load(collection.ownerId);
   }
 
   @ResolveField(() => [MovieEntity])
