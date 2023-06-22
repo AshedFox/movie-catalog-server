@@ -58,6 +58,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { PriceModule } from './price/price.module';
 import { ProductPriceModule } from './product-price/product-price.module';
 import { ProductModule } from './product/product.module';
+import { CollectionReviewModule } from './collection-review/collection-review.module';
 import { CollectionUserModule } from './collection-user/collection-user.module';
 
 @Module({
@@ -81,6 +82,7 @@ import { CollectionUserModule } from './collection-user/collection-user.module';
     AuthModule,
     CollectionModule,
     CollectionMovieModule,
+    CollectionReviewModule,
     CollectionUserModule,
     CountryModule,
     DataLoaderModule,
