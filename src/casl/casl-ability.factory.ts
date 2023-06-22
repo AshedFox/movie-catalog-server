@@ -70,6 +70,7 @@ export class CaslAbilityFactory {
       can(ActionEnum.CREATE, RoomEntity);
       can(ActionEnum.UPDATE, RoomEntity, { ownerId: user.id });
       can(ActionEnum.DELETE, RoomEntity, { ownerId: user.id });
+      can(ActionEnum.MANAGE, RoomEntity, { ownerId: user.id });
       can(ActionEnum.MANAGE, UserEntity, { id: user.id });
     }
 
