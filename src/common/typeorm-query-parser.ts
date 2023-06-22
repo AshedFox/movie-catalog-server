@@ -299,20 +299,43 @@ const applyJoins = <T>(
   });
 };
 
+const getFilterRelations = (filter: FilterType<any>) => {
+  const fields = new Map<string, string>();
+
+  for (const filterKey in filter) {
+    if (filterKey === 'and' || filterKey === 'or') {
+      for (const el of filter[filterKey]) {
+        const items = getFilterRelations(el);
+
+        for (const item of items) {
+          fields.set(item[0], item[1]);
+        }
+      }
+    } else {
+      fields.set(filterKey, filterKey);
+    }
+  }
+
+  return fields;
+};
+
 const getRelations = <T>(
   relationsMeta: RelationMetadata[],
   filter: FilterType<T> = {},
   sort: SortType<T> = {},
 ) => {
-  const fields = [
-    ...Object.keys(filter).filter((key) => key !== 'and' && key !== 'or'),
-    ...Object.keys(sort).filter(
-      (key) => key !== 'direction' && key !== 'nulls',
-    ),
-  ];
+  const fields = new Map<string, string>(getFilterRelations(filter));
 
-  return fields.length > 0
-    ? relationsMeta.filter((r) => fields.includes(r.propertyName))
+  for (const sortKey in sort) {
+    if (sortKey !== 'direction' && sortKey !== 'nulls') {
+      fields.set(sortKey, sortKey);
+    }
+  }
+
+  const keys = Array.from(fields.keys());
+
+  return keys.length > 0
+    ? relationsMeta.filter((r) => keys.includes(r.propertyName))
     : [];
 };
 
