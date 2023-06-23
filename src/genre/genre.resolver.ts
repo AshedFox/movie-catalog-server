@@ -10,6 +10,8 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
+import { Filterable, FilterType } from '@common/filter';
+import { Sortable, SortType } from '@common/sort';
 
 @Resolver(GenreEntity)
 export class GenreResolver {
@@ -20,6 +22,16 @@ export class GenreResolver {
   @Mutation(() => GenreEntity)
   createGenre(@Args('input') createGenreInput: CreateGenreInput) {
     return this.genreService.create(createGenreInput);
+  }
+
+  @Query(() => [GenreEntity])
+  getAllGenres(
+    @Args('filter', { type: () => Filterable(GenreEntity), nullable: true })
+    filter?: FilterType<GenreEntity>,
+    @Args('sort', { type: () => Sortable(GenreEntity), nullable: true })
+    sort?: SortType<GenreEntity>,
+  ) {
+    return this.genreService.readMany(undefined, sort, filter);
   }
 
   @Query(() => PaginatedGenres)
