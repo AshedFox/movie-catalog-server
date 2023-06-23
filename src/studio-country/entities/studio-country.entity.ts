@@ -11,7 +11,7 @@ export class StudioCountryEntity {
   studioId: number;
 
   @Field(() => ID)
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'char', length: 2 })
   countryId: string;
 
   @Field(() => StudioEntity)
