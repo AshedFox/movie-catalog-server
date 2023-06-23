@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { MovieStudioEntity } from './entities/movie-studio.entity';
 import { MovieService } from '../movie/movie.service';
@@ -35,26 +35,8 @@ export class MovieStudioService {
     return this.movieStudioRepository.save({ movieId, studioId });
   };
 
-  createManyForMovie = async (
-    movieId: string,
-    studiosIds: number[],
-  ): Promise<MovieStudioEntity[]> =>
-    this.movieStudioRepository.save(
-      studiosIds.map((studioId) => ({ movieId, studioId })),
-    );
-
   readMany = async (): Promise<MovieStudioEntity[]> =>
     this.movieStudioRepository.find();
-
-  readManyByMovies = async (
-    moviesIds: string[],
-  ): Promise<MovieStudioEntity[]> =>
-    this.movieStudioRepository.find({
-      where: { movieId: In(moviesIds) },
-      relations: {
-        studio: true,
-      },
-    });
 
   readOne = async (
     movieId: string,
