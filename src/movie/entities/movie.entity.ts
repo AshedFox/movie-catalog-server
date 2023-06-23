@@ -1,4 +1,4 @@
-import { Field, HideField, ID, InterfaceType } from '@nestjs/graphql';
+import { Field, ID, InterfaceType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -6,6 +6,7 @@ import {
   Index,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   TableInheritance,
   UpdateDateColumn,
@@ -28,6 +29,7 @@ import { MovieCountryEntity } from '../../movie-country/entities/movie-country.e
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
 import { CollectionEntity } from '../../collection/entities/collection.entity';
+import { ProductEntity } from '../../product/entities/product.entity';
 
 @InterfaceType('Movie', {
   resolveType(value) {
@@ -124,14 +126,14 @@ export class MovieEntity {
   @Field(() => [StudioEntity])
   studios: StudioEntity[];
 
-  @HideField()
+  @FilterableRelation(() => [MovieStudioEntity])
   @OneToMany(() => MovieStudioEntity, (filmStudio) => filmStudio.movie)
   studiosConnection: MovieStudioEntity[];
 
   @Field(() => [CountryEntity])
   countries: CountryEntity[];
 
-  @HideField()
+  @FilterableRelation(() => [MovieCountryEntity])
   @OneToMany(() => MovieCountryEntity, (movieCountry) => movieCountry.movie)
   countriesConnection: MovieCountryEntity[];
 
@@ -139,7 +141,7 @@ export class MovieEntity {
   @OneToMany(() => MovieImageEntity, (movieImage) => movieImage.movie)
   movieImages: MovieImageEntity[];
 
-  @Field(() => [MoviePersonEntity])
+  @FilterableRelation(() => [MoviePersonEntity])
   @OneToMany(() => MoviePersonEntity, (filmPerson) => filmPerson.movie)
   moviePersons: MoviePersonEntity[];
 
@@ -155,4 +157,12 @@ export class MovieEntity {
     (collectionMovie) => collectionMovie.movie,
   )
   collectionsConnection: CollectionMovieEntity[];
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 255 })
+  productId?: string;
+
+  @Field(() => ProductEntity, { nullable: true })
+  @OneToOne(() => ProductEntity, (product) => product.movie, { nullable: true })
+  product?: ProductEntity;
 }

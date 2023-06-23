@@ -37,6 +37,10 @@ export class CreateMovieInput {
 
   @Field({ nullable: true })
   @IsOptional()
+  productId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   countriesIds?: string[];

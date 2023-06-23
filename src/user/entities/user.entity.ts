@@ -4,6 +4,7 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,7 +13,9 @@ import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MediaEntity } from '../../media/entities/media.entity';
 import { FilterableField } from '@common/filter';
+import { PurchaseEntity } from '../../purchase/entities/purchase.entity';
 import { SubscriptionEntity } from '../../subscription/entities/subscription.entity';
+import { RoomEntity } from '../../room/entities/room.entity';
 
 @ObjectType('User')
 @Entity('users')
@@ -55,7 +58,7 @@ export class UserEntity {
     enumName: 'role_enum',
     default: RoleEnum.User,
   })
-  @Index({ where: "role = 'user'" })
+  @Index()
   role: RoleEnum;
 
   @FilterableField({ nullable: true })
@@ -88,7 +91,15 @@ export class UserEntity {
   })
   avatar?: MediaEntity;
 
+  @Field(() => [PurchaseEntity])
+  @OneToMany(() => PurchaseEntity, (purchase) => purchase.user)
+  purchases: PurchaseEntity[];
+
   @Field(() => [SubscriptionEntity])
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.user)
   subscriptions: SubscriptionEntity[];
+
+  @Field(() => [RoomEntity])
+  @OneToMany(() => RoomEntity, (room) => room.owner)
+  rooms: RoomEntity[];
 }

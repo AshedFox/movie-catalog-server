@@ -26,6 +26,7 @@ import { MediaService } from '../media/media.service';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { SubscriptionEntity } from '../subscription/entities/subscription.entity';
+import { PurchaseEntity } from '../purchase/entities/purchase.entity';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -151,6 +152,16 @@ export class UserResolver {
   ) {
     return loadersFactory
       .createOrGetLoader(SubscriptionEntity, 'userId', UserEntity, 'id')
+      .load({ id: parent.id });
+  }
+
+  @ResolveField(() => [PurchaseEntity])
+  purchases(
+    @Parent() parent: UserEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(PurchaseEntity, 'userId', UserEntity, 'id')
       .load({ id: parent.id });
   }
 }
