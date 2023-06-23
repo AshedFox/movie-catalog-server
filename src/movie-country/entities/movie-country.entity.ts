@@ -2,19 +2,20 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
+import { FilterableField, FilterableRelation } from '@common/filter';
 
 @ObjectType('MovieCountry')
 @Entity('movies_countries')
 export class MovieCountryEntity {
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn({ type: 'character', length: 2 })
   countryId: string;
 
-  @Field(() => ID)
+  @FilterableField(() => ID)
   @PrimaryColumn()
   movieId: string;
 
-  @Field(() => CountryEntity)
+  @FilterableRelation(() => CountryEntity)
   @ManyToOne(() => CountryEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   country: CountryEntity;
 
