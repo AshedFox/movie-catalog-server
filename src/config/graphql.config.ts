@@ -43,6 +43,7 @@ export class GraphQLConfig implements GqlOptionsFactory {
           loadersFactory: new DataLoaderFactory(this.entityManager),
         };
       },
+      csrfPrevention: true,
       introspection: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.graphql'),
       sortSchema: true,
