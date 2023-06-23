@@ -68,6 +68,15 @@ export class UserResolver {
 
   @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
+  updateMe(
+    @Args('input') updateUserInput: UpdateUserInput,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    return this.userService.update(currentUser.id, updateUserInput);
+  }
+
+  @Mutation(() => UserEntity)
+  @UseGuards(GqlJwtAuthGuard)
   async updateAvatar(
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
     @CurrentUser() currentUser: CurrentUserDto,
