@@ -21,6 +21,7 @@ import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../country/entities/country.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { MediaEntity } from '../media/entities/media.entity';
 
 @Resolver(PersonEntity)
 export class PersonResolver {
@@ -83,6 +84,16 @@ export class PersonResolver {
       ? loadersFactory
           .createOrGetLoader(CountryEntity, 'id')
           .load(person.countryId)
+      : undefined;
+  }
+
+  @ResolveField(() => MediaEntity, { nullable: true })
+  image(
+    @Parent() person: PersonEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return person.imageId
+      ? loadersFactory.createOrGetLoader(MediaEntity, 'id').load(person.imageId)
       : undefined;
   }
 }
