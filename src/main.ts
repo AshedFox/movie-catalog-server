@@ -7,7 +7,9 @@ import { Logger } from '@nestjs/common';
 import helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
   const config = app.get(ConfigService);
 
   if (config.get<string>('NODE_ENV') === 'production') {
