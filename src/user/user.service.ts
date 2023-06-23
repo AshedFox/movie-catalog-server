@@ -76,7 +76,17 @@ export class UserService {
     if (!user) {
       throw new NotFoundError(`User with id "${id}" not found!`);
     }
-    return this.userRepository.save({
+    if (updateUserInput.email && updateUserInput.email !== user.email) {
+      const userByEmail = await this.userRepository.findOneBy({
+        email: updateUserInput.email,
+      });
+
+      if (!!userByEmail) {
+        throw new AlreadyExistsError('User with this email already exists!');
+      }
+    }
+
+    const updatedUser = await this.userRepository.save({
       ...user,
       ...updateUserInput,
       isEmailConfirmed:
@@ -84,6 +94,8 @@ export class UserService {
           ? false
           : user.isEmailConfirmed,
     });
+
+    return updatedUser;
   };
 
   setEmailConfirmed = async (id: string) => {
