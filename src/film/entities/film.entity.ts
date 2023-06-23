@@ -16,7 +16,7 @@ export class FilmEntity extends MovieEntity {
   releaseDate?: Date;
 
   @FilterableField({ nullable: true })
-  @Column({ nullable: true, type: 'int8' })
+  @Column({ nullable: true, type: 'int4' })
   @Index({ where: 'video_id IS NOT NULL' })
   videoId?: number;
 
