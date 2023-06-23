@@ -77,6 +77,20 @@ export class UserResolver {
 
   @Mutation(() => UserEntity)
   @UseGuards(GqlJwtAuthGuard)
+  updatePassword(
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    return this.userService.updatePassword(
+      currentUser.id,
+      oldPassword,
+      newPassword,
+    );
+  }
+
+  @Mutation(() => UserEntity)
+  @UseGuards(GqlJwtAuthGuard)
   async updateAvatar(
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
     @CurrentUser() currentUser: CurrentUserDto,
