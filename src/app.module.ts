@@ -60,6 +60,8 @@ import { ProductPriceModule } from './product-price/product-price.module';
 import { ProductModule } from './product/product.module';
 import { CollectionReviewModule } from './collection-review/collection-review.module';
 import { CollectionUserModule } from './collection-user/collection-user.module';
+import { PlanModule } from './plan/plan.module';
+import { PlanPriceModule } from './plan-price/plan-price.module';
 import { StripeModule } from './stripe/stripe.module';
 
 @Module({
@@ -119,6 +121,10 @@ import { StripeModule } from './stripe/stripe.module';
     MovieVisitStatsModule,
     VideoVariantModule,
     SubtitlesModule,
+    PlanPriceModule,
+    SubscriptionModule,
+    PlanModule,
+    PriceModule,
     CaslModule,
     VideoAudioModule,
     StripeModule,

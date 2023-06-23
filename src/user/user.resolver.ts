@@ -25,6 +25,7 @@ import { FileUpload } from 'graphql-upload';
 import { MediaService } from '../media/media.service';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { SubscriptionEntity } from '../subscription/entities/subscription.entity';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -141,5 +142,15 @@ export class UserResolver {
           .createOrGetLoader(MediaEntity, 'id')
           .load(parent.avatarId)
       : undefined;
+  }
+
+  @ResolveField(() => [SubscriptionEntity])
+  subscriptions(
+    @Parent() parent: UserEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(SubscriptionEntity, 'userId', UserEntity, 'id')
+      .load({ id: parent.id });
   }
 }

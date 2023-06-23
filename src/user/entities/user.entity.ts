@@ -12,6 +12,7 @@ import { RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { MediaEntity } from '../../media/entities/media.entity';
 import { FilterableField } from '@common/filter';
+import { SubscriptionEntity } from '../../subscription/entities/subscription.entity';
 
 @ObjectType('User')
 @Entity('users')
@@ -86,4 +87,8 @@ export class UserEntity {
     onUpdate: 'CASCADE',
   })
   avatar?: MediaEntity;
+
+  @Field(() => [SubscriptionEntity])
+  @OneToMany(() => SubscriptionEntity, (subscription) => subscription.user)
+  subscriptions: SubscriptionEntity[];
 }
