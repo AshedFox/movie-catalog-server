@@ -1,10 +1,12 @@
 import {
   Args,
+  Int,
   Mutation,
   Parent,
   Query,
   ResolveField,
   Resolver,
+  Root,
 } from '@nestjs/graphql';
 import { CountryService } from './country.service';
 import { CountryEntity } from './entities/country.entity';
@@ -20,6 +22,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { Filterable, FilterType } from '@common/filter';
+import { Sortable, SortType } from '@common/sort';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
@@ -30,6 +34,16 @@ export class CountryResolver {
   @Mutation(() => CountryEntity)
   createCountry(@Args('input') input: CreateCountryInput) {
     return this.countryService.create(input);
+  }
+
+  @Query(() => [CountryEntity])
+  getAllCountries(
+    @Args('filter', { type: () => Filterable(CountryEntity), nullable: true })
+    filter?: FilterType<CountryEntity>,
+    @Args('sort', { type: () => Sortable(CountryEntity), nullable: true })
+    sort?: SortType<CountryEntity>,
+  ) {
+    return this.countryService.readMany(undefined, sort, filter);
   }
 
   @Query(() => PaginatedCountries)
