@@ -22,6 +22,8 @@ import { CountryEntity } from '../country/entities/country.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { StudioCountryEntity } from '../studio-country/entities/studio-country.entity';
+import { Filterable, FilterType } from '@common/filter';
+import { Sortable, SortType } from '@common/sort';
 
 @Resolver(StudioEntity)
 export class StudioResolver {
@@ -32,6 +34,16 @@ export class StudioResolver {
   @Mutation(() => StudioEntity)
   createStudio(@Args('input') createStudioInput: CreateStudioInput) {
     return this.studioService.create(createStudioInput);
+  }
+
+  @Query(() => [StudioEntity])
+  getAllStudios(
+    @Args('filter', { type: () => Filterable(StudioEntity), nullable: true })
+    filter?: FilterType<StudioEntity>,
+    @Args('sort', { type: () => Sortable(StudioEntity), nullable: true })
+    sort?: SortType<StudioEntity>,
+  ) {
+    return this.studioService.readMany(undefined, sort, filter);
   }
 
   @Query(() => PaginatedStudios)
