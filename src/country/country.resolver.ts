@@ -20,10 +20,13 @@ import { UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '@utils/enums';
+import { MovieTypeEnum, RoleEnum } from '@utils/enums';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { Filterable, FilterType } from '@common/filter';
 import { Sortable, SortType } from '@common/sort';
+import { MovieCountryEntity } from '../movie-country/entities/movie-country.entity';
+import { MovieEntity } from '../movie/entities/movie.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 
 @Resolver(() => CountryEntity)
 export class CountryResolver {
@@ -107,5 +110,27 @@ export class CountryResolver {
     return loadersFactory
       .createOrGetLoader(LanguageEntity, 'id')
       .load(country.languageId);
+  }
+
+  @ResolveField(() => Int)
+  moviesCount(
+    @Root() country: CountryEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+    @Args('type', { nullable: true, type: () => MovieTypeEnum })
+    type?: MovieTypeEnum,
+  ) {
+    return loadersFactory
+      .createOrGetCountLoader(
+        MovieCountryEntity,
+        'countryId',
+        'movieId',
+        type
+          ? (qb) =>
+              qb
+                .leftJoin(MovieEntity, 'movie', 'movie.id = movie_id')
+                .andWhere(`movie.type = :type`, { type })
+          : undefined,
+      )
+      .load(country.id);
   }
 }
