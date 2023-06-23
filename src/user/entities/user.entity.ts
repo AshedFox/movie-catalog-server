@@ -70,6 +70,10 @@ export class UserEntity {
   })
   country?: CountryEntity;
 
+  @HideField()
+  @Column({ length: 255, nullable: true })
+  customerId?: string;
+
   @FilterableField({ nullable: true })
   @Column({ nullable: true, type: 'uuid' })
   @Index({ where: 'avatar_id IS NOT NULL' })

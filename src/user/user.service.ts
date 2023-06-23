@@ -11,12 +11,14 @@ import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
 import * as argon2 from 'argon2';
+import { StripeService } from '../stripe/stripe.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly stripeService: StripeService,
   ) {}
 
   create = async (createUserInput: CreateUserInput): Promise<UserEntity> => {
@@ -95,6 +97,14 @@ export class UserService {
           ? false
           : user.isEmailConfirmed,
     });
+
+    if (updatedUser.email !== user.email || updatedUser.name !== user.name) {
+      await this.stripeService.updateCustomer(
+        updatedUser.customerId,
+        updatedUser.email,
+        updatedUser.name,
+      );
+    }
 
     return updatedUser;
   };

@@ -8,9 +8,16 @@ import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 import { AuthResolver } from './auth.resolver';
 import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { StripeModule } from '../stripe/stripe.module';
 
 @Module({
-  imports: [UserModule, RefreshTokenModule, PassportModule, JwtModule],
+  imports: [
+    UserModule,
+    RefreshTokenModule,
+    PassportModule,
+    JwtModule,
+    StripeModule,
+  ],
   providers: [
     AuthService,
     LocalAuthStrategy,

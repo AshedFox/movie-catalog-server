@@ -8,6 +8,7 @@ import { AuthResult } from './dto/auth.result';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
+import { StripeService } from '../stripe/stripe.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly stripeService: StripeService,
   ) {}
 
   validateUser = async (
@@ -86,20 +88,17 @@ export class AuthService {
       throw new Error('Password and password repetition are not equal!');
     }
 
+    const customer = await this.stripeService.createCustomer(
+      registerInput.email,
+      registerInput.name,
+    );
+
     const user = await this.userService.create({
       email: registerInput.email,
       name: registerInput.name,
+      customerId: customer.id,
       password: await argon2.hash(registerInput.password),
     });
     return this.login(user);
-  };
-
-  logout = async (token: string) => {
-    const { sub } = this.jwtService.verify<{ sub: string }>(token, {
-      algorithms: ['HS512'],
-      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-    });
-
-    await this.refreshTokenService.delete(sub);
   };
 }

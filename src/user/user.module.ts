@@ -5,9 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { CaslModule } from '../casl/casl.module';
 import { MediaModule } from '../media/media.module';
+import { StripeModule } from '../stripe/stripe.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), CaslModule, MediaModule],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity]),
+    CaslModule,
+    MediaModule,
+    StripeModule,
+  ],
   providers: [UserResolver, UserService],
   exports: [UserService],
 })

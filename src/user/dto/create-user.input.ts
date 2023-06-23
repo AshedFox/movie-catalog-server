@@ -5,6 +5,9 @@ import { IsEmail, IsHash, Length } from 'class-validator';
 @InputType()
 export class CreateUserInput implements Partial<UserEntity> {
   @Field()
+  customerId: string;
+
+  @Field()
   @IsEmail()
   email: string;
 
