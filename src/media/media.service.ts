@@ -21,6 +21,28 @@ export class MediaService extends BaseService<
     super(mediaRepository);
   }
 
+  uploadFile = async (stream: Readable): Promise<MediaEntity> => {
+    const media = await this.create({
+      type: MediaTypeEnum.RAW,
+      url: '',
+    });
+
+    try {
+      const url = await this.cloudService.uploadStream(
+        stream,
+        `raw/${media.id}`,
+      );
+
+      return this.mediaRepository.save({
+        ...media,
+        url: url,
+      });
+    } catch (err) {
+      await this.mediaRepository.remove(media);
+      throw new Error('Failed to upload!');
+    }
+  };
+
   uploadImage = async (stream: Readable): Promise<MediaEntity> => {
     const media = await this.create({
       type: MediaTypeEnum.IMAGE,
