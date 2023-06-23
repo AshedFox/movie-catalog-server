@@ -6,6 +6,7 @@ import {
   Query,
   ResolveField,
   Resolver,
+  Root,
 } from '@nestjs/graphql';
 import { StudioService } from './studio.service';
 import { CreateStudioInput } from './dto/create-studio.input';
@@ -17,13 +18,15 @@ import { GetStudiosArgs } from './dto/get-studios.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '@utils/enums';
+import { MovieTypeEnum, RoleEnum } from '@utils/enums';
 import { CountryEntity } from '../country/entities/country.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { StudioCountryEntity } from '../studio-country/entities/studio-country.entity';
 import { Filterable, FilterType } from '@common/filter';
 import { Sortable, SortType } from '@common/sort';
+import { MovieStudioEntity } from '../movie-studio/entities/movie-studio.entity';
+import { MovieEntity } from '../movie/entities/movie.entity';
 
 @Resolver(StudioEntity)
 export class StudioResolver {
@@ -102,5 +105,27 @@ export class StudioResolver {
         CountryEntity,
       )
       .load({ id: studio.id });
+  }
+
+  @ResolveField(() => Int)
+  moviesCount(
+    @Root() studio: StudioEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+    @Args('type', { nullable: true, type: () => MovieTypeEnum })
+    type?: MovieTypeEnum,
+  ) {
+    return loadersFactory
+      .createOrGetCountLoader(
+        MovieStudioEntity,
+        'studioId',
+        'movieId',
+        type
+          ? (qb) =>
+              qb
+                .leftJoin(MovieEntity, 'movie', 'movie.id = movie_id')
+                .andWhere(`movie.type = :type`, { type })
+          : undefined,
+      )
+      .load(studio.id);
   }
 }
