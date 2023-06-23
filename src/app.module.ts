@@ -63,6 +63,7 @@ import { CollectionUserModule } from './collection-user/collection-user.module';
 import { PlanModule } from './plan/plan.module';
 import { PlanPriceModule } from './plan-price/plan-price.module';
 import { StripeModule } from './stripe/stripe.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -131,6 +132,7 @@ import { StripeModule } from './stripe/stripe.module';
     CaslModule,
     VideoAudioModule,
     StripeModule,
+    WebhookModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
