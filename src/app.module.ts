@@ -60,6 +60,7 @@ import { ProductPriceModule } from './product-price/product-price.module';
 import { ProductModule } from './product/product.module';
 import { CollectionReviewModule } from './collection-review/collection-review.module';
 import { CollectionUserModule } from './collection-user/collection-user.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -120,6 +121,7 @@ import { CollectionUserModule } from './collection-user/collection-user.module';
     SubtitlesModule,
     CaslModule,
     VideoAudioModule,
+    StripeModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ErrorInterceptor },
