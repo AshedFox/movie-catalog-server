@@ -85,6 +85,13 @@ export class RoomParticipantService {
         `Room participant with roomId "${roomId}" and userId "${userId}" not found!`,
       );
     }
-    return this.roomParticipantRepository.remove(roomParticipant);
+    const removed = await this.roomParticipantRepository.remove(
+      roomParticipant,
+    );
+    return {
+      ...removed,
+      roomId,
+      userId,
+    };
   };
 }
