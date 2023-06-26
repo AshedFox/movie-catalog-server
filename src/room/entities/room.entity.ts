@@ -9,9 +9,8 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { RoomParticipantEntity } from '../../room-participant/entities/room-participant.entity';
-import { VideoEntity } from '../../video/entities/video.entity';
 import { FilterableField } from '@common/filter';
-import { RoomVideoEntity } from '../../room-video/entities/room-video.entity';
+import { RoomMovieEntity } from '../../room-movie/entities/room-movie.entity';
 
 @ObjectType('Room')
 @Entity('rooms')
@@ -34,12 +33,10 @@ export class RoomEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   owner: UserEntity;
 
-  @Field(() => [VideoEntity])
-  videos: VideoEntity[];
 
-  @HideField()
-  @OneToMany(() => RoomVideoEntity, (roomVideo) => roomVideo.roomId)
-  videosConnection: RoomVideoEntity[];
+  @Field(() => [RoomMovieEntity])
+  @OneToMany(() => RoomMovieEntity, (roomMovie) => roomMovie.room)
+  movies: RoomMovieEntity[];
 
   @HideField()
   @OneToMany(

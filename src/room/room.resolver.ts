@@ -14,7 +14,6 @@ import { PaginatedRooms } from './dto/paginated-rooms';
 import { GetRoomsArgs } from './dto/get-rooms.args';
 import { ForbiddenException, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { UserEntity } from '../user/entities/user.entity';
-import { VideoEntity } from '../video/entities/video.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
@@ -23,7 +22,8 @@ import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { RoomParticipantEntity } from '../room-participant/entities/room-participant.entity';
-import { RoomVideoEntity } from '../room-video/entities/room-video.entity';
+import { RoomMovieEntity } from '../room-movie/entities/room-movie.entity';
+import { SortDirectionEnum } from '@common/sort';
 
 @Resolver(() => RoomEntity)
 export class RoomResolver {
@@ -167,21 +167,23 @@ export class RoomResolver {
       .load({ id: room.id });
   }
 
-  @ResolveField(() => VideoEntity, { nullable: true })
-  videos(
+  @ResolveField(() => RoomMovieEntity, { nullable: true })
+  movies(
     @Parent() room: RoomEntity,
     @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
     return loadersFactory
-      .createOrGetLoader(
-        RoomVideoEntity,
-        'roomId',
-        RoomEntity,
-        'id',
-        'video',
-        VideoEntity,
-      )
-      .load({ id: room.id });
+      .createOrGetLoader(RoomMovieEntity, 'roomId', RoomEntity, 'id')
+      .load({
+        id: room.id,
+        args: {
+          sort: {
+            order: {
+              direction: SortDirectionEnum.ASC,
+            },
+          },
+        },
+      });
   }
 
   @ResolveField(() => UserEntity)

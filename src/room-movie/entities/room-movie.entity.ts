@@ -2,19 +2,19 @@ import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { FilterableField } from '@common/filter';
 import { Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { RoomEntity } from '../../room/entities/room.entity';
-import { VideoEntity } from '../../video/entities/video.entity';
+import { MovieEntity } from '../../movie/entities/movie.entity';
 
-@ObjectType('RoomVideo')
-@Entity('rooms_videos')
+@ObjectType('RoomMovie')
+@Entity('rooms_movies')
 @Unique(['roomId', 'order'])
-export class RoomVideoEntity {
+export class RoomMovieEntity {
   @FilterableField(() => ID)
   @PrimaryColumn()
-  videoId: number;
+  movieId: string;
 
-  @Field(() => VideoEntity)
-  @ManyToOne(() => VideoEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  video: VideoEntity;
+  @Field(() => MovieEntity)
+  @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  movie: MovieEntity;
 
   @FilterableField(() => ID)
   @PrimaryColumn()
@@ -24,7 +24,15 @@ export class RoomVideoEntity {
   @ManyToOne(() => RoomEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   room: RoomEntity;
 
+  @Field(() => Int, { nullable: true })
+  @Column({ nullable: true })
+  episodeNumber?: number;
+
   @Field(() => Int)
   @Column({ type: 'int2' })
   order: number;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  showStart?: Date;
 }
