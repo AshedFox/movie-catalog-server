@@ -16,7 +16,10 @@ export class RoomParticipantEntity {
   userId: string;
 
   @Field(() => RoomEntity)
-  @ManyToOne(() => RoomEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @ManyToOne(() => RoomEntity, (room) => room.participants, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   room: RoomEntity;
 
   @Field(() => UserEntity)
