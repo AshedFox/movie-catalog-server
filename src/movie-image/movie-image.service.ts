@@ -25,12 +25,13 @@ export class MovieImageService extends BaseService<
   }
 
   create = async (createMovieImageInput: CreateMovieImageInput) => {
-    const { movieId, imageId } = createMovieImageInput;
+    const { movieId, imageId, typeId } = createMovieImageInput;
     await this.movieService.readOne(movieId);
     await this.mediaService.readOne(imageId);
     const movieImage = await this.movieImageRepository.findOneBy({
       movieId,
       imageId,
+      typeId,
     });
     if (movieImage) {
       throw new AlreadyExistsError(
