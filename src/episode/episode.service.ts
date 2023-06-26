@@ -62,13 +62,5 @@ export class EpisodeService extends BaseService<
     });
   };
 
-  readManyBySeries = async (seriesIds: string[]): Promise<EpisodeEntity[]> =>
-    this.episodeRepository.findBy({
-      seriesId: In(seriesIds),
-    });
 
-  readManyBySeasons = async (seasonsIds: string[]): Promise<EpisodeEntity[]> =>
-    this.episodeRepository.findBy({
-      seasonId: In(seasonsIds),
-    });
 }
