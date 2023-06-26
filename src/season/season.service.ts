@@ -3,7 +3,7 @@ import { AlreadyExistsError } from '@utils/errors';
 import { CreateSeasonInput } from './dto/create-season.input';
 import { UpdateSeasonInput } from './dto/update-season.input';
 import { SeasonEntity } from './entities/season.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from '@common/services/base.service';
 
@@ -37,7 +37,4 @@ export class SeasonService extends BaseService<
     }
     return this.seasonRepository.save(createSeasonInput);
   };
-
-  readManyBySeries = async (seriesIds: string[]): Promise<SeasonEntity[]> =>
-    this.seasonRepository.findBy({ seriesId: In(seriesIds) });
 }
