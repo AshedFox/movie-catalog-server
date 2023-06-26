@@ -98,6 +98,7 @@ export class EpisodeEntity {
 
   @FilterableField()
   @Column()
+  @Index()
   seriesId: string;
 
   @Field(() => SeriesEntity)
