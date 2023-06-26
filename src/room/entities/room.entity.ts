@@ -1,4 +1,4 @@
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { RoomParticipantEntity } from '../../room-participant/entities/room-participant.entity';
-import { FilterableField } from '@common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
 import { RoomMovieEntity } from '../../room-movie/entities/room-movie.entity';
 
 @ObjectType('Room')
@@ -40,10 +40,10 @@ export class RoomEntity {
   @OneToMany(() => RoomMovieEntity, (roomMovie) => roomMovie.room)
   movies: RoomMovieEntity[];
 
-  @HideField()
+  @FilterableRelation(() => [RoomParticipantEntity])
   @OneToMany(
     () => RoomParticipantEntity,
-    (roomParticipant) => roomParticipant.roomId,
+    (roomParticipant) => roomParticipant.room,
   )
   participantsConnection: RoomParticipantEntity[];
 
