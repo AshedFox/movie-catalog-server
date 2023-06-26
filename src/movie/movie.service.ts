@@ -7,6 +7,7 @@ import { MovieVisitStatsLastMonthView } from '../movie-visit-stats/entities/movi
 import { BaseService } from '@common/services';
 import { CreateMovieInput } from './dto/create-movie.input';
 import { UpdateMovieInput } from './dto/update-movie.input';
+import { MovieReviewEntity } from '../movie-review/entities/movie-review.entity';
 
 @Injectable()
 export class MovieService extends BaseService<
@@ -21,6 +22,31 @@ export class MovieService extends BaseService<
     super(movieRepository);
   }
 
+  readManyMostReviewed = async (
+    pagination: OffsetPaginationArgsType,
+  ): Promise<MovieEntity[]> => {
+    return this.movieRepository
+      .createQueryBuilder('m')
+      .select()
+      .leftJoin(
+        (qb) => {
+          return qb
+            .select(
+              '"mr"."movie_id" as movie_id, count("mr"."movie_id") as reviews_count',
+            )
+            .from(MovieReviewEntity, 'mr')
+            .where(
+              "created_at >= date_trunc('day',(now() - interval '1 month'))",
+            )
+            .groupBy('"mr"."movie_id"');
+        },
+        'lmmr',
+        '"lmmr"."movie_id" = "m"."id"',
+      )
+      .orderBy('"lmmr"."reviews_count"', 'DESC', 'NULLS LAST')
+      .limit(pagination.limit)
+      .offset(pagination.offset)
+      .getMany();
   };
 
   readManyMostViewed = async (
