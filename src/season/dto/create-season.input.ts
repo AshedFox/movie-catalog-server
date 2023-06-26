@@ -1,6 +1,13 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { SeasonEntity } from '../entities/season.entity';
-import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  Length,
+  Min,
+} from 'class-validator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 
@@ -17,14 +24,16 @@ export class CreateSeasonInput implements Partial<SeasonEntity> {
   description?: string;
 
   @Field({ nullable: true })
+  @IsDate()
   @IsOptional()
   startReleaseDate?: Date;
 
   @Field({ nullable: true })
+  @IsDate()
   @IsOptional()
   endReleaseDate?: Date;
 
-  @Field()
+  @Field(() => Int)
   @Min(0)
   numberInSeries: number;
 
