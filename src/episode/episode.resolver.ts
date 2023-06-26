@@ -88,6 +88,14 @@ export class EpisodeResolver {
   }
 
   @Query(() => EpisodeEntity)
+  getEpisodeBySeriesAndNum(
+    @Args('seriesId', ParseUUIDPipe) seriesId: string,
+    @Args('numInSeries', { type: () => Int }) numInSeries: number,
+  ) {
+    return this.episodeService.readOneByNumberInSeries(seriesId, numInSeries);
+  }
+
+  @Query(() => EpisodeEntity)
   getEpisodeBySeasonAndNum(
     @Args('seasonId', ParseUUIDPipe) seasonId: string,
     @Args('numInSeason', { type: () => Int }) numInSeason: number,

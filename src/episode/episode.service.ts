@@ -81,4 +81,21 @@ export class EpisodeService extends BaseService<
     return episode;
   };
 
+  readOneByNumberInSeries = async (
+    seriesId: string,
+    numberInSeries: number,
+  ) => {
+    const episode = await this.episodeRepository.findOneBy({
+      seriesId,
+      numberInSeries,
+    }
+    );
+    if (!episode) {
+      throw new NotFoundError(
+        `Episode with seriesId "${seriesId}" and numberInSeries "${numberInSeries}" not found!`,
+      );
+    }
+
+    return episode;
+  };
 }
