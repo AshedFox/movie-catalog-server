@@ -33,6 +33,8 @@ export class RoomEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   owner: UserEntity;
 
+  @Field(() => RoomMovieEntity, { nullable: true })
+  currentMovie?: RoomMovieEntity;
 
   @Field(() => [RoomMovieEntity])
   @OneToMany(() => RoomMovieEntity, (roomMovie) => roomMovie.room)
