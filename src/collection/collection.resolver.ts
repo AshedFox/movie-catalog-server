@@ -1,5 +1,6 @@
 import {
   Args,
+  Float,
   Int,
   Mutation,
   Parent,
@@ -23,7 +24,7 @@ import { RoleEnum } from '@utils/enums';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CollectionMovieEntity } from '../collection-movie/entities/collection-movie.entity';
-import { GetMoviesArgs } from '../movie/dto/get-movies.args';
+import { GetMoviesRelayArgs } from '../movie/dto/get-movies.args';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { CollectionReviewEntity } from '../collection-review/entities/collection-review.entity';
@@ -124,7 +125,7 @@ export class CollectionResolver {
   movies(
     @Parent() collection: CollectionEntity,
     @LoadersFactory() loadersFactory: DataLoaderFactory,
-    @Args() { sort, filter, ...pagination }: GetMoviesArgs,
+    @Args() { sort, filter, ...pagination }: GetMoviesRelayArgs,
   ) {
     return loadersFactory
       .createOrGetLoader(
