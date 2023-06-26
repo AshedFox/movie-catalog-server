@@ -91,6 +91,18 @@ export class MovieReviewResolver {
     };
   }
 
+  @Query(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  hasMovieReview(
+    @Args('movieId', ParseUUIDPipe) movieId: string,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewService.exists({
+      movieId,
+      userId: user.id,
+    });
+  }
+
   @Query(() => MovieReviewEntity)
   getMovieReview(@Args('id', { type: () => Int }) id: number) {
     return this.reviewService.readOne(id);
