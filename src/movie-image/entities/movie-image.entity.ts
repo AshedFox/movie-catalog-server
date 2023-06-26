@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -18,8 +18,8 @@ export class MovieImageEntity {
   @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
-  @FilterableField({ nullable: true })
-  @Column({ nullable: true })
+  @FilterableField(() => Int, { nullable: true })
+  @Column({ nullable: true, type: 'int2' })
   @Index()
   typeId?: number;
 

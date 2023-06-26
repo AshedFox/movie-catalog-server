@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsUUID } from 'class-validator';
 import { MovieImageEntity } from '../entities/movie-image.entity';
 
@@ -12,6 +12,6 @@ export class CreateMovieImageInput implements Partial<MovieImageEntity> {
   @IsUUID()
   imageId: string;
 
-  @Field()
+  @Field(() => Int)
   typeId: number;
 }
