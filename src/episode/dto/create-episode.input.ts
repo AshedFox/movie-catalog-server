@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { EpisodeEntity } from '../entities/episode.entity';
 import { IsEnum, IsOptional, IsUUID, Length, Min } from 'class-validator';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
@@ -25,7 +25,7 @@ export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   @IsOptional()
   coverId: string;
 
-  @Field()
+  @Field(() => Int)
   @Min(0)
   numberInSeries: number;
 
