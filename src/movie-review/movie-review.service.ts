@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateMovieReviewInput } from './dto/create-movie-review.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovieReviewEntity } from './entities/movie-review.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AlreadyExistsError } from '@utils/errors';
 import { BaseService } from '@common/services';
 import { UpdateMovieReviewInput } from './dto/update-movie-review.input';
@@ -30,10 +30,4 @@ export class MovieReviewService extends BaseService<
     }
     return this.reviewRepository.save(createReviewInput);
   };
-
-  readManyByMovies = async (moviesIds: string[]) =>
-    this.reviewRepository.findBy({ movieId: In(moviesIds) });
-
-  readManyByUsers = async (usersIds: string[]) =>
-    this.reviewRepository.findBy({ userId: In(usersIds) });
 }
