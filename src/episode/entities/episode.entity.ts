@@ -13,8 +13,10 @@ import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
 import { SeasonEntity } from '../../season/entities/season.entity';
 import { SeriesEntity } from '../../series/entities/series.entity';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
-import { FilterableField } from '@common/filter';
+import { FilterableField, FilterableRelation } from '@common/filter';
 import { VideoEntity } from '../../video/entities/video.entity';
+import { Expose } from 'class-transformer';
+import { MediaEntity } from '../../media/entities/media.entity';
 
 @ObjectType('Episode')
 @Entity('episodes')
@@ -48,6 +50,20 @@ export class EpisodeEntity {
   @FilterableField()
   @CreateDateColumn()
   publicationDate: Date;
+
+  @FilterableField({ nullable: true })
+  @Column({ nullable: true, type: 'uuid' })
+  @Expose({ name: 'cover_id' })
+  @Index({ where: 'cover_id IS NOT NULL' })
+  coverId?: string;
+
+  @FilterableRelation(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  cover?: MediaEntity;
 
   @FilterableField(() => AccessModeEnum)
   @Column({

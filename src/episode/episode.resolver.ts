@@ -23,6 +23,7 @@ import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { VideoEntity } from '../video/entities/video.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { MediaEntity } from '../media/entities/media.entity';
 
 @Resolver(EpisodeEntity)
 export class EpisodeResolver {
@@ -123,6 +124,18 @@ export class EpisodeResolver {
     return loadersFactory
       .createOrGetLoader(SeriesEntity, 'id')
       .load(episode.seriesId);
+  }
+
+  @ResolveField(() => MediaEntity)
+  cover(
+    @Parent() episode: EpisodeEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return episode.coverId
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(episode.coverId)
+      : undefined;
   }
 
   @ResolveField(() => VideoEntity)

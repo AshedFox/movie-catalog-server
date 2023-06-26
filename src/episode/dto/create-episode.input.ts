@@ -20,6 +20,11 @@ export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   @IsOptional()
   releaseDate?: Date;
 
+  @Field({ nullable: true })
+  @IsUUID('4')
+  @IsOptional()
+  coverId: string;
+
   @Field()
   @Min(0)
   numberInSeries: number;
