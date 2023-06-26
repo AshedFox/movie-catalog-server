@@ -21,6 +21,7 @@ import { MediaEntity } from '../../media/entities/media.entity';
 @ObjectType('Episode')
 @Entity('episodes')
 @Unique(['numberInSeries', 'seriesId'])
+@Unique(['numberInSeason', 'seasonId'])
 export class EpisodeEntity {
   @FilterableField(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -79,22 +80,21 @@ export class EpisodeEntity {
   @Column({ type: 'int2' })
   numberInSeries: number;
 
-  @FilterableField(() => Int, { nullable: true })
-  @Column({ type: 'int2', nullable: true })
-  numberInSeason?: number;
+  @FilterableField(() => Int)
+  @Column({ type: 'int2' })
+  numberInSeason: number;
 
-  @FilterableField({ nullable: true })
-  @Column({ nullable: true })
-  @Index({ where: 'season_id IS NOT NULL' })
-  seasonId?: string;
+  @FilterableField()
+  @Column()
+  @Index()
+  seasonId: string;
 
-  @Field(() => SeasonEntity, { nullable: true })
+  @Field(() => SeasonEntity)
   @ManyToOne(() => SeasonEntity, {
-    nullable: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  season?: SeasonEntity;
+  season: SeasonEntity;
 
   @FilterableField()
   @Column()

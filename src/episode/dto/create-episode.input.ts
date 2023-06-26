@@ -29,10 +29,9 @@ export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   @Min(0)
   numberInSeries: number;
 
-  @Field({ nullable: true })
+  @Field(() => Int)
   @Min(0)
-  @IsOptional()
-  numberInSeason?: number;
+  numberInSeason: number;
 
   @Field(() => AgeRestrictionEnum, { nullable: true })
   @IsOptional()
@@ -44,10 +43,9 @@ export class CreateEpisodeInput implements Partial<EpisodeEntity> {
   @IsOptional()
   accessMode?: AccessModeEnum;
 
-  @Field({ nullable: true })
+  @Field()
   @IsUUID('4')
-  @IsOptional()
-  seasonId?: string;
+  seasonId: string;
 
   @Field()
   @IsUUID('4')
