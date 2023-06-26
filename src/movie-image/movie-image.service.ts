@@ -3,7 +3,7 @@ import { CreateMovieImageInput } from './dto/create-movie-image.input';
 import { UpdateMovieImageInput } from './dto/update-movie-image.input';
 import { MovieImageEntity } from './entities/movie-image.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { MovieService } from '../movie/movie.service';
 import { MediaService } from '../media/media.service';
 import { AlreadyExistsError } from '@utils/errors';
@@ -39,7 +39,4 @@ export class MovieImageService extends BaseService<
     }
     return this.movieImageRepository.save(createMovieImageInput);
   };
-
-  readManyByMovies = async (moviesIds: string[]): Promise<MovieImageEntity[]> =>
-    await this.movieImageRepository.findBy({ movieId: In(moviesIds) });
 }
