@@ -42,7 +42,6 @@ import { RoomParticipantModule } from './room-participant/room-participant.modul
 import { RoomModule } from './room/room.module';
 import { MovieVisitStatsModule } from './movie-visit-stats/movie-visit-stats.module';
 import { LanguageModule } from './language/language.module';
-import { RoomVideoModule } from './room-video/room-video.module';
 import { VideoModule } from './video/video.module';
 import { SubtitlesModule } from './subtitles/subtitles.module';
 import { VideoVariantModule } from './video-variant/video-variant.module';
@@ -60,6 +59,7 @@ import { ProductPriceModule } from './product-price/product-price.module';
 import { ProductModule } from './product/product.module';
 import { CollectionReviewModule } from './collection-review/collection-review.module';
 import { CollectionUserModule } from './collection-user/collection-user.module';
+import { RoomMovieModule } from './room-movie/room-movie.module';
 import { PlanModule } from './plan/plan.module';
 import { PlanPriceModule } from './plan-price/plan-price.module';
 import { StripeModule } from './stripe/stripe.module';
@@ -118,7 +118,7 @@ import { WebhookModule } from './webhook/webhook.module';
     CurrencyModule,
     RoomModule,
     RoomParticipantModule,
-    RoomVideoModule,
+    RoomMovieModule,
     MovieVisitStatsModule,
     VideoVariantModule,
     SubtitlesModule,
