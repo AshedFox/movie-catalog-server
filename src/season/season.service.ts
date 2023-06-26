@@ -6,6 +6,7 @@ import { SeasonEntity } from './entities/season.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from '@common/services/base.service';
+import { SeriesService } from '../series/series.service';
 
 @Injectable()
 export class SeasonService extends BaseService<
@@ -16,6 +17,7 @@ export class SeasonService extends BaseService<
   constructor(
     @InjectRepository(SeasonEntity)
     private readonly seasonRepository: Repository<SeasonEntity>,
+    private readonly seriesService: SeriesService,
   ) {
     super(seasonRepository);
   }
@@ -24,6 +26,7 @@ export class SeasonService extends BaseService<
     createSeasonInput: CreateSeasonInput,
   ): Promise<SeasonEntity> => {
     const { seriesId, numberInSeries } = createSeasonInput;
+    const series = await this.seriesService.readOne(seriesId);
 
     const season = await this.seasonRepository.findOneBy({
       seriesId,
@@ -35,6 +38,10 @@ export class SeasonService extends BaseService<
         `Season with seriesId "${seriesId}" and numberInSeries "${numberInSeries}" already exists!`,
       );
     }
-    return this.seasonRepository.save(createSeasonInput);
+    return this.seasonRepository.save({
+      ageRestriction: series.ageRestriction,
+      accessMode: series.accessMode,
+      ...createSeasonInput,
+    });
   };
 }
