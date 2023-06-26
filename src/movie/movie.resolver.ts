@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MovieEntity } from './entities/movie.entity';
-import { GetMoviesArgs } from './dto/get-movies.args';
+import { GetMoviesOffsetArgs, GetMoviesRelayArgs } from './dto/get-movies.args';
 import { MovieService } from './movie.service';
 import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
@@ -8,9 +8,11 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { OffsetPaginationArgs } from '@common/pagination/offset';
 import { MovieInterfaceResolver } from './movie-interface.resolver';
-import { PaginatedMovies } from './dto/paginated-movies';
+import {
+  OffsetPaginatedMovies,
+  RelayPaginatedMovies,
+} from './dto/paginated-movies';
 import { UpdateMovieInput } from './dto/update-movie.input';
 
 @Resolver(MovieEntity)
@@ -19,10 +21,12 @@ export class MovieResolver extends MovieInterfaceResolver {
     super();
   }
 
-  @Query(() => PaginatedMovies)
+  @Query(() => OffsetPaginatedMovies)
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
-  getMoviesProtected(@Args() { sort, filter, ...pagination }: GetMoviesArgs) {
+  async getMoviesProtectedOffset(
+    @Args() { sort, filter, ...pagination }: GetMoviesOffsetArgs,
+  ) {
     const [data, count] = await Promise.all([
       this.movieService.readMany(pagination, sort, filter),
       this.movieService.count(filter),
@@ -40,8 +44,40 @@ export class MovieResolver extends MovieInterfaceResolver {
     };
   }
 
-  @Query(() => PaginatedMovies)
-  getMovies(@Args() { sort, filter, ...pagination }: GetMoviesArgs) {
+  @Query(() => RelayPaginatedMovies)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  async getMoviesProtectedRelay(
+    @Args() { sort, filter, ...pagination }: GetMoviesRelayArgs,
+  ) {
+    const data = await this.movieService.readMany(pagination, sort, filter);
+
+    const { first, last } = pagination;
+
+    const edges = data.map((node) => ({
+      node,
+      cursor: String(node.id),
+    }));
+
+    if ((!last && data.length > first) || (!first && data.length > last)) {
+      edges.pop();
+    }
+
+    return {
+      edges: !!last ? edges.reverse() : edges,
+      pageInfo: {
+        hasNextPage: !last && data.length > first,
+        hasPreviousPage: !first && data.length > last,
+        startCursor: edges[0]?.cursor,
+        endCursor: edges[edges.length - 1]?.cursor,
+      },
+    };
+  }
+
+  @Query(() => OffsetPaginatedMovies)
+  async getMoviesOffset(
+    @Args() { sort, filter, ...pagination }: GetMoviesOffsetArgs,
+  ) {
     filter = {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
@@ -63,13 +99,49 @@ export class MovieResolver extends MovieInterfaceResolver {
     };
   }
 
+  @Query(() => RelayPaginatedMovies)
+  async getMoviesRelay(
+    @Args() { sort, filter, ...pagination }: GetMoviesRelayArgs,
+  ) {
+    filter = {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    };
+    const data = await this.movieService.readMany(pagination, sort, filter);
+
+    const { first, last } = pagination;
+
+    const edges = data.map((node) => ({
+      node,
+      cursor: String(node.id),
+    }));
+
+    if ((!last && data.length > first) || (!first && data.length > last)) {
+      edges.pop();
+    }
+
+    return {
+      edges: !!last ? edges.reverse() : edges,
+      pageInfo: {
+        hasNextPage: !last && data.length > first,
+        hasPreviousPage: !first && data.length > last,
+        startCursor: edges[0]?.cursor,
+        endCursor: edges[edges.length - 1]?.cursor,
+      },
+    };
+  }
+
   @Query(() => [MovieEntity])
-  getMostViewedMovies(@Args() pagination: OffsetPaginationArgs) {
+  getMostViewedMovies(
+    @Args() { sort, filter, ...pagination }: GetMoviesOffsetArgs,
+  ) {
     return this.movieService.readManyMostViewed(pagination);
   }
 
   @Query(() => [MovieEntity])
-  getRandomMovies(@Args() pagination: OffsetPaginationArgs) {
+  getRandomMovies(
+    @Args() { sort, filter, ...pagination }: GetMoviesOffsetArgs,
+  ) {
     return this.movieService.readManyRandom(pagination);
   }
 
