@@ -11,6 +11,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { OffsetPaginationArgs } from '@common/pagination/offset';
 import { MovieInterfaceResolver } from './movie-interface.resolver';
 import { PaginatedMovies } from './dto/paginated-movies';
+import { UpdateMovieInput } from './dto/update-movie.input';
 
 @Resolver(MovieEntity)
 export class MovieResolver extends MovieInterfaceResolver {
@@ -75,6 +76,16 @@ export class MovieResolver extends MovieInterfaceResolver {
   @Query(() => MovieEntity)
   getMovie(@Args('id', ParseUUIDPipe) id: string) {
     return this.movieService.readOne(id);
+  }
+
+  @Mutation(() => MovieEntity)
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin, RoleEnum.Moderator])
+  updateMovie(
+    @Args('id', ParseUUIDPipe) id: string,
+    @Args('input') input: UpdateMovieInput,
+  ) {
+    return this.movieService.update(id, input);
   }
 
   @Mutation(() => MovieEntity)
