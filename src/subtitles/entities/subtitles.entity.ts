@@ -1,5 +1,11 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { LanguageEntity } from '../../language/entities/language.entity';
 import { MediaEntity } from '../../media/entities/media.entity';
 import { VideoEntity } from '../../video/entities/video.entity';
@@ -7,6 +13,7 @@ import { FilterableField } from '@common/filter';
 
 @ObjectType('Subtitles')
 @Entity('subtitles')
+@Unique(['videoId', 'languageId'])
 export class SubtitlesEntity {
   @FilterableField()
   @PrimaryGeneratedColumn({ type: 'int8' })
