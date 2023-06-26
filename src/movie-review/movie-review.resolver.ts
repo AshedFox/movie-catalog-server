@@ -11,11 +11,17 @@ import { MovieReviewService } from './movie-review.service';
 import { MovieReviewEntity } from './entities/movie-review.entity';
 import { CreateMovieReviewInput } from './dto/create-movie-review.input';
 import { UpdateMovieReviewInput } from './dto/update-movie-review.input';
-import { GetMoviesReviewsArgs } from './dto/get-movies-reviews.args';
-import { PaginatedMoviesReviews } from './dto/paginated-movies-reviews';
+import {
+  GetMoviesReviewsOffsetArgs,
+  GetMoviesReviewsRelayArgs,
+} from './dto/get-movies-reviews.args';
+import {
+  OffsetPaginatedMoviesReviews,
+  RelayPaginatedMoviesReviews,
+} from './dto/paginated-movies-reviews';
 import { UserEntity } from '../user/entities/user.entity';
 import { MovieEntity } from '../movie/entities/movie.entity';
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
@@ -36,10 +42,10 @@ export class MovieReviewResolver {
     return this.reviewService.create(createReviewInput);
   }
 
-  @Query(() => PaginatedMoviesReviews)
-  async getMoviesReviews(
-    @Args() { sort, filter, ...pagination }: GetMoviesReviewsArgs,
-  ): Promise<PaginatedMoviesReviews> {
+  @Query(() => RelayPaginatedMoviesReviews)
+  async getMoviesReviewsRelay(
+    @Args() { sort, filter, ...pagination }: GetMoviesReviewsRelayArgs,
+  ): Promise<RelayPaginatedMoviesReviews> {
     const data = await this.reviewService.readMany(pagination, sort, filter);
 
     const { first, last } = pagination;
@@ -60,6 +66,27 @@ export class MovieReviewResolver {
         hasPreviousPage: !first && data.length > last,
         startCursor: edges[0]?.cursor,
         endCursor: edges[edges.length - 1]?.cursor,
+      },
+    };
+  }
+
+  @Query(() => OffsetPaginatedMoviesReviews)
+  async getMoviesReviewsOffset(
+    @Args() { sort, filter, ...pagination }: GetMoviesReviewsOffsetArgs,
+  ): Promise<OffsetPaginatedMoviesReviews> {
+    const [data, count] = await Promise.all([
+      this.reviewService.readMany(pagination, sort, filter),
+      this.reviewService.count(filter),
+    ]);
+
+    const { limit, offset } = pagination;
+
+    return {
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
       },
     };
   }
