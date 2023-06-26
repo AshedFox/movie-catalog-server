@@ -139,9 +139,21 @@ export class RoomResolver {
     if (ability.cannot(ActionEnum.READ, RoomEntity)) {
       filter = {
         ...filter,
-        ownerId: {
-          eq: currentUser.id,
-        },
+        or: [
+          ...filter.or,
+          {
+            ownerId: {
+              eq: currentUser.id,
+            },
+          },
+          {
+            participantsConnection: {
+              userId: {
+                eq: currentUser.id,
+              },
+            },
+          },
+        ],
       };
     }
 
@@ -169,10 +181,12 @@ export class RoomResolver {
     @Args('id', ParseUUIDPipe) id: string,
   ) {
     const room = await this.roomService.readOne(id);
-    const ability = this.caslAbilityFactory.createForUser(currentUser);
 
-    if (ability.cannot(ActionEnum.READ, room)) {
-      throw new ForbiddenException();
+    if (
+      !(await this.roomService.hasParticipant(id, currentUser.id)) &&
+      room.ownerId !== currentUser.id
+    ) {
+      throw new ForbiddenException("You don't have access to this room!");
     }
 
     return room;
