@@ -21,7 +21,7 @@ export class SubtitlesEntity {
   video: VideoEntity;
 
   @FilterableField()
-  @Column()
+  @Column({ length: 3, type: 'char' })
   languageId: string;
 
   @Field(() => LanguageEntity)
