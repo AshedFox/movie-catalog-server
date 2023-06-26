@@ -3,7 +3,7 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { CreateEpisodeInput } from './dto/create-episode.input';
 import { UpdateEpisodeInput } from './dto/update-episode.input';
 import { EpisodeEntity } from './entities/episode.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from '@common/services/base.service';
 import { SeriesService } from '../series/series.service';
