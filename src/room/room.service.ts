@@ -13,6 +13,8 @@ import { BaseService } from '@common/services';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RoomParticipantService } from '../room-participant/room-participant.service';
+import { RoomMovieService } from '../room-movie/room-movie.service';
+import { RoomMovieEntity } from '../room-movie/entities/room-movie.entity';
 
 @Injectable()
 export class RoomService extends BaseService<
@@ -27,14 +29,41 @@ export class RoomService extends BaseService<
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => RoomParticipantService))
     private readonly roomParticipantService: RoomParticipantService,
+    @Inject(forwardRef(() => RoomMovieService))
+    private readonly roomMovieService: RoomMovieService,
   ) {
     super(roomRepository);
   }
 
-  makeInviteToken = (room: RoomEntity): string => {
+  hasParticipant = async (roomId: string, userId: string): Promise<boolean> => {
+    try {
+      await this.roomParticipantService.readOne(roomId, userId);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  startPlayback = (id: string): Promise<RoomMovieEntity> => {
+    return this.roomMovieService.start(id);
+  };
+
+  endPlayback = (id: string): Promise<RoomMovieEntity> => {
+    return this.roomMovieService.end(id);
+  };
+
+  getCurrentVideo = async (id: string): Promise<RoomMovieEntity> => {
+    return this.roomMovieService.getCurrent(id);
+  };
+
+  getCurrentPlayback = (id: string): Promise<number> => {
+    return this.roomMovieService.getCurrentPlayback(id);
+  };
+
+  makeInviteToken = (id: string): string => {
     return this.jwtService.sign(
       {
-        sub: room.id,
+        sub: id,
       },
       {
         algorithm: 'HS512',
@@ -44,7 +73,10 @@ export class RoomService extends BaseService<
     );
   };
 
-  joinWithInvite = async (inviteToken: string, userId: string) => {
+  joinWithInvite = async (
+    inviteToken: string,
+    userId: string,
+  ): Promise<RoomEntity> => {
     try {
       const { sub } = this.jwtService.verify<{
         sub: string;
@@ -54,9 +86,18 @@ export class RoomService extends BaseService<
       });
 
       await this.roomParticipantService.create(sub, userId);
-      return true;
+      return this.roomRepository.findOneBy({
+        id: sub,
+      });
     } catch (err) {
       throw new BadRequestException(err);
     }
+  };
+
+  leaveRoom = async (roomId: string, userId: string): Promise<RoomEntity> => {
+    await this.roomParticipantService.delete(roomId, userId);
+    return this.roomRepository.findOneBy({
+      id: roomId,
+    });
   };
 }

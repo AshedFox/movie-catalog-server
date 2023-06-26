@@ -6,6 +6,7 @@ import { RoomEntity } from './entities/room.entity';
 import { CaslModule } from '../casl/casl.module';
 import { RoomParticipantModule } from '../room-participant/room-participant.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PubSubModule } from '../pub-sub/pub-sub.module';
 import { RoomMovieModule } from '../room-movie/room-movie.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { RoomMovieModule } from '../room-movie/room-movie.module';
     forwardRef(() => RoomParticipantModule),
     forwardRef(() => RoomMovieModule),
     JwtModule,
+    PubSubModule,
   ],
   providers: [RoomResolver, RoomService],
   exports: [RoomService],
