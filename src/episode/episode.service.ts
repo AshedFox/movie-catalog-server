@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AlreadyExistsError } from '@utils/errors';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { CreateEpisodeInput } from './dto/create-episode.input';
 import { UpdateEpisodeInput } from './dto/update-episode.input';
 import { EpisodeEntity } from './entities/episode.entity';
@@ -62,5 +62,23 @@ export class EpisodeService extends BaseService<
     });
   };
 
+  readOneByNumberInSeason = async (
+    seasonId: string,
+    numberInSeason: number,
+  ) => {
+    const episode = await this.episodeRepository.findOneBy({
+      seasonId,
+      numberInSeason,
+    }
+    );
+
+    if (!episode) {
+      throw new NotFoundError(
+        `Episode with seasonId "${seasonId}" and numberInSeason "${numberInSeason}" not found!`,
+      );
+    }
+
+    return episode;
+  };
 
 }

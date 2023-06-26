@@ -87,6 +87,14 @@ export class EpisodeResolver {
     return this.episodeService.readOne(id);
   }
 
+  @Query(() => EpisodeEntity)
+  getEpisodeBySeasonAndNum(
+    @Args('seasonId', ParseUUIDPipe) seasonId: string,
+    @Args('numInSeason', { type: () => Int }) numInSeason: number,
+  ) {
+    return this.episodeService.readOneByNumberInSeason(seasonId, numInSeason);
+  }
+
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => EpisodeEntity)
