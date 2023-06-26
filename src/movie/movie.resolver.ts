@@ -22,7 +22,21 @@ export class MovieResolver extends MovieInterfaceResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   getMoviesProtected(@Args() { sort, filter, ...pagination }: GetMoviesArgs) {
-    return this.movieService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.movieService.readMany(pagination, sort, filter),
+      this.movieService.count(filter),
+    ]);
+
+    const { limit, offset } = pagination;
+
+    return {
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
+      },
+    };
   }
 
   @Query(() => PaginatedMovies)
@@ -31,7 +45,21 @@ export class MovieResolver extends MovieInterfaceResolver {
       ...filter,
       accessMode: { eq: AccessModeEnum.PUBLIC },
     };
-    return this.movieService.readMany(pagination, sort, filter);
+    const [data, count] = await Promise.all([
+      this.movieService.readMany(pagination, sort, filter),
+      this.movieService.count(filter),
+    ]);
+
+    const { limit, offset } = pagination;
+
+    return {
+      nodes: data,
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
+      },
+    };
   }
 
   @Query(() => [MovieEntity])
