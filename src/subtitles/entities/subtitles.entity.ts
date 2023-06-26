@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -15,7 +15,7 @@ import { FilterableField } from '@common/filter';
 @Entity('subtitles')
 @Unique(['videoId', 'languageId'])
 export class SubtitlesEntity {
-  @FilterableField()
+  @FilterableField(() => ID)
   @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
 
