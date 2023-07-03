@@ -243,6 +243,7 @@ export class FfmpegService {
   makeDashManifest = (
     videoPaths: Record<string, string[]>,
     audioPaths: Record<string, string[]>,
+    subtitlesPaths: Record<string, string>,
     outputPath: string,
     format?: FormatEnum,
   ) => {
@@ -269,6 +270,12 @@ export class FfmpegService {
             adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
             mapOpt.push(`-map ${mapOpt.length}:a:0`);
           }
+        }
+
+        for (const subtitlesPathsKey in subtitlesPaths) {
+          adaptationSets.push([mapOpt.length]);
+          command.addInput(subtitlesPaths[subtitlesPathsKey]);
+          mapOpt.push(`-map ${mapOpt.length}:s:0`);
         }
 
         command

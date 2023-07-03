@@ -96,6 +96,12 @@ export class VideoService extends BaseService<
           prev[curr.languageId].push(curr.media.url);
           return prev;
         }, {}),
+        subtitles.reduce((prev, curr) => {
+          if (!prev[curr.languageId]) {
+            prev[curr.languageId] = curr.file.url;
+          }
+          return prev;
+        }, {}),
         manifestPath,
       );
     } catch (err) {
