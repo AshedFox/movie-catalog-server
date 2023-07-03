@@ -59,12 +59,25 @@ export class VideoVariantService extends BaseService<
         url: uploadUrl,
       });
 
-      await queryRunner.manager.save(VideoVariantEntity, {
+      const existing = await queryRunner.manager.findOneBy(VideoVariantEntity, {
         videoId,
         profile,
         format,
-        mediaId: media.id,
       });
+
+      if (!existing) {
+        await queryRunner.manager.save(VideoVariantEntity, {
+          videoId,
+          profile,
+          format,
+          mediaId: media.id,
+        });
+      } else {
+        await queryRunner.manager.save(VideoVariantEntity, {
+          ...existing,
+          mediaId: media.id,
+        });
+      }
 
       await queryRunner.commitTransaction();
     } catch (err) {
