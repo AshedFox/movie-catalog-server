@@ -6,6 +6,7 @@ import {
   ResolveField,
   Resolver,
   Root,
+  Subscription,
 } from '@nestjs/graphql';
 import { VideoVariantEntity } from './entities/video-variant.entity';
 import { VideoVariantService } from './video-variant.service';
@@ -72,33 +73,32 @@ export class VideoVariantResolver {
           successful.push(videoProfile);
 
           await this.pubSub.publish(
-            `videosGenerationProgress_${videoId}`,
+            `videoVariantsProgress_${videoId}`,
             `Successfully generated video file for video ${videoId} and profile ${videoProfile}`,
           );
         } catch (err) {
           failed.push(videoProfile);
 
-          Logger.error(err);
           await this.pubSub.publish(
-            `videosGenerationProgress_${videoId}`,
+            `videoVariantsProgress_${videoId}`,
             `Failed to generate video file for video ${videoId} and profile ${videoProfile}`,
           );
         }
       }
 
       resolve({ successful, failed });
-    }).then(async (result) => {
-      const { successful, failed } = result;
-
-      await this.pubSub.publish(
-        `videosGenerationProgress_${videoId}`,
-        `Video files generation completed for video ${videoId}. Failed to generate video files for profiles [${failed.join(
-          ', ',
-        )}]. Successfully generated video files for profiles [${successful.join(
-          ', ',
-        )}].`,
-      );
-    });
+    }).then(({ successful, failed }) =>
+      this.pubSub.publish(
+        `videoVariantsProgress_${videoId}`,
+        `Video files generation completed for video ${videoId}. ` +
+          `Failed to generate video files for profiles [${failed.join(
+            ', ',
+          )}]. ` +
+          `Successfully generated video files for profiles [${successful.join(
+            ', ',
+          )}].`,
+      ),
+    );
 
     return true;
   }
@@ -148,5 +148,12 @@ export class VideoVariantResolver {
     return loadersFactory
       .createOrGetLoader(MediaEntity, 'id')
       .load(videoVariant.mediaId);
+  }
+
+  @Subscription(() => String, {
+    resolve: (value) => value,
+  })
+  videoVariantsProgress(@Args('id', { type: () => Int }) id: number) {
+    return this.pubSub.asyncIterator<string>(`videoVariantsProgress_${id}`);
   }
 }
