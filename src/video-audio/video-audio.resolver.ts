@@ -23,8 +23,9 @@ import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorat
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { MediaEntity } from '../media/entities/media.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
+import { VideoAudioEntity } from './entities/video-audio.entity';
 
-@Resolver()
+@Resolver(() => VideoAudioEntity)
 export class VideoAudioResolver {
   constructor(
     private readonly videoAudioService: VideoAudioService,
