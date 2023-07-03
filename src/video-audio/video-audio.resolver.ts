@@ -1,9 +1,11 @@
 import {
   Args,
+  Int,
   Mutation,
   ResolveField,
   Resolver,
   Root,
+  Subscription,
 } from '@nestjs/graphql';
 import { VideoAudioService } from './video-audio.service';
 import { Inject, Logger, UseGuards } from '@nestjs/common';
@@ -69,7 +71,7 @@ export class VideoAudioResolver {
           successful.push(audioProfile);
 
           await this.pubSub.publish(
-            `videosGenerationProgress_${videoId}`,
+            `audioVariantsProgress_${videoId}`,
             `Successfully generated audio file for audio ${videoId} and profile ${audioProfile}`,
           );
         } catch (err) {
@@ -78,25 +80,25 @@ export class VideoAudioResolver {
           Logger.error(err);
 
           await this.pubSub.publish(
-            `videosGenerationProgress_${videoId}`,
+            `audioVariantsProgress_${videoId}`,
             `Failed to generate audio file for audio ${videoId} and profile ${audioProfile}`,
           );
         }
       }
 
       resolve({ successful, failed });
-    }).then(async (result) => {
-      const { successful, failed } = result;
-
-      await this.pubSub.publish(
-        `videosGenerationProgress_${videoId}`,
-        `Audio files generation completed for video ${videoId}. Failed to generate audio files for profiles [${failed.join(
-          ', ',
-        )}]. Successfully generated audio files for profiles [${successful.join(
-          ', ',
-        )}].`,
-      );
-    });
+    }).then(({ successful, failed }) =>
+      this.pubSub.publish(
+        `audioVariantsProgress_${videoId}`,
+        `Audio files generation completed for video ${videoId}. ` +
+          `Failed to generate audio files for profiles [${failed.join(
+            ', ',
+          )}]. ` +
+          `Successfully generated audio files for profiles [${successful.join(
+            ', ',
+          )}].`,
+      ),
+    );
 
     return true;
   }
@@ -129,5 +131,12 @@ export class VideoAudioResolver {
     return loadersFactory
       .createOrGetLoader(LanguageEntity, 'id')
       .load(videoAudio.languageId);
+  }
+
+  @Subscription(() => String, {
+    resolve: (value) => value,
+  })
+  audioVariantsProgress(@Args('id', { type: () => Int }) id: number) {
+    return this.pubSub.asyncIterator<string>(`audioVariantsProgress_${id}`);
   }
 }
