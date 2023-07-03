@@ -354,8 +354,6 @@ export class FfmpegService {
     });
   };
 
-  /* Example of high-quality encoding ffmpeg -i "D:\Загрузки\pyrokinesis – молот ведьм (remastered).mp4" -y -an -filter:v scale=w=1280:h=720,fps=24 -c:v libsvtav1 -b:v 1930k -g 24 -preset 2 -crf 25 -pix_fmt yuv420p10le -threads:v 1 -svtav1-params tune=0:film-grain=8 D:\projects\movie-catalog\movie-catalog-server\assets\video_45\PROFILE_720p_video.webm */
-
   makeVideo = (
     inputPath: string,
     outputPath: string,
