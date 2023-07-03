@@ -10,6 +10,7 @@ import fs from 'fs';
 import { FfmpegService } from '../ffmpeg/ffmpeg.service';
 import { AudioProfileEnum } from '@utils/enums/audio-profile.enum';
 import { GoogleCloudService } from '../cloud/google-cloud.service';
+import { FormatEnum } from '@utils/enums/format.enum';
 
 @Injectable()
 export class VideoAudioService extends BaseService<
@@ -35,20 +36,21 @@ export class VideoAudioService extends BaseService<
     inputPath: string,
     outputDir: string,
     name: string,
-    format: string,
+    format: FormatEnum,
   ): Promise<void> => {
-    const outputPath = join(outputDir, `${name}.${format}`);
+    const outputPath = join(outputDir, `${name}.${format.toLowerCase()}`);
 
     await this.ffmpegService.makeAudio(
       inputPath,
       outputPath,
       profile,
+      format,
       languageId,
     );
 
     const uploadUrl = await this.cloudService.upload(
       outputPath,
-      `videos/audio_${videoId}/${name}.${format}`,
+      `videos/video_${videoId}/${name}.${format.toLowerCase()}`,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -66,6 +68,7 @@ export class VideoAudioService extends BaseService<
         videoId,
         languageId,
         profile,
+        format,
         mediaId: media.id,
       });
 

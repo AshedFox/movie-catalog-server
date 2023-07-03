@@ -22,13 +22,14 @@ export class VideoAudioResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
-  async generateVideoAudios(
+  generateVideoAudios(
     @Args('input')
     {
       videoId,
       profiles,
       originalMediaUrl,
       languageId,
+      format,
     }: GenerateVideoAudiosInput,
   ) {
     const outDir = join(process.cwd(), 'assets', `video_${videoId}`);
@@ -51,7 +52,7 @@ export class VideoAudioResolver {
             originalMediaUrl,
             outDir,
             `${audioProfile}_audio_${languageId}`,
-            'webm',
+            format,
           );
 
           successful.push(audioProfile);
