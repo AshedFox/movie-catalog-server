@@ -387,6 +387,13 @@ export class FfmpegService {
         if (videoCodec === 'av1') {
           command.addOutputOptions(['-preset 6', '-crf 32']);
           command.addOutputOption('-svtav1-params', 'tune=0:film-grain=8');
+        } else if (videoCodec === 'h265') {
+          command.addOutputOptions([
+            '-preset fast',
+            '-crf 32',
+            '-tune zerolatency',
+            '-keyint_min 30',
+          ]);
         }
 
         language &&
