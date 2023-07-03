@@ -21,7 +21,7 @@ export class VideoEntity {
 
   @Field({ nullable: true })
   @Column({ type: 'uuid', nullable: true })
-  manifestMediaId?: string;
+  dashManifestMediaId?: string;
 
   @Field(() => MediaEntity, { nullable: true })
   @ManyToOne(() => MediaEntity, {
@@ -29,7 +29,19 @@ export class VideoEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  manifestMedia?: MediaEntity;
+  dashManifestMedia?: MediaEntity;
+
+  @Field({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  hlsManifestMediaId?: string;
+
+  @Field(() => MediaEntity, { nullable: true })
+  @ManyToOne(() => MediaEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  hlsManifestMedia?: MediaEntity;
 
   @Field(() => [VideoVariantEntity])
   @OneToMany(() => VideoVariantEntity, (videoVariant) => videoVariant.videoId)

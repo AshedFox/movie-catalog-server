@@ -9,6 +9,7 @@ import { MediaModule } from '../media/media.module';
 import { VideoVariantModule } from '../video-variant/video-variant.module';
 import { VideoAudioModule } from '../video-audio/video-audio.module';
 import { CloudModule } from '../cloud/cloud.module';
+import { SubtitlesModule } from '../subtitles/subtitles.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CloudModule } from '../cloud/cloud.module';
     CloudModule,
     VideoVariantModule,
     VideoAudioModule,
+    SubtitlesModule,
     MediaModule,
   ],
   providers: [VideoResolver, VideoService],

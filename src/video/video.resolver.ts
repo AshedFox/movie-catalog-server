@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import { VideoService } from './video.service';
 import { VideoEntity } from './entities/video.entity';
-import { Inject, Logger, UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
@@ -22,26 +22,15 @@ import { SubtitlesEntity } from '../subtitles/entities/subtitles.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { PubSub } from 'graphql-subscriptions';
-import { MediaService } from '../media/media.service';
-import { VideoVariantService } from '../video-variant/video-variant.service';
-import path, { join } from 'path';
-import * as fs from 'fs';
-import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { MediaEntity } from '../media/entities/media.entity';
-import { VideoAudioService } from '../video-audio/video-audio.service';
-import { FfmpegService } from '../ffmpeg/ffmpeg.service';
-import { GoogleCloudService } from '../cloud/google-cloud.service';
 import { VideoAudioEntity } from '../video-audio/entities/video-audio.entity';
+import { join } from 'path';
+import fs from 'fs';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
   constructor(
     private readonly videoService: VideoService,
-    private readonly videoVariantService: VideoVariantService,
-    private readonly videoAudioService: VideoAudioService,
-    private readonly ffmpegService: FfmpegService,
-    private readonly cloudService: GoogleCloudService,
-    private readonly mediaService: MediaService,
     @Inject('PUB_SUB')
     private readonly pubSub: PubSub,
   ) {}
@@ -49,140 +38,64 @@ export class VideoResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
   @Mutation(() => Boolean)
-  async generateStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
-    const dashOutDir = join(process.cwd(), 'assets', `video_${id}`, 'dash');
-
-    fs.mkdirSync(dashOutDir, { recursive: true });
-
-    const videoVariantsPromise = this.videoVariantService.readMany(
-      undefined,
-      undefined,
-      {
-        videoId: {
-          eq: id,
-        },
-      },
-    );
-
-    const audioVariantsPromise = this.videoAudioService.readMany(
-      undefined,
-      undefined,
-      {
-        videoId: {
-          eq: id,
-        },
-      },
-    );
-
-    Promise.all([videoVariantsPromise, audioVariantsPromise])
+  generateStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
+    this.videoService
+      .prepareStreamingData(id)
       .then(async (data) => {
-        let videoVariants = data[0];
-        let audioVariants = data[1];
-        const manifestPath = `${dashOutDir}//manifest.mpd`;
-
-        if (audioVariants.length === 0 || videoVariants.length === 0) {
-          await this.pubSub.publish(
-            `videosGenerationProgress_${id}`,
-            `Cannot generate streaming files for video ${id}, no audio or video variants.`,
-          );
-          Logger.error('no audio or video');
-          return;
-        }
+        const streamingOutDir = join(
+          process.cwd(),
+          'assets',
+          `video_${id}`,
+          'streaming',
+        );
 
         try {
-          const videoMedia = await this.mediaService.readMany(
-            undefined,
-            undefined,
-            {
-              id: {
-                in: videoVariants.map((value) => value.mediaId),
-              },
-            },
+          await this.pubSub.publish(
+            `streamingGenerationProgress_${id}`,
+            `Starting streaming files creation for video ${id}`,
           );
 
-          const audioMedia = await this.mediaService.readMany(
-            undefined,
-            undefined,
-            {
-              id: {
-                in: audioVariants.map((value) => value.mediaId),
-              },
-            },
-          );
-
-          audioVariants = audioVariants.map((value) => {
-            value.media = audioMedia.find(
-              (media) => media.id === value.mediaId,
-            );
-            return value;
-          });
-
-          const videoPaths: Record<string, string[]> = {
-            ENG: videoMedia.map((value) => value.url),
-          };
-
-          const audioPaths: Record<string, string[]> = {};
-
-          audioVariants.forEach((value) => {
-            if (!audioPaths[value.languageId]) {
-              audioPaths[value.languageId] = [];
-            }
-            audioPaths[value.languageId].push(value.media.url);
-          });
-
-          await this.ffmpegService.makeDashManifest(
-            videoPaths,
-            audioPaths,
-            manifestPath,
+          await this.videoService.createStreaming(
+            id,
+            join(process.cwd(), 'assets', `video_${id}`, 'streaming'),
+            data.videoVariants,
+            data.audioVariants,
+            data.subtitles,
           );
 
           await this.pubSub.publish(
-            `videosGenerationProgress_${id}`,
-            `Successfully generated streaming files for video ${id}`,
+            `streamingGenerationProgress_${id}`,
+            `Successfully created streaming files for video ${id}`,
           );
-        } catch (err) {
-          Logger.error(err);
-          await this.pubSub.publish(
-            `videosGenerationProgress_${id}`,
-            `Failed to generate streaming files for video ${id}`,
-          );
-          return;
-        }
-
-        try {
-          const dashFiles = fs.readdirSync(dashOutDir);
-
-          for (const dashFile of dashFiles) {
-            const uploadUrl = await this.cloudService.upload(
-              join(dashOutDir, dashFile),
-              `videos/video_${id}/dash/${dashFile}`,
-            );
-
-            if (dashFile === path.basename(manifestPath)) {
-              const manifestMedia = await this.mediaService.create({
-                type: MediaTypeEnum.RAW,
-                url: uploadUrl,
-              });
-
-              await this.videoService.update(id, {
-                manifestMediaId: manifestMedia.id,
-              });
-            }
-          }
 
           await this.pubSub.publish(
-            `videosGenerationProgress_${id}`,
+            `streamingGenerationProgress_${id}`,
+            `Clearing old streaming files if exists for video ${id}`,
+          );
+
+          await this.videoService.clearStreamingFiles(id);
+
+          await this.pubSub.publish(
+            `streamingGenerationProgress_${id}`,
+            `Starting uploading streaming files for video ${id}`,
+          );
+
+          await this.videoService.clearStreamingFiles(id);
+          await this.videoService.uploadStreamingFiles(id, streamingOutDir);
+
+          await this.pubSub.publish(
+            `streamingGenerationProgress_${id}`,
             `Successfully uploaded streaming files for video ${id}`,
           );
         } catch (err) {
-          Logger.error(err);
-          await this.pubSub.publish(
-            `videosGenerationProgress_${id}`,
-            `Failed to upload streaming files for video ${id}}`,
-          );
+          await this.pubSub.publish(`streamingGenerationProgress_${id}`, err);
+        } finally {
+          fs.rmSync(streamingOutDir, { recursive: true });
         }
       })
-      .finally(() => fs.rmSync(dashOutDir, { recursive: true }));
+      .catch((err) =>
+        this.pubSub.publish(`streamingGenerationProgress_${id}`, err),
+      );
 
     return true;
   }
@@ -228,18 +141,34 @@ export class VideoResolver {
   @Subscription(() => String, {
     resolve: (value) => value,
   })
-  videosGenerationCompleted(@Args('id', { type: () => Int }) id: number) {
-    return this.pubSub.asyncIterator<string>(`videosGenerationProgress_${id}`);
+  streamingGenerationProgress(@Args('id', { type: () => Int }) id: number) {
+    return this.pubSub.asyncIterator<string>(
+      `streamingGenerationProgress_${id}`,
+    );
   }
 
-  @ResolveField(() => [VideoVariantEntity])
-  manifestMedia(
+  @ResolveField(() => MediaEntity, { nullable: true })
+  dashManifestMedia(
     @Parent() video: VideoEntity,
     @LoadersFactory() loadersFactory: DataLoaderFactory,
   ) {
-    return loadersFactory
-      .createOrGetLoader(MediaEntity, 'id')
-      .load(video.manifestMediaId);
+    return video.dashManifestMediaId
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(video.dashManifestMediaId)
+      : undefined;
+  }
+
+  @ResolveField(() => MediaEntity, { nullable: true })
+  hlsManifestMedia(
+    @Parent() video: VideoEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return video.hlsManifestMedia
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(video.hlsManifestMediaId)
+      : undefined;
   }
 
   @ResolveField(() => [VideoVariantEntity])

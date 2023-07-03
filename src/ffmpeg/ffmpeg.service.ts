@@ -277,6 +277,7 @@ export class FfmpegService {
           .addOutputOption('-use_timeline 1')
           .addOutputOption('-use_template 1')
           .addOutputOption('-seg_duration 4')
+          .addOutputOption('-hls_playlist 1')
           .addOutputOption(
             `-adaptation_sets`,
             adaptationSets
