@@ -64,13 +64,27 @@ export class VideoAudioService extends BaseService<
         url: uploadUrl,
       });
 
-      await queryRunner.manager.save(VideoAudioEntity, {
+      const existing = await queryRunner.manager.findOneBy(VideoAudioEntity, {
         videoId,
         languageId,
         profile,
         format,
-        mediaId: media.id,
       });
+
+      if (!existing) {
+        await queryRunner.manager.save(VideoAudioEntity, {
+          videoId,
+          languageId,
+          profile,
+          format,
+          mediaId: media.id,
+        });
+      } else {
+        await queryRunner.manager.save(VideoAudioEntity, {
+          ...existing,
+          mediaId: media.id,
+        });
+      }
 
       await queryRunner.commitTransaction();
     } catch (err) {
