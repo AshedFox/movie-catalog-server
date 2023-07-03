@@ -10,7 +10,7 @@ import {
 import { VideoVariantEntity } from './entities/video-variant.entity';
 import { VideoVariantService } from './video-variant.service';
 import { CreateVideoVariantInput } from './dto/create-video-variant.input';
-import { Inject, Logger, UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
@@ -44,9 +44,9 @@ export class VideoVariantResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
-  async generateVideoVariants(
+  generateVideoVariants(
     @Args('input')
-    { videoId, profiles, originalMediaUrl }: GenerateVideoVariantsInput,
+    { videoId, profiles, originalMediaUrl, format }: GenerateVideoVariantsInput,
   ) {
     const outDir = join(process.cwd(), 'assets', `video_${videoId}`);
 
@@ -67,9 +67,8 @@ export class VideoVariantResolver {
             originalMediaUrl,
             outDir,
             `${videoProfile}_video`,
-            'webm',
+            format,
           );
-
           successful.push(videoProfile);
 
           await this.pubSub.publish(

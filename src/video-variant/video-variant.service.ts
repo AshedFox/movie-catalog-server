@@ -12,6 +12,7 @@ import { MediaEntity } from '../media/entities/media.entity';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { GoogleCloudService } from '../cloud/google-cloud.service';
 import fs from 'fs';
+import { FormatEnum } from '@utils/enums/format.enum';
 
 @Injectable()
 export class VideoVariantService extends BaseService<
@@ -36,15 +37,15 @@ export class VideoVariantService extends BaseService<
     inputPath: string,
     outputDir: string,
     name: string,
-    format: string,
+    format: FormatEnum,
   ): Promise<void> => {
-    const outputPath = join(outputDir, `${name}.${format}`);
+    const outputPath = join(outputDir, `${name}.${format.toLowerCase()}`);
 
-    await this.ffmpegService.makeVideo(inputPath, outputPath, profile);
+    await this.ffmpegService.makeVideo(inputPath, outputPath, profile, format);
 
     const uploadUrl = await this.cloudService.upload(
       outputPath,
-      `videos/video_${videoId}/${name}.${format}`,
+      `videos/video_${videoId}/${name}.${format.toLowerCase()}`,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -61,6 +62,7 @@ export class VideoVariantService extends BaseService<
       await queryRunner.manager.save(VideoVariantEntity, {
         videoId,
         profile,
+        format,
         mediaId: media.id,
       });
 
