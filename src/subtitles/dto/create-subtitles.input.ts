@@ -7,7 +7,7 @@ export class CreateSubtitlesInput {
   videoId: number;
 
   @Field()
-  @Length(5, 6)
+  @Length(3, 3)
   languageId: string;
 
   @Field()
