@@ -1,4 +1,10 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import { VideoAudioService } from './video-audio.service';
 import { Inject, Logger, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
@@ -10,6 +16,11 @@ import fs from 'fs';
 import { AudioProfileEnum } from '@utils/enums/audio-profile.enum';
 import { GenerateVideoAudiosInput } from './dto/generate-video-audios.input';
 import { PubSub } from 'graphql-subscriptions';
+import { VideoEntity } from '../video/entities/video.entity';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { MediaEntity } from '../media/entities/media.entity';
+import { LanguageEntity } from '../language/entities/language.entity';
 
 @Resolver()
 export class VideoAudioResolver {
@@ -88,5 +99,35 @@ export class VideoAudioResolver {
     });
 
     return true;
+  }
+
+  @ResolveField(() => VideoEntity)
+  video(
+    @Root() videoAudio: VideoAudioEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(VideoEntity, 'id')
+      .load(videoAudio.videoId);
+  }
+
+  @ResolveField(() => MediaEntity)
+  media(
+    @Root() videoAudio: VideoAudioEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(MediaEntity, 'id')
+      .load(videoAudio.mediaId);
+  }
+
+  @ResolveField(() => LanguageEntity)
+  language(
+    @Root() videoAudio: VideoAudioEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetLoader(LanguageEntity, 'id')
+      .load(videoAudio.languageId);
   }
 }
