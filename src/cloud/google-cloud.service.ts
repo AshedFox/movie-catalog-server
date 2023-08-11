@@ -3,8 +3,6 @@ import { Bucket, Storage } from '@google-cloud/storage';
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import * as process from 'process';
 import fs from 'fs';
 
 @Injectable()
@@ -15,7 +13,7 @@ export class GoogleCloudService {
   constructor(private readonly configService: ConfigService) {
     this.storage = new Storage({
       projectId: configService.get('GCS_PROJECT_ID'),
-      keyFilename: join(process.cwd(), 'gcs_credentials.json'),
+      credentials: JSON.parse(configService.get('GCS_CREDENTIALS')),
     });
     this.bucket = this.storage.bucket(
       this.configService.get('GCS_MEDIA_BUCKET'),
