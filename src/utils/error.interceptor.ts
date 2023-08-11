@@ -5,11 +5,18 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NestInterceptor,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { catchError, Observable, throwError } from 'rxjs';
-import { AlreadyExistsError, NotFoundError } from '@utils/errors';
+import {
+  AlreadyExistsError,
+  AuthError,
+  NotFoundError,
+  RefreshTokenError,
+} from '@utils/errors';
 
 @Injectable()
 export class ErrorInterceptor implements NestInterceptor {
@@ -20,10 +27,14 @@ export class ErrorInterceptor implements NestInterceptor {
           return throwError(() => new NotFoundException(err.message));
         } else if (err instanceof AlreadyExistsError) {
           return throwError(() => new ConflictException(err.message));
+        } else if (err instanceof AuthError) {
+          return throwError(() => new UnauthorizedException(err.message));
+        } else if (err instanceof RefreshTokenError) {
+          return throwError(() => new UnauthorizedException(err.message));
         } else if (err instanceof HttpException) {
           return throwError(() => err);
         }
-        console.log(err.stack);
+        Logger.error(err.stack);
         return throwError(() => new InternalServerErrorException());
       }),
     );

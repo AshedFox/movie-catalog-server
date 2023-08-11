@@ -3560,9 +3560,9 @@ type Mutation {
   logout: Boolean!
   moveRoomMovie(input: MoveRoomMovieInput!, roomId: String!): RoomMovie!
   refresh: AuthResult!
-  register(input: RegisterInput!): AuthResult!
   removeVideo(id: Int!): Video!
   sendConfirmation: Boolean!
+  signUp(input: SignUpInput!): AuthResult!
   startRoomMovie(roomId: String!): RoomMovie!
   startRoomPlayback(id: String!): Boolean!
   subscribe(priceId: String!): String!
@@ -3912,13 +3912,6 @@ type Query {
   hasPurchase(movieId: String!): Boolean!
 }
 
-input RegisterInput {
-  email: String!
-  name: String!
-  password: String!
-  passwordRepeat: String!
-}
-
 type RelayMovieEdge {
   cursor: String!
   node: Movie!
@@ -4200,6 +4193,13 @@ type ServiceSubscription {
   status: SubscriptionStatusEnum!
   user: User!
   userId: String!
+}
+
+input SignUpInput {
+  email: String!
+  name: String!
+  password: String!
+  passwordRepeat: String!
 }
 
 enum SortDirectionEnum {

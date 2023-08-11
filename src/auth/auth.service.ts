@@ -3,12 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
-import { RegisterInput } from './dto/register.input';
+import { SignUpInput } from './dto/sign-up.input';
 import { AuthResult } from './dto/auth.result';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { StripeService } from '../stripe/stripe.service';
+import { LoginInput } from './dto/login.input';
+import { AuthError, RefreshTokenError } from '@utils/errors';
 
 @Injectable()
 export class AuthService {
@@ -20,29 +22,18 @@ export class AuthService {
     private readonly stripeService: StripeService,
   ) {}
 
-  validateUser = async (
-    username: string,
-    password: string,
-  ): Promise<UserEntity> => {
-    const user = await this.userService.readOneByEmail(username);
-
-    if (await argon2.verify(user.password, password)) {
-      user.password = '';
-      return user;
-    } else {
-      throw new Error('User password incorrect!');
-    }
-  };
-
   validateRefreshToken = async (token: string): Promise<UserEntity> => {
-    const oldRefreshToken = await this.refreshTokenService.readOne(token);
+    const refreshToken = await this.refreshTokenService.readOne(token);
 
-    if (oldRefreshToken.expiresAt <= new Date()) {
-      throw new Error('Refresh token is expired!');
+    if (refreshToken.expiresAt <= new Date()) {
+      throw new RefreshTokenError('Refresh token is expired!');
     }
 
-    const user = await this.userService.readOneById(oldRefreshToken.userId);
-    await this.refreshTokenService.delete(oldRefreshToken.id);
+    await this.refreshTokenService.delete(refreshToken.id);
+
+    const user = await this.userService.readOneById(refreshToken.userId);
+    user.password = '';
+
     return user;
   };
 
@@ -77,28 +68,39 @@ export class AuthService {
       },
     );
 
-  login = async (user: UserEntity): Promise<AuthResult> => ({
+  makeAuthResult = async (user: UserEntity): Promise<AuthResult> => ({
     user,
     refreshToken: await this.generateRefreshToken(user),
     accessToken: await this.generateAccessToken(user),
   });
 
-  register = async (registerInput: RegisterInput): Promise<AuthResult> => {
-    if (registerInput.password !== registerInput.passwordRepeat) {
-      throw new Error('Password and password repetition are not equal!');
+  login = async (loginInput: LoginInput): Promise<AuthResult> => {
+    const user = await this.userService.readOneByEmail(loginInput.email);
+
+    if (await argon2.verify(user.password, loginInput.password)) {
+      user.password = '';
+      return this.makeAuthResult(user);
+    } else {
+      throw new AuthError('User password incorrect!');
+    }
+  };
+
+  signUp = async (signUpInput: SignUpInput): Promise<AuthResult> => {
+    if (signUpInput.password !== signUpInput.passwordRepeat) {
+      throw new AuthError('Password and password repetition are not equal!');
     }
 
     const customer = await this.stripeService.createCustomer(
-      registerInput.email,
-      registerInput.name,
+      signUpInput.email,
+      signUpInput.name,
     );
 
     const user = await this.userService.create({
-      email: registerInput.email,
-      name: registerInput.name,
+      email: signUpInput.email,
+      name: signUpInput.name,
       customerId: customer.id,
-      password: await argon2.hash(registerInput.password),
+      password: await argon2.hash(signUpInput.password),
     });
-    return this.login(user);
+    return this.makeAuthResult(user);
   };
 }

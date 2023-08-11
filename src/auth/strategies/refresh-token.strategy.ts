@@ -1,8 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
-import { ConfigService } from '@nestjs/config';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { RefreshTokenError } from '@utils/errors';
+import { Request } from 'express';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -14,27 +17,22 @@ export class RefreshTokenStrategy extends PassportStrategy(
     private readonly configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req) => {
-          if (req && req.signedCookies) {
-            return req.signedCookies[
-              configService.get<string>('REFRESH_COOKIE_NAME')
-            ];
-          }
-          return null;
-        },
-      ]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       algorithms: ['HS512'],
       secretOrKey: configService.get<string>('REFRESH_TOKEN_SECRET'),
     });
   }
 
-  async validate(payload: any) {
+  authenticate(req: Request, options?: any): void {
     try {
-      return this.authService.validateRefreshToken(payload.sub);
+      super.authenticate(req, options);
     } catch (err) {
-      throw new UnauthorizedException(err);
+      throw new RefreshTokenError(err.message);
     }
+  }
+
+  async validate(payload: any) {
+    return this.authService.validateRefreshToken(payload.sub);
   }
 }
