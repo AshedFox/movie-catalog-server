@@ -30,7 +30,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard, RefreshTokenGuard)
+  @UseGuards(GqlJwtAuthGuard)
   logout() {
     return true;
   }
