@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { FilterableField } from '@common/filter';
 import { VideoVariantEntity } from '../../video-variant/entities/video-variant.entity';
@@ -29,7 +30,7 @@ export class VideoEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  dashManifestMedia?: MediaEntity;
+  dashManifestMedia?: Relation<MediaEntity>;
 
   @Field({ nullable: true })
   @Column({ type: 'uuid', nullable: true })
@@ -41,17 +42,17 @@ export class VideoEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  hlsManifestMedia?: MediaEntity;
+  hlsManifestMedia?: Relation<MediaEntity>;
 
   @Field(() => [VideoVariantEntity])
   @OneToMany(() => VideoVariantEntity, (videoVariant) => videoVariant.videoId)
-  variants: VideoVariantEntity[];
+  variants: Relation<VideoVariantEntity[]>;
 
   @Field(() => [VideoAudioEntity])
   @OneToMany(() => VideoAudioEntity, (videoAudio) => videoAudio.video)
-  audios: VideoAudioEntity[];
+  audios: Relation<VideoAudioEntity[]>;
 
   @Field(() => [SubtitlesEntity])
   @OneToMany(() => SubtitlesEntity, (subtitles) => subtitles.videoId)
-  subtitles: SubtitlesEntity[];
+  subtitles: Relation<SubtitlesEntity[]>;
 }

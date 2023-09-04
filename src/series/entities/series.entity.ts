@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ChildEntity, Column, Index, OneToMany } from 'typeorm';
+import { ChildEntity, Column, Index, OneToMany, Relation } from 'typeorm';
 import { SeasonEntity } from '../../season/entities/season.entity';
 import { EpisodeEntity } from '../../episode/entities/episode.entity';
 import { MovieTypeEnum } from '@utils/enums';
@@ -23,9 +23,9 @@ export class SeriesEntity extends MovieEntity {
 
   @Field(() => [SeasonEntity])
   @OneToMany(() => SeasonEntity, (season) => season.series)
-  seasons: SeasonEntity[];
+  seasons: Relation<SeasonEntity[]>;
 
   @Field(() => [EpisodeEntity])
   @OneToMany(() => EpisodeEntity, (episode) => episode.series)
-  episodes: EpisodeEntity[];
+  episodes: Relation<EpisodeEntity[]>;
 }

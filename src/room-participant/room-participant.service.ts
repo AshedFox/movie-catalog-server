@@ -5,6 +5,7 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { RoomParticipantEntity } from './entities/room-participant.entity';
 import { RoomService } from '../room/room.service';
 import { UserService } from '../user/user.service';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class RoomParticipantService {
@@ -12,9 +13,9 @@ export class RoomParticipantService {
     @InjectRepository(RoomParticipantEntity)
     private readonly roomParticipantRepository: Repository<RoomParticipantEntity>,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly roomService: WrapperType<RoomService>,
     @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
+    private readonly userService: WrapperType<UserService>,
   ) {}
 
   create = async (

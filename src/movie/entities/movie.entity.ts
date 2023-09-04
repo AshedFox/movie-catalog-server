@@ -8,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   TableInheritance,
   UpdateDateColumn,
 } from 'typeorm';
@@ -106,57 +107,57 @@ export class MovieEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  cover?: MediaEntity;
+  cover?: Relation<MediaEntity>;
 
   @Field(() => [TrailerEntity])
   @OneToMany(() => TrailerEntity, (trailer) => trailer.movie)
-  trailers: TrailerEntity[];
+  trailers: Relation<TrailerEntity[]>;
 
   @Field(() => [MovieReviewEntity])
   @OneToMany(() => MovieReviewEntity, (review) => review.movie)
-  reviews: MovieReviewEntity[];
+  reviews: Relation<MovieReviewEntity[]>;
 
   @Field(() => [GenreEntity])
-  genres: GenreEntity[];
+  genres: Relation<GenreEntity[]>;
 
   @FilterableRelation(() => [MovieGenreEntity])
   @OneToMany(() => MovieGenreEntity, (filmGenre) => filmGenre.movie)
-  genresConnection: MovieGenreEntity[];
+  genresConnection: Relation<MovieGenreEntity[]>;
 
   @Field(() => [StudioEntity])
-  studios: StudioEntity[];
+  studios: Relation<StudioEntity[]>;
 
   @FilterableRelation(() => [MovieStudioEntity])
   @OneToMany(() => MovieStudioEntity, (filmStudio) => filmStudio.movie)
-  studiosConnection: MovieStudioEntity[];
+  studiosConnection: Relation<MovieStudioEntity[]>;
 
   @Field(() => [CountryEntity])
-  countries: CountryEntity[];
+  countries: Relation<CountryEntity[]>;
 
   @FilterableRelation(() => [MovieCountryEntity])
   @OneToMany(() => MovieCountryEntity, (movieCountry) => movieCountry.movie)
-  countriesConnection: MovieCountryEntity[];
+  countriesConnection: Relation<MovieCountryEntity[]>;
 
   @Field(() => [MovieImageEntity])
   @OneToMany(() => MovieImageEntity, (movieImage) => movieImage.movie)
-  movieImages: MovieImageEntity[];
+  movieImages: Relation<MovieImageEntity[]>;
 
   @FilterableRelation(() => [MoviePersonEntity])
   @OneToMany(() => MoviePersonEntity, (filmPerson) => filmPerson.movie)
-  moviePersons: MoviePersonEntity[];
+  moviePersons: Relation<MoviePersonEntity[]>;
 
   @Field()
   rating: number;
 
   @Field(() => [CollectionEntity])
-  collections: CollectionEntity[];
+  collections: Relation<CollectionEntity[]>;
 
   @FilterableRelation(() => [CollectionMovieEntity])
   @OneToMany(
     () => CollectionMovieEntity,
     (collectionMovie) => collectionMovie.movie,
   )
-  collectionsConnection: CollectionMovieEntity[];
+  collectionsConnection: Relation<CollectionMovieEntity[]>;
 
   @Field({ nullable: true })
   @Column({ nullable: true, length: 255 })
@@ -164,5 +165,5 @@ export class MovieEntity {
 
   @Field(() => ProductEntity, { nullable: true })
   @OneToOne(() => ProductEntity, (product) => product.movie, { nullable: true })
-  product?: ProductEntity;
+  product?: Relation<ProductEntity>;
 }

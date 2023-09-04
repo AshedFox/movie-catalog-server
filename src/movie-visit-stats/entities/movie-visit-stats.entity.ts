@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 
@@ -16,7 +17,7 @@ export class MovieVisitStatsEntity {
   movieId: string;
 
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @CreateDateColumn()
   createdAt: Date;

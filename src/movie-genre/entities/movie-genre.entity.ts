@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { GenreEntity } from '../../genre/entities/genre.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { FilterableField } from '@common/filter';
@@ -17,9 +17,9 @@ export class MovieGenreEntity {
 
   @Field(() => GenreEntity)
   @ManyToOne(() => GenreEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  genre: GenreEntity;
+  genre: Relation<GenreEntity>;
 
   @Field(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 }

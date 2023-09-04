@@ -1,6 +1,13 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { FilterableField } from '@common/filter';
-import { Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+  Relation,
+  Unique,
+} from 'typeorm';
 import { RoomEntity } from '../../room/entities/room.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 
@@ -14,7 +21,7 @@ export class RoomMovieEntity {
 
   @Field(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @FilterableField(() => ID)
   @PrimaryColumn()
@@ -22,7 +29,7 @@ export class RoomMovieEntity {
 
   @Field(() => RoomEntity)
   @ManyToOne(() => RoomEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  room: RoomEntity;
+  room: Relation<RoomEntity>;
 
   @Field(() => Int, { nullable: true })
   @Column({ nullable: true })

@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { RoomParticipantEntity } from '../../room-participant/entities/room-participant.entity';
@@ -31,22 +32,22 @@ export class RoomEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  owner: UserEntity;
+  owner: Relation<UserEntity>;
 
   @Field(() => RoomMovieEntity, { nullable: true })
-  currentMovie?: RoomMovieEntity;
+  currentMovie?: Relation<RoomMovieEntity>;
 
   @Field(() => [RoomMovieEntity])
   @OneToMany(() => RoomMovieEntity, (roomMovie) => roomMovie.room)
-  movies: RoomMovieEntity[];
+  movies: Relation<RoomMovieEntity[]>;
 
   @FilterableRelation(() => [RoomParticipantEntity])
   @OneToMany(
     () => RoomParticipantEntity,
     (roomParticipant) => roomParticipant.room,
   )
-  participantsConnection: RoomParticipantEntity[];
+  participantsConnection: Relation<RoomParticipantEntity[]>;
 
   @Field(() => [UserEntity])
-  participants: UserEntity[];
+  participants: Relation<UserEntity[]>;
 }

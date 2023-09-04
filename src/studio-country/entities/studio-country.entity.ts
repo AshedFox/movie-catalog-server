@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { StudioEntity } from '../../studio/entities/studio.entity';
 import { CountryEntity } from '../../country/entities/country.entity';
 
@@ -16,9 +16,9 @@ export class StudioCountryEntity {
 
   @Field(() => StudioEntity)
   @ManyToOne(() => StudioEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  studio: StudioEntity;
+  studio: Relation<StudioEntity>;
 
   @Field(() => CountryEntity)
   @ManyToOne(() => CountryEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  country: CountryEntity;
+  country: Relation<CountryEntity>;
 }

@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { FilterableField, FilterableRelation } from '@common/filter';
@@ -26,7 +27,7 @@ export class CollectionReviewEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 
   @FilterableField(() => Int)
   @Column()
@@ -38,7 +39,7 @@ export class CollectionReviewEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  collection: CollectionEntity;
+  collection: Relation<CollectionEntity>;
 
   @FilterableField(() => Int)
   @Column({ type: 'int2' })

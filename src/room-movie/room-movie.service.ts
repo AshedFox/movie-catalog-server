@@ -20,6 +20,7 @@ import { RoomMovieEntity } from './entities/room-movie.entity';
 import { MovieService } from '../movie/movie.service';
 import { CreateRoomMovieInput } from './dto/create-room-movie.input';
 import { MoveRoomMovieInput } from './dto/move-room-movie.input';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class RoomMovieService {
@@ -27,7 +28,7 @@ export class RoomMovieService {
     @InjectRepository(RoomMovieEntity)
     private readonly roomMovieRepository: Repository<RoomMovieEntity>,
     @Inject(forwardRef(() => RoomService))
-    private readonly roomService: RoomService,
+    private readonly roomService: WrapperType<RoomService>,
     private readonly movieService: MovieService,
   ) {}
 

@@ -6,6 +6,7 @@ import {
   Index,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
@@ -26,7 +27,7 @@ export class MovieReviewEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 
   @FilterableField(() => ID)
   @Column()
@@ -35,7 +36,7 @@ export class MovieReviewEntity {
 
   @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @FilterableField(() => Int)
   @Column({ type: 'int2' })

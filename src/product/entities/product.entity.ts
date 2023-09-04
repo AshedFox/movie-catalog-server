@@ -1,5 +1,12 @@
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
+} from 'typeorm';
 import { PriceEntity } from '../../price/entities/price.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { ProductPriceEntity } from '../../product-price/entities/product-price.entity';
@@ -17,12 +24,12 @@ export class ProductEntity {
 
   @Field(() => MovieEntity)
   @OneToOne(() => MovieEntity, (movie) => movie.product)
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @Field(() => [PriceEntity])
-  prices: PriceEntity[];
+  prices: Relation<PriceEntity[]>;
 
   @HideField()
   @OneToMany(() => ProductPriceEntity, (productPrice) => productPrice.product)
-  pricesConnection: ProductPriceEntity[];
+  pricesConnection: Relation<ProductPriceEntity[]>;
 }

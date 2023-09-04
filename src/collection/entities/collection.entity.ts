@@ -8,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import { MediaEntity } from '../../media/entities/media.entity';
 import { CollectionMovieEntity } from '../../collection-movie/entities/collection-movie.entity';
@@ -56,7 +57,7 @@ export class CollectionEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  owner: UserEntity;
+  owner: Relation<UserEntity>;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true, type: 'uuid' })
@@ -69,21 +70,21 @@ export class CollectionEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  cover?: MediaEntity;
+  cover?: Relation<MediaEntity>;
 
   @Field(() => [MovieEntity])
-  movies: MovieEntity[];
+  movies: Relation<MovieEntity[]>;
 
   @HideField()
   @OneToMany(
     () => CollectionMovieEntity,
     (collectionMovie) => collectionMovie.collection,
   )
-  moviesConnection: CollectionMovieEntity[];
+  moviesConnection: Relation<CollectionMovieEntity[]>;
 
   @Field(() => [CollectionReviewEntity])
   @OneToMany(() => CollectionReviewEntity, (review) => review.collection)
-  reviews: CollectionReviewEntity[];
+  reviews: Relation<CollectionReviewEntity[]>;
 
   @Field()
   rating: number;

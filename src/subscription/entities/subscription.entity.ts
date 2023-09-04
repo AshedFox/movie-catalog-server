@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { PriceEntity } from '../../price/entities/price.entity';
 import { SubscriptionStatusEnum } from '@utils/enums/subscription-status.enum';
@@ -33,7 +33,7 @@ export class SubscriptionEntity {
 
   @Field(() => PriceEntity)
   @ManyToOne(() => PriceEntity)
-  price: PriceEntity;
+  price: Relation<PriceEntity>;
 
   @Field()
   @Column({ type: 'uuid' })
@@ -41,5 +41,5 @@ export class SubscriptionEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity)
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

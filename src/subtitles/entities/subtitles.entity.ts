@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
 } from 'typeorm';
 import { LanguageEntity } from '../../language/entities/language.entity';
@@ -25,7 +26,7 @@ export class SubtitlesEntity {
 
   @Field(() => VideoEntity)
   @ManyToOne(() => VideoEntity)
-  video: VideoEntity;
+  video: Relation<VideoEntity>;
 
   @FilterableField()
   @Column({ length: 3, type: 'char' })
@@ -33,7 +34,7 @@ export class SubtitlesEntity {
 
   @Field(() => LanguageEntity)
   @ManyToOne(() => LanguageEntity)
-  language: LanguageEntity;
+  language: Relation<LanguageEntity>;
 
   @Field()
   @Column({ type: 'uuid' })
@@ -41,5 +42,5 @@ export class SubtitlesEntity {
 
   @Field(() => MediaEntity)
   @ManyToOne(() => MediaEntity)
-  file: MediaEntity;
+  file: Relation<MediaEntity>;
 }

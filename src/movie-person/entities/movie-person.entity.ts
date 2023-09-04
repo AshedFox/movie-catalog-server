@@ -5,6 +5,7 @@ import {
   Index,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { MoviePersonTypeEntity } from '../../movie-person-type/entities/movie-person-type.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
@@ -20,11 +21,11 @@ export class MoviePersonEntity {
 
   @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @Field(() => PersonEntity)
   @ManyToOne(() => PersonEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  person: PersonEntity;
+  person: Relation<PersonEntity>;
 
   @FilterableField()
   @Column()
@@ -50,5 +51,5 @@ export class MoviePersonEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  type: MoviePersonTypeEntity;
+  type: Relation<MoviePersonTypeEntity>;
 }

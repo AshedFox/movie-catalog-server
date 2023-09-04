@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
 } from 'typeorm';
 import { VideoEntity } from '../../video/entities/video.entity';
@@ -33,7 +34,7 @@ export class TrailerEntity {
 
   @Field(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @FilterableField()
   @Column()
@@ -41,5 +42,5 @@ export class TrailerEntity {
 
   @Field(() => VideoEntity)
   @ManyToOne(() => VideoEntity, { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
-  video: VideoEntity;
+  video: Relation<VideoEntity>;
 }

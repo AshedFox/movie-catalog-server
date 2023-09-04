@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ChildEntity, Column, Index, OneToOne } from 'typeorm';
+import { ChildEntity, Column, Index, OneToOne, Relation } from 'typeorm';
 import { VideoEntity } from '../../video/entities/video.entity';
 import { MovieTypeEnum } from '@utils/enums';
 import { MovieEntity } from '../../movie/entities/movie.entity';
@@ -26,5 +26,5 @@ export class FilmEntity extends MovieEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  video?: VideoEntity;
+  video?: Relation<VideoEntity>;
 }

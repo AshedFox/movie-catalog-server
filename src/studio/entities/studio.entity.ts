@@ -5,6 +5,7 @@ import {
   Index,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { StudioCountryEntity } from '../../studio-country/entities/studio-country.entity';
@@ -27,8 +28,8 @@ export class StudioEntity {
     () => StudioCountryEntity,
     (studioCountry) => studioCountry.studioId,
   )
-  countryConnection: StudioCountryEntity[];
+  countryConnection: Relation<StudioCountryEntity[]>;
 
   @Field(() => [CountryEntity])
-  countries: CountryEntity[];
+  countries: Relation<CountryEntity[]>;
 }

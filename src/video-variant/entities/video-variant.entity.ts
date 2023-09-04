@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
 } from 'typeorm';
 import { MediaEntity } from '../../media/entities/media.entity';
@@ -33,7 +34,7 @@ export class VideoVariantEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  video: VideoEntity;
+  video: Relation<VideoEntity>;
 
   @Field()
   @Column({ type: 'uuid' })
@@ -44,7 +45,7 @@ export class VideoVariantEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  media: MediaEntity;
+  media: Relation<MediaEntity>;
 
   @FilterableField(() => VideoProfileEnum)
   @Column({

@@ -1,5 +1,5 @@
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 import { PriceEntity } from '../../price/entities/price.entity';
 import { PlanPriceEntity } from '../../plan-price/entities/plan-price.entity';
 
@@ -15,12 +15,12 @@ export class PlanEntity {
   name: string;
 
   @Field(() => [PriceEntity])
-  prices: PriceEntity[];
+  prices: Relation<PriceEntity[]>;
 
   @HideField()
   @OneToMany(
     () => PlanPriceEntity,
     (subscriptionPrice) => subscriptionPrice.plan,
   )
-  pricesConnection: PlanPriceEntity[];
+  pricesConnection: Relation<PlanPriceEntity[]>;
 }

@@ -5,6 +5,7 @@ import {
   Index,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { MovieImageTypeEntity } from '../../movie-image-type/entities/movie-image-type.entity';
 import { MediaEntity } from '../../media/entities/media.entity';
@@ -29,7 +30,7 @@ export class MovieImageEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  type?: MovieImageTypeEntity;
+  type?: Relation<MovieImageTypeEntity>;
 
   @FilterableField(() => ID)
   @Column({ type: 'uuid' })
@@ -43,9 +44,9 @@ export class MovieImageEntity {
 
   @Field(() => MediaEntity)
   @ManyToOne(() => MediaEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  image: MediaEntity;
+  image: Relation<MediaEntity>;
 
   @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 }

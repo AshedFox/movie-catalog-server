@@ -1,4 +1,4 @@
-import { Index, ManyToOne, ViewColumn, ViewEntity } from 'typeorm';
+import { Index, ManyToOne, Relation, ViewColumn, ViewEntity } from 'typeorm';
 import { MovieVisitStatsEntity } from './movie-visit-stats.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -23,7 +23,7 @@ export class MovieVisitStatsLastMonthView {
 
   @FilterableRelation(() => MovieEntity)
   @ManyToOne(() => MovieEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  movie: MovieEntity;
+  movie: Relation<MovieEntity>;
 
   @FilterableField()
   @ViewColumn()

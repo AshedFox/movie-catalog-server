@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
@@ -19,5 +25,5 @@ export class RefreshTokenEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

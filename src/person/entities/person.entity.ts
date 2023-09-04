@@ -5,6 +5,7 @@ import {
   Index,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { CountryEntity } from '../../country/entities/country.entity';
 import { FilterableField } from '@common/filter';
@@ -33,7 +34,7 @@ export class PersonEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  country?: CountryEntity;
+  country?: Relation<CountryEntity>;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true, type: 'uuid' })
@@ -46,5 +47,5 @@ export class PersonEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  image?: MediaEntity;
+  image?: Relation<MediaEntity>;
 }

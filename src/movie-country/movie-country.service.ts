@@ -5,6 +5,7 @@ import { MovieService } from '../movie/movie.service';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { MovieCountryEntity } from './entities/movie-country.entity';
 import { CountryService } from '../country/country.service';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class MovieCountryService {
@@ -12,9 +13,9 @@ export class MovieCountryService {
     @InjectRepository(MovieCountryEntity)
     private readonly movieCountryRepository: Repository<MovieCountryEntity>,
     @Inject(forwardRef(() => MovieService))
-    private readonly movieService: MovieService,
+    private readonly movieService: WrapperType<MovieService>,
     @Inject(forwardRef(() => CountryService))
-    private readonly countryService: CountryService,
+    private readonly countryService: WrapperType<CountryService>,
   ) {}
 
   create = async (movieId: string, countryId: string) => {

@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
 } from 'typeorm';
 import { AgeRestrictionEnum } from '@utils/enums/age-restriction.enum';
@@ -64,7 +65,7 @@ export class EpisodeEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  cover?: MediaEntity;
+  cover?: Relation<MediaEntity>;
 
   @FilterableField(() => AccessModeEnum)
   @Column({
@@ -94,7 +95,7 @@ export class EpisodeEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  season: SeasonEntity;
+  season: Relation<SeasonEntity>;
 
   @FilterableField()
   @Column()
@@ -103,7 +104,7 @@ export class EpisodeEntity {
 
   @Field(() => SeriesEntity)
   @ManyToOne(() => SeriesEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  series: SeriesEntity;
+  series: Relation<SeriesEntity>;
 
   @FilterableField({ nullable: true })
   @Column({ nullable: true, type: 'int4' })
@@ -116,5 +117,5 @@ export class EpisodeEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  video?: VideoEntity;
+  video?: Relation<VideoEntity>;
 }

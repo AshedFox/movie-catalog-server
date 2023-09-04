@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
 } from 'typeorm';
 import { MediaEntity } from '../../media/entities/media.entity';
@@ -34,7 +35,7 @@ export class VideoAudioEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  video: VideoEntity;
+  video: Relation<VideoEntity>;
 
   @Field()
   @Column({ type: 'uuid' })
@@ -45,7 +46,7 @@ export class VideoAudioEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  media: MediaEntity;
+  media: Relation<MediaEntity>;
 
   @FilterableField()
   @Column({ type: 'char', length: 3 })
@@ -57,7 +58,7 @@ export class VideoAudioEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  language: LanguageEntity;
+  language: Relation<LanguageEntity>;
 
   @FilterableField(() => AudioProfileEnum)
   @Column({

@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { StudioService } from '../studio/studio.service';
 import { CountryService } from '../country/country.service';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class StudioCountryService {
@@ -12,9 +13,9 @@ export class StudioCountryService {
     @InjectRepository(StudioCountryEntity)
     private readonly studioCountryRepository: Repository<StudioCountryEntity>,
     @Inject(forwardRef(() => StudioService))
-    private readonly studioService: StudioService,
+    private readonly studioService: WrapperType<StudioService>,
     @Inject(forwardRef(() => CountryService))
-    private readonly countryService: CountryService,
+    private readonly countryService: WrapperType<CountryService>,
   ) {}
 
   create = async (

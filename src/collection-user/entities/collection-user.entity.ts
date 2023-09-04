@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { CollectionEntity } from '../../collection/entities/collection.entity';
 import { FilterableField } from '@common/filter';
@@ -13,7 +13,7 @@ export class CollectionUserEntity {
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 
   @FilterableField(() => ID)
   @PrimaryColumn()
@@ -24,7 +24,7 @@ export class CollectionUserEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  collection: CollectionEntity;
+  collection: Relation<CollectionEntity>;
 
   @FilterableField()
   @Column({ default: false })

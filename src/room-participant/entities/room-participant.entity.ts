@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { RoomEntity } from '../../room/entities/room.entity';
 import { FilterableField } from '@common/filter';
@@ -20,9 +20,9 @@ export class RoomParticipantEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  room: RoomEntity;
+  room: Relation<RoomEntity>;
 
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

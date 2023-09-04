@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
@@ -81,9 +82,9 @@ export class SeasonEntity {
 
   @FilterableRelation(() => SeriesEntity)
   @ManyToOne(() => SeriesEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  series: SeriesEntity;
+  series: Relation<SeriesEntity>;
 
   @Field(() => [EpisodeEntity])
   @OneToMany(() => EpisodeEntity, (episode) => episode.season)
-  episodes: EpisodeEntity[];
+  episodes: Relation<EpisodeEntity[]>;
 }

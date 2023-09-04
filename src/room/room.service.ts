@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { RoomParticipantService } from '../room-participant/room-participant.service';
 import { RoomMovieService } from '../room-movie/room-movie.service';
 import { RoomMovieEntity } from '../room-movie/entities/room-movie.entity';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class RoomService extends BaseService<
@@ -28,9 +29,9 @@ export class RoomService extends BaseService<
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => RoomParticipantService))
-    private readonly roomParticipantService: RoomParticipantService,
+    private readonly roomParticipantService: WrapperType<RoomParticipantService>,
     @Inject(forwardRef(() => RoomMovieService))
-    private readonly roomMovieService: RoomMovieService,
+    private readonly roomMovieService: WrapperType<RoomMovieService>,
   ) {
     super(roomRepository);
   }

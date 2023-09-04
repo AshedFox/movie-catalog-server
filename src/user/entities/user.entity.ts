@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
@@ -72,7 +73,7 @@ export class UserEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  country?: CountryEntity;
+  country?: Relation<CountryEntity>;
 
   @HideField()
   @Column({ length: 255, nullable: true })
@@ -89,17 +90,17 @@ export class UserEntity {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  avatar?: MediaEntity;
+  avatar?: Relation<MediaEntity>;
 
   @Field(() => [PurchaseEntity])
   @OneToMany(() => PurchaseEntity, (purchase) => purchase.user)
-  purchases: PurchaseEntity[];
+  purchases: Relation<PurchaseEntity[]>;
 
   @Field(() => [SubscriptionEntity])
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.user)
-  subscriptions: SubscriptionEntity[];
+  subscriptions: Relation<SubscriptionEntity[]>;
 
   @Field(() => [RoomEntity])
   @OneToMany(() => RoomEntity, (room) => room.owner)
-  rooms: RoomEntity[];
+  rooms: Relation<RoomEntity[]>;
 }

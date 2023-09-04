@@ -5,6 +5,7 @@ import { MovieService } from '../movie/movie.service';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { CollectionMovieEntity } from './entities/collection-movie.entity';
 import { CollectionService } from '../collection/collection.service';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class CollectionMovieService {
@@ -12,9 +13,9 @@ export class CollectionMovieService {
     @InjectRepository(CollectionMovieEntity)
     private readonly collectionMovieRepository: Repository<CollectionMovieEntity>,
     @Inject(forwardRef(() => MovieService))
-    private readonly movieService: MovieService,
+    private readonly movieService: WrapperType<MovieService>,
     @Inject(forwardRef(() => CollectionService))
-    private readonly collectionService: CollectionService,
+    private readonly collectionService: WrapperType<CollectionService>,
   ) {}
 
   create = async (collectionId: number, movieId: string) => {

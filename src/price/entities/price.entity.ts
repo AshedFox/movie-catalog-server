@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { CurrencyEntity } from '../../currency/entities/currency.entity';
 import { PlanIntervalEnum } from '@utils/enums/plan-interval.enum';
 
@@ -19,7 +19,7 @@ export class PriceEntity {
     onUpdate: 'CASCADE',
     onDelete: 'RESTRICT',
   })
-  currency: CurrencyEntity;
+  currency: Relation<CurrencyEntity>;
 
   @Field(() => Int)
   @Column({ type: 'int4' })

@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { PriceEntity } from '../../price/entities/price.entity';
 import { ProductEntity } from '../../product/entities/product.entity';
 
@@ -12,7 +12,7 @@ export class ProductPriceEntity {
 
   @Field(() => ProductEntity)
   @ManyToOne(() => ProductEntity)
-  product: ProductEntity;
+  product: Relation<ProductEntity>;
 
   @Field(() => ID)
   @PrimaryColumn({ length: 255 })
@@ -20,5 +20,5 @@ export class ProductPriceEntity {
 
   @Field(() => PriceEntity)
   @ManyToOne(() => PriceEntity)
-  price: PriceEntity;
+  price: Relation<PriceEntity>;
 }

@@ -1,6 +1,13 @@
 import { CurrencyEntity } from '../../currency/entities/currency.entity';
 import { ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryColumn,
+  Relation,
+} from 'typeorm';
 import { FilterableField, FilterableRelation } from '@common/filter';
 import { LanguageEntity } from '../../language/entities/language.entity';
 
@@ -25,7 +32,7 @@ export class CountryEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  currency: CurrencyEntity;
+  currency: Relation<CurrencyEntity>;
 
   @FilterableField()
   @Column({ length: 3, type: 'char' })
@@ -37,5 +44,5 @@ export class CountryEntity {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  language: LanguageEntity;
+  language: Relation<LanguageEntity>;
 }

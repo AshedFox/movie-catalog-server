@@ -5,6 +5,7 @@ import { MovieService } from '../movie/movie.service';
 import { GenreService } from '../genre/genre.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AlreadyExistsError, NotFoundError } from '@utils/errors';
+import { WrapperType } from '@utils/types';
 
 @Injectable()
 export class MovieGenreService {
@@ -12,9 +13,9 @@ export class MovieGenreService {
     @InjectRepository(MovieGenreEntity)
     private readonly movieGenreRepository: Repository<MovieGenreEntity>,
     @Inject(forwardRef(() => MovieService))
-    private readonly movieService: MovieService,
+    private readonly movieService: WrapperType<MovieService>,
     @Inject(forwardRef(() => GenreService))
-    private readonly genreService: GenreService,
+    private readonly genreService: WrapperType<GenreService>,
   ) {}
 
   create = async (movieId: string, genreId: string) => {
