@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
-import { ParamsDictionary } from 'express-serve-static-core';
 import { RefreshTokenError } from '@utils/errors';
 import { Request } from 'express';
 
