@@ -2,7 +2,7 @@ import { Context } from '@nestjs/graphql';
 
 export const LoadersFactory = (): ParameterDecorator => {
   return (
-    target: Object,
+    target: NonNullable<unknown>,
     propertyKey: string | symbol,
     parameterIndex: number,
   ) => {
