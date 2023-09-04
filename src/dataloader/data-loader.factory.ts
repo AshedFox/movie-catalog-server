@@ -375,7 +375,6 @@ export class DataLoaderFactory {
         async (keys) => {
           const map: { [key: IndexType]: number } = {};
           const snakeGroupKeyName = snakeCase(groupKeyName);
-          const snakeCountKeyName = snakeCase(countKeyName);
 
           const qb = this.entityManager
             .createQueryBuilder(EntityClass, 't')
