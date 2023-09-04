@@ -1,6 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
-import { FileUpload } from 'graphql-upload';
+import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { IsEnum } from 'class-validator';
 
