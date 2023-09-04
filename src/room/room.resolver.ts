@@ -285,10 +285,7 @@ export class RoomResolver {
   }
 
   @ResolveField(() => RoomMovieEntity)
-  currentMovie(
-    @Parent() room: RoomEntity,
-    @LoadersFactory() loadersFactory: DataLoaderFactory,
-  ) {
+  currentMovie(@Parent() room: RoomEntity) {
     return this.roomService.getCurrentVideo(room.id);
   }
 
