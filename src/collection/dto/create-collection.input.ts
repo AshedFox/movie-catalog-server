@@ -28,7 +28,7 @@ export class CreateCollectionInput implements Partial<CollectionEntity> {
   @IsUUID()
   coverId?: string;
 
-  @Field({ nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
