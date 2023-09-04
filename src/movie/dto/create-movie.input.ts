@@ -39,7 +39,7 @@ export class CreateMovieInput {
   @IsOptional()
   productId: string;
 
-  @Field({ nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
