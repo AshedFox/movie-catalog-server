@@ -8,7 +8,7 @@ export class CreateStudioInput implements Partial<StudioEntity> {
   @Length(1, 255)
   name: string;
 
-  @Field({ nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
