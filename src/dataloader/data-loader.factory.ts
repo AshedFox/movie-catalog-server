@@ -373,7 +373,7 @@ export class DataLoaderFactory {
     if (!this.loaders[loaderName]) {
       this.loaders[loaderName] = new DataLoader<Entity[GroupKey], number>(
         async (keys) => {
-          const map: { [key: IndexType]: number } = {};
+          const map: { [key: string]: number } = {};
           const snakeGroupKeyName = snakeCase(groupKeyName);
 
           const qb = this.entityManager
@@ -392,7 +392,6 @@ export class DataLoaderFactory {
             map[v[snakeGroupKeyName]] = v.count;
           });
 
-          // @ts-ignore
           return keys.map((key) => map[key] ?? 0);
         },
       );
