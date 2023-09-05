@@ -25,16 +25,12 @@ export class GraphQLConfig implements GqlOptionsFactory {
     | Omit<ApolloDriverConfig, 'driver'> {
     return {
       context: (ctx) => {
-        if (ctx?.extra?.request) {
+        const { extra } = ctx;
+
+        if (extra) {
           return {
             ...ctx,
-            req: {
-              ...ctx?.extra?.request,
-              headers: {
-                ...ctx?.extra?.request?.headers,
-                ...ctx?.connectionParams,
-              },
-            },
+            req: extra?.request,
             loadersFactory: new DataLoaderFactory(this.entityManager),
           };
         }
