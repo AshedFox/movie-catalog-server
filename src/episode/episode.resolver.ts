@@ -25,6 +25,8 @@ import { VideoEntity } from '../video/entities/video.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { MediaEntity } from '../media/entities/media.entity';
+import { Filterable, FilterType } from '@common/filter';
+import { Sortable, SortType } from '@common/sort';
 
 @Resolver(EpisodeEntity)
 export class EpisodeResolver {
@@ -35,6 +37,19 @@ export class EpisodeResolver {
   @Mutation(() => EpisodeEntity)
   createEpisode(@Args('input') input: CreateEpisodeInput) {
     return this.episodeService.create(input);
+  }
+
+  @Query(() => [EpisodeEntity])
+  getAllEpisodes(
+    @Args('filter', { type: () => Filterable(EpisodeEntity), nullable: true })
+    filter?: FilterType<EpisodeEntity>,
+    @Args('sort', { type: () => Sortable(EpisodeEntity), nullable: true })
+    sort?: SortType<EpisodeEntity>,
+  ) {
+    return this.episodeService.readMany(undefined, sort, {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    });
   }
 
   @Query(() => PaginatedEpisodes)
