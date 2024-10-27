@@ -15,9 +15,6 @@ import { MovieEntity } from '../movie/entities/movie.entity';
 import { GetMoviesUsersArgs } from './dto/get-movies-users.args';
 import { PaginatedMoviesUsers } from './dto/paginated-movies-users';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Role } from '../auth/decorators/roles.decorator';
-import { RoleEnum } from '@utils/enums';
 import { UserEntity } from '../user/entities/user.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
@@ -38,8 +35,6 @@ export class MovieUserResolver {
   }
 
   @Query(() => PaginatedMoviesUsers)
-  @UseGuards(GqlJwtAuthGuard, RolesGuard)
-  @Role([RoleEnum.Admin, RoleEnum.Moderator])
   async getMoviesUsers(
     @Args() { sort, filter, ...pagination }: GetMoviesUsersArgs,
   ) {
