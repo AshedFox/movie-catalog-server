@@ -26,6 +26,7 @@ import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorat
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { SubscriptionEntity } from '../subscription/entities/subscription.entity';
 import { PurchaseEntity } from '../purchase/entities/purchase.entity';
+import sharp from 'sharp';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -97,7 +98,7 @@ export class UserResolver {
     @CurrentUser() currentUser: CurrentUserDto,
   ) {
     const media = await this.mediaService.uploadImage(
-      (await file).createReadStream(),
+      file.createReadStream().pipe(sharp().resize(640, 640).webp()),
     );
 
     return this.userService.update(currentUser.id, {
