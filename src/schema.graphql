@@ -3837,6 +3837,7 @@ type Query {
   getAllCountries(filter: CountryFilter, sort: CountrySort): [Country!]!
   getAllEpisodes(filter: EpisodeFilter, sort: EpisodeSort): [Episode!]!
   getAllGenres(filter: GenreFilter, sort: GenreSort): [Genre!]!
+  getAllSeasons(filter: SeasonFilter, sort: SeasonSort): [Season!]!
   getAllStudios(filter: StudioFilter, sort: StudioSort): [Studio!]!
   getCollection(id: Int!): Collection!
   getCollectionReview(id: Int!): CollectionReview!
