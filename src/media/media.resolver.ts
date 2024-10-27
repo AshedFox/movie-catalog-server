@@ -9,16 +9,41 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
 import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal';
+import { GoogleCloudService } from '../cloud/google-cloud.service';
+import { MediaTypeEnum } from '@utils/enums/media-type.enum';
+import { CreateUploadResult } from './dto/create-upload-result';
 
 @Resolver(() => MediaEntity)
 export class MediaResolver {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(
+    private readonly mediaService: MediaService,
+    private readonly cloudService: GoogleCloudService,
+  ) {}
 
   @Mutation(() => MediaEntity)
   async uploadImage(
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
   ) {
     return this.mediaService.uploadImage((await file).createReadStream());
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => CreateUploadResult)
+  async createUpload(
+    @Args('type', { type: () => MediaTypeEnum }) type: MediaTypeEnum,
+  ): Promise<CreateUploadResult> {
+    const { id } = await this.mediaService.create({
+      type,
+      url: '',
+    });
+    const { uploadUrl, publicUrl } = await this.cloudService.createFileUrls(
+      `${type.toLowerCase()}/${id}`,
+    );
+    await this.mediaService.update(id, {
+      url: publicUrl,
+    });
+
+    return { mediaId: id, uploadUrl };
   }
 
   @Mutation(() => MediaEntity)

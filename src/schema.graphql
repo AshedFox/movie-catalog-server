@@ -797,6 +797,11 @@ input CreateTrailerInput {
   videoId: Float!
 }
 
+type CreateUploadResult {
+  mediaId: ID!
+  uploadUrl: String!
+}
+
 input CreateVideoVariantInput {
   mediaId: String!
   profile: VideoProfileEnum!
@@ -3517,6 +3522,7 @@ type Mutation {
   createSubscriptionsManageLink: String!
   createSubtitles(input: CreateSubtitlesInput!): Subtitles!
   createTrailer(input: CreateTrailerInput!): Trailer!
+  createUpload(type: MediaTypeEnum!): CreateUploadResult!
   createVideo: Video!
   createVideoVariant(input: CreateVideoVariantInput!): VideoVariant!
   deleteCollection(id: Int!): Collection!

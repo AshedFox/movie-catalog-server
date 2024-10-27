@@ -28,6 +28,25 @@ export class GoogleCloudService {
     ]);
   }
 
+  createFileUrls: (path: string) => Promise<{
+    uploadUrl: string;
+    publicUrl: string;
+  }> = async (path: string) => {
+    const file = this.bucket.file(path);
+
+    return {
+      uploadUrl: (
+        await file.getSignedUrl({
+          version: 'v4',
+          expires: Date.now() + ms('1d'),
+          action: 'write',
+          contentType: 'application/octet-stream',
+        })
+      )[0],
+      publicUrl: file.publicUrl().replace(/%2F/gi, '/'),
+    };
+  };
+
   upload = async (
     inputPath: string,
     filePath: string,
