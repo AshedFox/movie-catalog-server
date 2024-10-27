@@ -4,6 +4,7 @@ import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import { ConfigService } from '@nestjs/config';
 import fs from 'fs';
+import ms from 'ms';
 
 @Injectable()
 export class GoogleCloudService {
