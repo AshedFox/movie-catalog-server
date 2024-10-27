@@ -4,12 +4,12 @@ import { IsEmail, IsOptional, IsUUID, Length } from 'class-validator';
 
 @InputType()
 export class UpdateUserInput implements Partial<UserEntity> {
-  @Field()
+  @Field({ nullable: true })
   @IsEmail()
   @IsOptional()
   email?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Length(2, 255)
   @IsOptional()
   name?: string;
