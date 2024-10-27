@@ -706,6 +706,7 @@ input CreateMovieReviewInput {
 
 input CreateMovieUserInput {
   isBookmarked: Boolean
+  isFavorite: Boolean
   isWatched: Boolean
   movieId: String!
 }
@@ -3430,6 +3431,7 @@ enum MovieTypeEnum {
 
 type MovieUser {
   isBookmarked: Boolean!
+  isFavorite: Boolean!
   isWatched: Boolean!
   movie: Movie!
   movieId: ID!
@@ -3440,6 +3442,7 @@ type MovieUser {
 input MovieUserFilter {
   and: [MovieUserFilter!]
   isBookmarked: BooleanFilter
+  isFavorite: BooleanFilter
   isWatched: BooleanFilter
   movieId: IDFilter
   or: [MovieUserFilter!]
@@ -3448,6 +3451,7 @@ input MovieUserFilter {
 
 input MovieUserSort {
   isBookmarked: SortOptions
+  isFavorite: SortOptions
   isWatched: SortOptions
   movieId: SortOptions
   userId: SortOptions
@@ -4416,6 +4420,7 @@ input UpdateMovieReviewInput {
 
 input UpdateMovieUserInput {
   isBookmarked: Boolean
+  isFavorite: Boolean
   isWatched: Boolean
   movieId: String
 }

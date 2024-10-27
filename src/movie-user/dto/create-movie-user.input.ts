@@ -13,4 +13,7 @@ export class CreateMovieUserInput implements Partial<MovieUserEntity> {
 
   @Field({ nullable: true })
   isBookmarked: boolean;
+
+  @Field({ nullable: true })
+  isFavorite: boolean;
 }

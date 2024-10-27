@@ -22,6 +22,8 @@ import { RoleEnum } from '@utils/enums';
 import { EpisodeEntity } from '../episode/entities/episode.entity';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { FilterType, Filterable } from '@common/filter';
+import { SortType, Sortable } from '@common/sort';
 
 @Resolver(SeasonEntity)
 export class SeasonResolver {
@@ -32,6 +34,19 @@ export class SeasonResolver {
   @Mutation(() => SeasonEntity)
   createSeason(@Args('input') input: CreateSeasonInput) {
     return this.seasonService.create(input);
+  }
+
+  @Query(() => [SeasonEntity])
+  getAllSeasons(
+    @Args('filter', { type: () => Filterable(SeasonEntity), nullable: true })
+    filter?: FilterType<SeasonEntity>,
+    @Args('sort', { type: () => Sortable(SeasonEntity), nullable: true })
+    sort?: SortType<SeasonEntity>,
+  ) {
+    return this.seasonService.readMany(undefined, sort, {
+      ...filter,
+      accessMode: { eq: AccessModeEnum.PUBLIC },
+    });
   }
 
   @Query(() => PaginatedSeasons)

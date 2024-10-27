@@ -30,4 +30,8 @@ export class MovieUserEntity {
   @FilterableField()
   @Column({ default: false })
   isBookmarked: boolean;
+
+  @FilterableField()
+  @Column({ default: false })
+  isFavorite: boolean;
 }
