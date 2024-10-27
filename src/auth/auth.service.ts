@@ -23,18 +23,22 @@ export class AuthService {
   ) {}
 
   validateRefreshToken = async (token: string): Promise<UserEntity> => {
-    const refreshToken = await this.refreshTokenService.readOne(token);
+    try {
+      const refreshToken = await this.refreshTokenService.readOne(token);
 
-    if (refreshToken.expiresAt <= new Date()) {
-      throw new RefreshTokenError('Refresh token is expired!');
+      if (refreshToken.expiresAt <= new Date()) {
+        throw new RefreshTokenError('Refresh token is expired!');
+      }
+
+      await this.refreshTokenService.delete(refreshToken.id);
+
+      const user = await this.userService.readOneById(refreshToken.userId);
+      user.password = '';
+
+      return user;
+    } catch (e) {
+      throw new RefreshTokenError(e.message);
     }
-
-    await this.refreshTokenService.delete(refreshToken.id);
-
-    const user = await this.userService.readOneById(refreshToken.userId);
-    user.password = '';
-
-    return user;
   };
 
   generateRefreshToken = async (user: UserEntity): Promise<string> => {
