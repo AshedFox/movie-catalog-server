@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import {
   Args,
   Int,
@@ -7,6 +8,13 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
+import { CollectionEntity } from '../collection/entities/collection.entity';
+import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
+import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { UserEntity } from '../user/entities/user.entity';
 import { CollectionReviewService } from './collection-review.service';
 import { CollectionReviewEntity } from './entities/collection-review.entity';
 import { CreateCollectionReviewInput } from './dto/create-collection-review.input';
@@ -19,14 +27,6 @@ import {
   OffsetPaginatedCollectionsReviews,
   RelayPaginatedCollectionsReviews,
 } from './dto/paginated-collections-reviews';
-import { UserEntity } from '../user/entities/user.entity';
-import { CollectionEntity } from '../collection/entities/collection.entity';
-import { UseGuards } from '@nestjs/common';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { CurrentUserDto } from '../user/dto/current-user.dto';
-import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
-import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 
 @Resolver(() => CollectionReviewEntity)
 export class CollectionReviewResolver {

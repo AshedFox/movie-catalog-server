@@ -42,11 +42,7 @@ export class StripeService {
       currency: currency,
       unit_amount: amount,
       billing_scheme: 'per_unit',
-      recurring: interval
-        ? {
-            interval,
-          }
-        : undefined,
+      recurring: interval ? { interval } : undefined,
     });
   };
 

@@ -55,7 +55,7 @@ export class GoogleCloudService {
   upload = async (
     inputPath: string,
     filePath: string,
-    isPublic: boolean = true,
+    isPublic = true,
   ): Promise<string> => {
     const file = this.bucket.file(filePath);
     await pipeline(
@@ -69,7 +69,7 @@ export class GoogleCloudService {
   uploadStream = async (
     inputStream: Readable,
     filePath: string,
-    isPublic: boolean = true,
+    isPublic = true,
   ): Promise<string> => {
     const file = this.bucket.file(filePath);
     await pipeline(inputStream, file.createWriteStream({ public: isPublic }));

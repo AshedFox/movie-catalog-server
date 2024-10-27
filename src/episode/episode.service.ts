@@ -69,8 +69,7 @@ export class EpisodeService extends BaseService<
     const episode = await this.episodeRepository.findOneBy({
       seasonId,
       numberInSeason,
-    }
-    );
+    });
 
     if (!episode) {
       throw new NotFoundError(
@@ -88,8 +87,7 @@ export class EpisodeService extends BaseService<
     const episode = await this.episodeRepository.findOneBy({
       seriesId,
       numberInSeries,
-    }
-    );
+    });
     if (!episode) {
       throw new NotFoundError(
         `Episode with seriesId "${seriesId}" and numberInSeries "${numberInSeries}" not found!`,
