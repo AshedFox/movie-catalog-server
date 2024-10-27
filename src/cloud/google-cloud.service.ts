@@ -22,9 +22,13 @@ export class GoogleCloudService {
     this.bucket.setCorsConfiguration([
       {
         maxAgeSeconds: 3600,
-        method: ['GET'],
+        method: ['PUT', 'GET', 'HEAD', 'DELETE', 'POST', 'OPTIONS'],
         origin: ['*'],
-        responseHeader: ['Content-Type'],
+        responseHeader: [
+          'Content-Type',
+          'Access-Control-Allow-Origin',
+          'x-goog-resumable',
+        ],
       },
     ]);
   }
