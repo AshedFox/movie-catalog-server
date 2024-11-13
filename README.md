@@ -1,6 +1,17 @@
+# Movie Catalog
+
+![](https://github.com/user-attachments/assets/7344ce47-d473-482f-bf56-3981ff893b87)
+
 ## Description
 
-Backend part of web-application for watching and discovering films and series using NestJS framework and GraphQL.
+Backend part of web-application for watching and discovering films and series made using [NestJS](https://nestjs.com/) framework and [GraphQL](https://graphql.org/).
+[Client](https://github.com/AshedFox/movie-catalog-client)
+Implements payments with [Stripe](https://stripe.com/), video files optimization and splitting into fragments with [ffmpeg](https://www.ffmpeg.org/), custom Dataloader soultion (much more effective for many-to-many relations), token-based auth (access + refresh tokens), complicated generation system, which helps to create services, inputs, args (filters, sort params, pagination params), and parse them to correct TypeOrm query.
+Builds with high-performant [SWC](https://swc.rs/).
+
+## Preparations
+
+If you want to use video files processing, you need to install ffmpeg library on your device from [here](https://www.ffmpeg.org/download.html).
 
 ## Installation
 
@@ -21,15 +32,13 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## Video files processing
 
-```bash
-# unit tests
-$ npm run test
+1. Generate different audio and video lines from original video
+   
+  | One language  |  Multiple languages  |
+  |---|---|
+  | <img src="https://github.com/user-attachments/assets/67488f2a-2b7d-4be6-b7fb-8d8f2135be11" alt="drawing" style="height:400px;"/> | <img src="https://github.com/user-attachments/assets/d967b013-cc91-4dbb-a5b1-6e9c36a2836a" alt="drawing" style="height:400px;"/> |
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
+2. Split each line into fragments
+<img src="https://github.com/user-attachments/assets/90ce0ae9-6d10-4bee-aadd-7375ce5c83dc" alt="drawing" style="height:400px;"/>
