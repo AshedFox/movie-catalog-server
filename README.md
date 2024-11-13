@@ -5,7 +5,9 @@
 ## Description
 
 Backend part of web-application for watching and discovering films and series made using [NestJS](https://nestjs.com/) framework and [GraphQL](https://graphql.org/).
-[Client](https://github.com/AshedFox/movie-catalog-client)
+Discover client [here](https://github.com/AshedFox/movie-catalog-client).
+
+
 Implements payments with [Stripe](https://stripe.com/), video files optimization and splitting into fragments with [ffmpeg](https://www.ffmpeg.org/), custom Dataloader soultion (much more effective for many-to-many relations), token-based auth (access + refresh tokens), complicated generation system, which helps to create services, inputs, args (filters, sort params, pagination params), and parse them to correct TypeOrm query.
 Builds with high-performant [SWC](https://swc.rs/).
 
