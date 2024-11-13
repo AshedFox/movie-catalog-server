@@ -1,6 +1,6 @@
 # Movie Catalog
 
-![](https://github.com/user-attachments/assets/7344ce47-d473-482f-bf56-3981ff893b87)
+<div align="center"><img src="https://github.com/user-attachments/assets/7344ce47-d473-482f-bf56-3981ff893b87" alt="drawing" style="height:700px;"/></div>
 
 ## Description
 
