@@ -392,7 +392,7 @@ export class DataLoaderFactory {
             map[v[snakeGroupKeyName]] = v.count;
           });
 
-          return keys.map((key) => map[key] ?? 0);
+          return keys.map((key) => map[key as string] ?? 0);
         },
       );
     }
