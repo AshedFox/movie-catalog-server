@@ -6,8 +6,6 @@
     "builder": "swc",
     "typeCheck": true,
     "plugins": ["@nestjs/graphql"],
-    "assets": [
-      { "include": "mailing/templates/**/*", "watchAssets": true },
-    ]
+    "assets": [{ "include": "mailing/templates/**/*", "watchAssets": true }]
   }
 }
