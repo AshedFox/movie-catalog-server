@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -12,7 +14,7 @@ import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { StripeService } from '../stripe/stripe.service';
 import { LoginInput } from './dto/login.input';
-import { AuthError, RefreshTokenError } from '@utils/errors';
+import { AlreadyExistsError } from '@utils/errors';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 
@@ -68,16 +70,17 @@ export class AuthService {
     const user = await this.userService.readOneByEmail(loginInput.email);
 
     if (await argon2.verify(user.password, loginInput.password)) {
-      user.password = '';
       return this.makeAuthResult(user);
     } else {
-      throw new AuthError('User password incorrect!');
+      throw new UnauthorizedException('User password incorrect!');
     }
   };
 
   signUp = async (signUpInput: SignUpInput): Promise<AuthResult> => {
     if (signUpInput.password !== signUpInput.passwordRepeat) {
-      throw new AuthError('Password and password repetition are not equal!');
+      throw new BadRequestException(
+        'Password and password repetition are not equal!',
+      );
     }
 
     const customer = await this.stripeService.createCustomer(
