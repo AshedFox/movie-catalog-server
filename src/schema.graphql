@@ -3567,9 +3567,9 @@ type Mutation {
   joinRoom(inviteToken: String!): Room!
   leaveRoom(id: String!): Room!
   login(input: LoginInput!): AuthResult!
-  logout: Boolean!
+  logout(refreshToken: String!): Boolean!
   moveRoomMovie(input: MoveRoomMovieInput!, roomId: String!): RoomMovie!
-  refresh: AuthResult!
+  refresh(refreshToken: String!): AuthResult!
   removeVideo(id: Int!): Video!
   sendConfirmation: Boolean!
   signUp(input: SignUpInput!): AuthResult!
