@@ -30,7 +30,10 @@ export class AuthResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
-  logout() {
-    return true;
+  logout(
+    @CurrentUser() user: CurrentUserDto,
+    @Args('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.logout(user.id, refreshToken);
   }
 }

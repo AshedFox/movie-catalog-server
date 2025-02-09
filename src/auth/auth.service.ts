@@ -10,12 +10,16 @@ import { ConfigService } from '@nestjs/config';
 import { StripeService } from '../stripe/stripe.service';
 import { LoginInput } from './dto/login.input';
 import { AuthError, RefreshTokenError } from '@utils/errors';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    @InjectRedis()
+    private readonly redis: Redis,
     private readonly userService: UserService,
     private readonly stripeService: StripeService,
   ) {}
@@ -86,5 +90,9 @@ export class AuthService {
       password: await argon2.hash(signUpInput.password),
     });
     return this.makeAuthResult(user);
+  };
+
+  logout = async (userId: string, refreshToken: string): Promise<void> => {
+    await this.redis.del(`refresh:${userId}:${refreshToken}`);
   };
 }
