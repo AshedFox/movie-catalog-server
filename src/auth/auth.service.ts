@@ -94,6 +94,27 @@ export class AuthService {
       customerId: customer.id,
       password: await argon2.hash(signUpInput.password),
     });
+  };
+
+  refresh = async (
+    userId: string,
+    refreshToken: string,
+  ): Promise<AuthResult> => {
+    const payload = this.refreshJwtService.verify<{ sub: string }>(
+      refreshToken,
+    );
+    const storedToken = await this.redis.get(
+      `refresh:${userId}:${refreshToken}`,
+    );
+
+    if (!storedToken || userId !== payload.sub) {
+      throw new UnauthorizedException('Invalid refresh token!');
+    }
+
+    await this.redis.del(`refresh:${userId}:${refreshToken}`);
+
+    const user = await this.userService.readOneById(userId);
+
     return this.makeAuthResult(user);
   };
 
