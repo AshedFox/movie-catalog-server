@@ -16,7 +16,6 @@ import { AuthModule } from './auth/auth.module';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
 import { DataLoaderFactory } from './dataloader/data-loader.factory';
-import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { CustomThrottlerGuard } from '@utils/custom-throttler.guard';
@@ -102,7 +101,6 @@ import { WebhookModule } from './webhook/webhook.module';
     MoviePersonModule,
     MovieStudioModule,
     PersonModule,
-    RefreshTokenModule,
     MovieReviewModule,
     SeasonModule,
     SeriesModule,

@@ -5,7 +5,6 @@ import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
 import { SignUpInput } from './dto/sign-up.input';
 import { AuthResult } from './dto/auth.result';
-import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { StripeService } from '../stripe/stripe.service';
@@ -18,7 +17,6 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly refreshTokenService: RefreshTokenService,
     private readonly stripeService: StripeService,
   ) {}
 
