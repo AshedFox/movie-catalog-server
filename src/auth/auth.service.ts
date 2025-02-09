@@ -20,24 +20,6 @@ export class AuthService {
     private readonly stripeService: StripeService,
   ) {}
 
-  validateRefreshToken = async (token: string): Promise<UserEntity> => {
-    try {
-      const refreshToken = await this.refreshTokenService.readOne(token);
-
-      if (refreshToken.expiresAt <= new Date()) {
-        throw new RefreshTokenError('Refresh token is expired!');
-      }
-
-      await this.refreshTokenService.delete(refreshToken.id);
-
-      const user = await this.userService.readOneById(refreshToken.userId);
-      user.password = '';
-
-      return user;
-    } catch (e) {
-      throw new RefreshTokenError(e.message);
-    }
-  };
 
   generateRefreshToken = async (user: UserEntity): Promise<string> => {
     const refreshToken = await this.refreshTokenService.create(

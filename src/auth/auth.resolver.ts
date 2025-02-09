@@ -6,7 +6,6 @@ import { UserEntity } from '../user/entities/user.entity';
 import { AuthResult } from './dto/auth.result';
 import { SignUpInput } from './dto/sign-up.input';
 import { LoginInput } from './dto/login.input';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 
 @Resolver()
@@ -24,7 +23,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthResult)
-  @UseGuards(RefreshTokenGuard)
+  @UseGuards(GqlJwtAuthGuard)
   refresh(@CurrentUser() user: UserEntity) {
     return this.authService.makeAuthResult(user);
   }
