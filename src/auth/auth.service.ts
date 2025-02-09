@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
@@ -15,48 +18,47 @@ import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
+  private refreshLifetime: string;
+
   constructor(
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
+    @Inject('ACCESS_JWT_SERVICE')
+    private readonly accessJwtService: JwtService,
+    @Inject('REFRESH_JWT_SERVICE')
+    private readonly refreshJwtService: JwtService,
     @InjectRedis()
     private readonly redis: Redis,
     private readonly userService: UserService,
     private readonly stripeService: StripeService,
-  ) {}
-
-
-  generateRefreshToken = async (user: UserEntity): Promise<string> => {
-    const refreshToken = await this.refreshTokenService.create(
-      user.id,
-      new Date(
-        Date.now() + ms(this.configService.get('REFRESH_TOKEN_LIFETIME')),
-      ),
+  ) {
+    this.refreshLifetime = this.configService.getOrThrow<string>(
+      'REFRESH_TOKEN_LIFETIME',
     );
-    return this.jwtService.sign(
-      { sub: refreshToken.id },
-      {
-        algorithm: 'HS512',
-        expiresIn: this.configService.get('REFRESH_TOKEN_LIFETIME'),
-        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-      },
+  }
+
+  private generateRefreshToken = async (user: UserEntity): Promise<string> => {
+    const token = await this.refreshJwtService.signAsync({
+      sub: user.id,
+      role: user.role,
+    });
+
+    await this.redis.set(
+      `refresh:${user.id}:${token}`,
+      token,
+      'EX',
+      ms(this.refreshLifetime),
     );
+
+    return token;
   };
 
-  generateAccessToken = async (user: UserEntity): Promise<string> =>
-    this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      {
-        algorithm: 'HS512',
-        expiresIn: this.configService.get('ACCESS_TOKEN_LIFETIME'),
-        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-      },
-    );
+  private generateAccessToken = async (user: UserEntity): Promise<string> =>
+    this.accessJwtService.signAsync({
+      sub: user.id,
+      role: user.role,
+    });
 
-  makeAuthResult = async (user: UserEntity): Promise<AuthResult> => ({
+  private makeAuthResult = async (user: UserEntity): Promise<AuthResult> => ({
     user,
     refreshToken: await this.generateRefreshToken(user),
     accessToken: await this.generateAccessToken(user),
