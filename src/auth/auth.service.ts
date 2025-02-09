@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -88,12 +90,23 @@ export class AuthService {
       signUpInput.name,
     );
 
-    const user = await this.userService.create({
-      email: signUpInput.email,
-      name: signUpInput.name,
-      customerId: customer.id,
-      password: await argon2.hash(signUpInput.password),
-    });
+    try {
+      const user = await this.userService.create({
+        email: signUpInput.email,
+        name: signUpInput.name,
+        customerId: customer.id,
+        password: await argon2.hash(signUpInput.password),
+      });
+
+      return this.makeAuthResult(user);
+    } catch (e) {
+      await this.stripeService.removeCustomer(customer.id);
+
+      if (e instanceof AlreadyExistsError) {
+        throw new ConflictException('User already exists!');
+      }
+      throw new InternalServerErrorException('Something went wrong!');
+    }
   };
 
   refresh = async (
