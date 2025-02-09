@@ -4,7 +4,6 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "builder": "swc",
-    "typeCheck": true,
     "plugins": ["@nestjs/graphql"],
     "assets": [{ "include": "mailing/templates/**/*", "watchAssets": true }]
   }

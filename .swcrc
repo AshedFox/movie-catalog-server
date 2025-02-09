@@ -1,14 +1,11 @@
 {
-  "$schema": "https://json.schemastore.org/swcrc",
+  "$schema": "https://swc.rs/schema.json",
+  "sourceMaps": true,
   "jsc": {
     "parser": {
       "syntax": "typescript",
       "decorators": true,
       "dynamicImport": true
-    },
-    "transform": {
-      "legacyDecorator": true,
-      "decoratorMetadata": true
     },
     "baseUrl": "./",
     "paths": {
@@ -16,5 +13,5 @@
       "@common/*": ["dist/common/*"]
     }
   },
-  "minify": false
+  "minify": true
 }
