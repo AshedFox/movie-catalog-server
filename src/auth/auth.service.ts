@@ -50,7 +50,7 @@ export class AuthService {
       `refresh:${user.id}:${token}`,
       token,
       'EX',
-      ms(this.refreshLifetime),
+      ms(this.refreshLifetime) / 1000,
     );
 
     return token;
