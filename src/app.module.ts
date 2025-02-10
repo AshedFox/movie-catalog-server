@@ -1,5 +1,5 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -16,7 +16,6 @@ import { AuthModule } from './auth/auth.module';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { DataLoaderModule } from './dataloader/data-loader.module';
 import { DataLoaderFactory } from './dataloader/data-loader.factory';
-import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { CustomThrottlerGuard } from '@utils/custom-throttler.guard';
@@ -64,6 +63,7 @@ import { PlanModule } from './plan/plan.module';
 import { PlanPriceModule } from './plan-price/plan-price.module';
 import { StripeModule } from './stripe/stripe.module';
 import { WebhookModule } from './webhook/webhook.module';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Module({
   imports: [
@@ -78,6 +78,13 @@ import { WebhookModule } from './webhook/webhook.module';
       imports: [DataLoaderModule],
       inject: [DataLoaderFactory],
       useClass: GraphQLConfig,
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        url: configService.getOrThrow<string>('REDIS_URL'),
+      }),
     }),
     ThrottlerModule.forRootAsync({
       useClass: ThrottlerConfig,
@@ -102,7 +109,6 @@ import { WebhookModule } from './webhook/webhook.module';
     MoviePersonModule,
     MovieStudioModule,
     PersonModule,
-    RefreshTokenModule,
     MovieReviewModule,
     SeasonModule,
     SeriesModule,

@@ -1,78 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import * as argon2 from 'argon2';
 import { SignUpInput } from './dto/sign-up.input';
 import { AuthResult } from './dto/auth.result';
-import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { StripeService } from '../stripe/stripe.service';
 import { LoginInput } from './dto/login.input';
-import { AuthError, RefreshTokenError } from '@utils/errors';
+import { AlreadyExistsError } from '@utils/errors';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
+  private refreshLifetime: string;
+
   constructor(
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
+    @Inject('ACCESS_JWT_SERVICE')
+    private readonly accessJwtService: JwtService,
+    @Inject('REFRESH_JWT_SERVICE')
+    private readonly refreshJwtService: JwtService,
+    @InjectRedis()
+    private readonly redis: Redis,
     private readonly userService: UserService,
-    private readonly refreshTokenService: RefreshTokenService,
     private readonly stripeService: StripeService,
-  ) {}
+  ) {
+    this.refreshLifetime = this.configService.getOrThrow<string>(
+      'REFRESH_TOKEN_LIFETIME',
+    );
+  }
 
-  validateRefreshToken = async (token: string): Promise<UserEntity> => {
-    try {
-      const refreshToken = await this.refreshTokenService.readOne(token);
+  private generateRefreshToken = async (user: UserEntity): Promise<string> => {
+    const token = await this.refreshJwtService.signAsync({
+      sub: user.id,
+      role: user.role,
+    });
 
-      if (refreshToken.expiresAt <= new Date()) {
-        throw new RefreshTokenError('Refresh token is expired!');
-      }
+    await this.redis.set(
+      `refresh:${user.id}:${token}`,
+      token,
+      'EX',
+      ms(this.refreshLifetime),
+    );
 
-      await this.refreshTokenService.delete(refreshToken.id);
-
-      const user = await this.userService.readOneById(refreshToken.userId);
-      user.password = '';
-
-      return user;
-    } catch (e) {
-      throw new RefreshTokenError(e.message);
-    }
+    return token;
   };
 
-  generateRefreshToken = async (user: UserEntity): Promise<string> => {
-    const refreshToken = await this.refreshTokenService.create(
-      user.id,
-      new Date(
-        Date.now() + ms(this.configService.get('REFRESH_TOKEN_LIFETIME')),
-      ),
-    );
-    return this.jwtService.sign(
-      { sub: refreshToken.id },
-      {
-        algorithm: 'HS512',
-        expiresIn: this.configService.get('REFRESH_TOKEN_LIFETIME'),
-        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-      },
-    );
-  };
+  private generateAccessToken = async (user: UserEntity): Promise<string> =>
+    this.accessJwtService.signAsync({
+      sub: user.id,
+      role: user.role,
+    });
 
-  generateAccessToken = async (user: UserEntity): Promise<string> =>
-    this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      {
-        algorithm: 'HS512',
-        expiresIn: this.configService.get('ACCESS_TOKEN_LIFETIME'),
-        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-      },
-    );
-
-  makeAuthResult = async (user: UserEntity): Promise<AuthResult> => ({
+  private makeAuthResult = async (user: UserEntity): Promise<AuthResult> => ({
     user,
     refreshToken: await this.generateRefreshToken(user),
     accessToken: await this.generateAccessToken(user),
@@ -82,16 +72,17 @@ export class AuthService {
     const user = await this.userService.readOneByEmail(loginInput.email);
 
     if (await argon2.verify(user.password, loginInput.password)) {
-      user.password = '';
       return this.makeAuthResult(user);
     } else {
-      throw new AuthError('User password incorrect!');
+      throw new UnauthorizedException('User password incorrect!');
     }
   };
 
   signUp = async (signUpInput: SignUpInput): Promise<AuthResult> => {
     if (signUpInput.password !== signUpInput.passwordRepeat) {
-      throw new AuthError('Password and password repetition are not equal!');
+      throw new BadRequestException(
+        'Password and password repetition are not equal!',
+      );
     }
 
     const customer = await this.stripeService.createCustomer(
@@ -99,12 +90,48 @@ export class AuthService {
       signUpInput.name,
     );
 
-    const user = await this.userService.create({
-      email: signUpInput.email,
-      name: signUpInput.name,
-      customerId: customer.id,
-      password: await argon2.hash(signUpInput.password),
-    });
+    try {
+      const user = await this.userService.create({
+        email: signUpInput.email,
+        name: signUpInput.name,
+        customerId: customer.id,
+        password: await argon2.hash(signUpInput.password),
+      });
+
+      return this.makeAuthResult(user);
+    } catch (e) {
+      await this.stripeService.removeCustomer(customer.id);
+
+      if (e instanceof AlreadyExistsError) {
+        throw new ConflictException('User already exists!');
+      }
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+  };
+
+  refresh = async (
+    userId: string,
+    refreshToken: string,
+  ): Promise<AuthResult> => {
+    const payload = this.refreshJwtService.verify<{ sub: string }>(
+      refreshToken,
+    );
+    const storedToken = await this.redis.get(
+      `refresh:${userId}:${refreshToken}`,
+    );
+
+    if (!storedToken || userId !== payload.sub) {
+      throw new UnauthorizedException('Invalid refresh token!');
+    }
+
+    await this.redis.del(`refresh:${userId}:${refreshToken}`);
+
+    const user = await this.userService.readOneById(userId);
+
     return this.makeAuthResult(user);
+  };
+
+  logout = async (userId: string, refreshToken: string): Promise<void> => {
+    await this.redis.del(`refresh:${userId}:${refreshToken}`);
   };
 }

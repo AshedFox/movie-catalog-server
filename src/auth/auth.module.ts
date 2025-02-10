@@ -1,23 +1,39 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 import { AuthResolver } from './auth.resolver';
-import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
-import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { StripeModule } from '../stripe/stripe.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [
-    UserModule,
-    RefreshTokenModule,
-    PassportModule,
-    JwtModule,
-    StripeModule,
+  imports: [UserModule, StripeModule],
+  providers: [
+    AuthService,
+    AuthResolver,
+    {
+      provide: 'ACCESS_JWT_SERVICE',
+      useFactory: (configService: ConfigService) =>
+        new JwtService({
+          secret: configService.getOrThrow('ACCESS_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn: configService.getOrThrow('ACCESS_TOKEN_LIFETIME'),
+          },
+        }),
+      inject: [ConfigService],
+    },
+    {
+      provide: 'REFRESH_JWT_SERVICE',
+      useFactory: (configService: ConfigService) =>
+        new JwtService({
+          secret: configService.getOrThrow('REFRESH_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn: configService.getOrThrow('REFRESH_TOKEN_LIFETIME'),
+          },
+        }),
+      inject: [ConfigService],
+    },
   ],
-  providers: [AuthService, JwtAuthStrategy, RefreshTokenStrategy, AuthResolver],
   exports: [AuthService],
 })
 export class AuthModule {}

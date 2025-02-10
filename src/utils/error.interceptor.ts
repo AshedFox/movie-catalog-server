@@ -13,7 +13,6 @@ import {
 import { catchError, Observable, throwError } from 'rxjs';
 import {
   AlreadyExistsError,
-  AuthError,
   NotFoundError,
   RefreshTokenError,
 } from '@utils/errors';
@@ -27,8 +26,6 @@ export class ErrorInterceptor implements NestInterceptor {
           return throwError(() => new NotFoundException(err.message));
         } else if (err instanceof AlreadyExistsError) {
           return throwError(() => new ConflictException(err.message));
-        } else if (err instanceof AuthError) {
-          return throwError(() => new UnauthorizedException(err.message));
         } else if (err instanceof RefreshTokenError) {
           return throwError(() => new UnauthorizedException(err.message));
         } else if (err instanceof HttpException) {

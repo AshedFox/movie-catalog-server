@@ -63,6 +63,10 @@ export class StripeService {
     });
   };
 
+  removeCustomer = async (id: string) => {
+    return this.stripe.customers.del(id);
+  };
+
   createSubscription = async (
     customerId: string,
     priceId: string,

@@ -2,12 +2,11 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { UserEntity } from '../user/entities/user.entity';
 import { AuthResult } from './dto/auth.result';
 import { SignUpInput } from './dto/sign-up.input';
 import { LoginInput } from './dto/login.input';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
+import { CurrentUserDto } from '../user/dto/current-user.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -24,14 +23,20 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthResult)
-  @UseGuards(RefreshTokenGuard)
-  refresh(@CurrentUser() user: UserEntity) {
-    return this.authService.makeAuthResult(user);
+  @UseGuards(GqlJwtAuthGuard)
+  refresh(
+    @CurrentUser() user: CurrentUserDto,
+    @Args('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.refresh(user.id, refreshToken);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
-  logout() {
-    return true;
+  logout(
+    @CurrentUser() user: CurrentUserDto,
+    @Args('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.logout(user.id, refreshToken);
   }
 }
