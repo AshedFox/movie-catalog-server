@@ -23,12 +23,8 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthResult)
-  @UseGuards(GqlJwtAuthGuard)
-  refresh(
-    @CurrentUser() user: CurrentUserDto,
-    @Args('refreshToken') refreshToken: string,
-  ) {
-    return this.authService.refresh(user.id, refreshToken);
+  refresh(@Args('refreshToken') refreshToken: string) {
+    return this.authService.refresh(refreshToken);
   }
 
   @Mutation(() => Boolean)

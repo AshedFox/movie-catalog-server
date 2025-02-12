@@ -109,24 +109,21 @@ export class AuthService {
     }
   };
 
-  refresh = async (
-    userId: string,
-    refreshToken: string,
-  ): Promise<AuthResult> => {
+  refresh = async (refreshToken: string): Promise<AuthResult> => {
     const payload = this.refreshJwtService.verify<{ sub: string }>(
       refreshToken,
     );
     const storedToken = await this.redis.get(
-      `refresh:${userId}:${refreshToken}`,
+      `refresh:${payload.sub}:${refreshToken}`,
     );
 
-    if (!storedToken || userId !== payload.sub) {
+    if (!storedToken) {
       throw new UnauthorizedException('Invalid refresh token!');
     }
 
-    await this.redis.del(`refresh:${userId}:${refreshToken}`);
+    await this.redis.del(`refresh:${payload.sub}:${refreshToken}`);
 
-    const user = await this.userService.readOneById(userId);
+    const user = await this.userService.readOneById(payload.sub);
 
     return this.makeAuthResult(user);
   };
