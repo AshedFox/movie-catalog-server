@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsHash, Length } from 'class-validator';
+import { IsEmail, Matches } from 'class-validator';
 
 @InputType()
 export class SignUpInput {
@@ -14,6 +14,6 @@ export class SignUpInput {
   passwordRepeat: string;
 
   @Field()
-  @Length(3, 255)
+  @Matches(/^[a-zA-Z]{2,}(?: [a-zA-Z]+){1,2}$/)
   name: string;
 }
