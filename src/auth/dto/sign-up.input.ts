@@ -8,11 +8,9 @@ export class SignUpInput {
   email: string;
 
   @Field()
-  @IsHash('sha512')
   password: string;
 
   @Field()
-  @IsHash('sha512')
   passwordRepeat: string;
 
   @Field()
