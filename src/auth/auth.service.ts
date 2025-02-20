@@ -128,7 +128,7 @@ export class AuthService {
     return this.makeAuthResult(user);
   };
 
-  logout = async (userId: string, refreshToken: string): Promise<void> => {
-    await this.redis.del(`refresh:${userId}:${refreshToken}`);
+  logout = async (userId: string, refreshToken: string): Promise<boolean> => {
+    return (await this.redis.del(`refresh:${userId}:${refreshToken}`)) > 0;
   };
 }
