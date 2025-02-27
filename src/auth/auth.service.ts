@@ -22,11 +22,13 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { MailingService } from '../mailing/services/mailing.service';
 import { OTPService } from '../otp/otp.service';
+import { VerifyPasswordResetInput } from './dto/verfiry-password-reset.input';
 
 @Injectable()
 export class AuthService {
   private refreshLifetime: string;
   private resetPasswordOTPLifetime: number;
+  private resetPasswordTokenLifetime: number;
 
   constructor(
     private readonly configService: ConfigService,
@@ -34,6 +36,8 @@ export class AuthService {
     private readonly accessJwtService: JwtService,
     @Inject('REFRESH_JWT_SERVICE')
     private readonly refreshJwtService: JwtService,
+    @Inject('RESET_PASSWORD_JWT_SERVICE')
+    private readonly resetPasswordJwtService: JwtService,
     @InjectRedis()
     private readonly redis: Redis,
     private readonly userService: UserService,
@@ -43,11 +47,31 @@ export class AuthService {
   ) {
     this.refreshLifetime = this.configService.getOrThrow<string>(
       'REFRESH_TOKEN_LIFETIME',
+    );
     this.resetPasswordOTPLifetime = ms(
       this.configService.getOrThrow<string>('RESET_PASSWORD_OTP_LIFETIME'),
     );
+    this.resetPasswordTokenLifetime = ms(
+      this.configService.getOrThrow<string>('RESET_PASSWORD_TOKEN_LIFETIME'),
     );
   }
+
+  private generateResetPasswordToken = async (
+    userId: string,
+  ): Promise<string> => {
+    const token = await this.resetPasswordJwtService.signAsync({
+      sub: userId,
+    });
+
+    await this.redis.set(
+      `reset-password:${userId}`,
+      token,
+      'PX',
+      this.resetPasswordTokenLifetime,
+    );
+
+    return token;
+  };
 
   private generateRefreshToken = async (user: UserEntity): Promise<string> => {
     const token = await this.refreshJwtService.signAsync({
@@ -158,5 +182,29 @@ export class AuthService {
 
     await this.mailingService.sendPasswordReset(user.email, otp);
     return true;
+  };
+
+  verifyPasswordReset = async ({
+    email,
+    otp,
+  }: VerifyPasswordResetInput): Promise<string> => {
+    const user = await this.userService.readOneByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const storedOtp = await this.redis.getdel(`reset-password:${user.id}`);
+
+    if (!storedOtp) {
+      throw new UnauthorizedException(
+        'One-time password is expired or not requested',
+      );
+    }
+
+    if (storedOtp !== otp) {
+      throw new UnauthorizedException('Invalid one-time password');
+    }
+    return this.generateResetPasswordToken(user.id);
   };
 }

@@ -7,6 +7,7 @@ import { SignUpInput } from './dto/sign-up.input';
 import { LoginInput } from './dto/login.input';
 import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { VerifyPasswordResetInput } from './dto/verfiry-password-reset.input';
 
 @Resolver()
 export class AuthResolver {
@@ -39,5 +40,10 @@ export class AuthResolver {
   @Mutation(() => Boolean)
   forgotPassword(@Args('email') email: string) {
     return this.authService.forgotPassword(email);
+  }
+
+  @Mutation(() => String)
+  verifyPasswordReset(@Args('input') input: VerifyPasswordResetInput) {
+    return this.authService.verifyPasswordReset(input);
   }
 }

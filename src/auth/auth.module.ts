@@ -33,6 +33,19 @@ import { ConfigService } from '@nestjs/config';
         }),
       inject: [ConfigService],
     },
+    {
+      provide: 'RESET_PASSWORD_JWT_SERVICE',
+      useFactory: (configService: ConfigService) =>
+        new JwtService({
+          secret: configService.getOrThrow('RESET_PASSWORD_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn: configService.getOrThrow(
+              'RESET_PASSWORD_TOKEN_LIFETIME',
+            ),
+          },
+        }),
+      inject: [ConfigService],
+    },
   ],
   exports: [AuthService],
 })
