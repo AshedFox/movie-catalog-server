@@ -3522,7 +3522,7 @@ type Mutation {
   createSubscriptionsManageLink: String!
   createSubtitles(input: CreateSubtitlesInput!): Subtitles!
   createTrailer(input: CreateTrailerInput!): Trailer!
-  createUpload(type: MediaTypeEnum!): CreateUploadResult!
+  createUpload(mediaType: String!, type: MediaTypeEnum!): CreateUploadResult!
   createVideo: Video!
   createVideoVariant(input: CreateVideoVariantInput!): VideoVariant!
   deleteCollection(id: Int!): Collection!
@@ -3597,7 +3597,7 @@ type Mutation {
   updateMoviePersonType(id: Int!, input: UpdateMoviePersonTypeInput!): MoviePersonType!
   updateMovieReview(id: Int!, input: UpdateMovieReviewInput!): MovieReview!
   updateMovieUser(input: UpdateMovieUserInput!, movieId: String!, userId: String!): MovieUser!
-  updatePassword(newPassword: String!, oldPassword: String!): User!
+  updatePassword(newPassword: String!, oldPassword: String!): Boolean!
   updatePerson(id: Int!, input: UpdatePersonInput!): Person!
   updateRoom(id: String!, input: UpdateRoomInput!): Room!
   updateSeason(id: String!, input: UpdateSeasonInput!): Season!
