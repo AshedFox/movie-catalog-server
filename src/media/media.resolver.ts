@@ -31,6 +31,7 @@ export class MediaResolver {
   @Mutation(() => CreateUploadResult)
   async createUpload(
     @Args('type', { type: () => MediaTypeEnum }) type: MediaTypeEnum,
+    @Args('mediaType') mediaType: string,
   ): Promise<CreateUploadResult> {
     const { id } = await this.mediaService.create({
       type,
@@ -38,6 +39,7 @@ export class MediaResolver {
     });
     const { uploadUrl, publicUrl } = await this.cloudService.createFileUrls(
       `${type.toLowerCase()}/${id}`,
+      mediaType,
     );
     await this.mediaService.update(id, {
       url: publicUrl,
