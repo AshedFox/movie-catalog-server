@@ -166,6 +166,26 @@ export class AuthService {
     return (await this.redis.del(`refresh:${userId}:${refreshToken}`)) > 0;
   };
 
+  updatePassword = async (
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) => {
+    const user = await this.userService.readOneById(userId);
+    if (!user) {
+      throw new NotFoundException(`User not found!`);
+    }
+
+    if (!(await argon2.verify(user.password, oldPassword))) {
+      throw new UnauthorizedException('User password incorrect!');
+    }
+
+    return this.userService.updatePassword(
+      userId,
+      await argon2.hash(newPassword),
+    );
+  };
+
   forgotPassword = async (email: string) => {
     const user = await this.userService.readOneByEmail(email);
     if (!user) {

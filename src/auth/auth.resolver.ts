@@ -39,6 +39,20 @@ export class AuthResolver {
     return this.authService.logout(user.id, refreshToken);
   }
 
+  @Mutation(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  updatePassword(
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+    @CurrentUser() currentUser: CurrentUserDto,
+  ) {
+    return this.authService.updatePassword(
+      currentUser.id,
+      oldPassword,
+      newPassword,
+    );
+  }
+
   @Throttle(1, 60)
   @Mutation(() => Boolean)
   forgotPassword(@Args('email') email: string) {

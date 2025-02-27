@@ -10,7 +10,6 @@ import { OffsetPaginationArgsType } from '@common/pagination/offset';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
 import { parseArgsToQuery } from '@common/typeorm-query-parser';
-import * as argon2 from 'argon2';
 import { StripeService } from '../stripe/stripe.service';
 
 @Injectable()
@@ -109,24 +108,16 @@ export class UserService {
     return updatedUser;
   };
 
-  updatePassword = async (
-    id: string,
-    oldPassword: string,
-    newPassword: string,
-  ) => {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user) {
-      throw new NotFoundError(`User with id "${id}" not found!`);
-    }
+  updatePassword = async (id: string, newPassword: string) => {
+    try {
+      await this.userRepository.update(id, {
+        password: newPassword,
+      });
 
-    if (!(await argon2.verify(user.password, oldPassword))) {
-      throw new Error('User password incorrect!');
+      return true;
+    } catch {
+      return false;
     }
-
-    return this.userRepository.save({
-      ...user,
-      password: await argon2.hash(newPassword),
-    });
   };
 
   setEmailConfirmed = async (id: string) => {
