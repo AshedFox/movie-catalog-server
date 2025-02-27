@@ -147,15 +147,13 @@ export class AuthService {
     const payload = this.refreshJwtService.verify<{ sub: string }>(
       refreshToken,
     );
-    const storedToken = await this.redis.get(
+    const storedToken = await this.redis.getdel(
       `refresh:${payload.sub}:${refreshToken}`,
     );
 
     if (!storedToken) {
       throw new UnauthorizedException('Invalid refresh token!');
     }
-
-    await this.redis.del(`refresh:${payload.sub}:${refreshToken}`);
 
     const user = await this.userService.readOneById(payload.sub);
 
