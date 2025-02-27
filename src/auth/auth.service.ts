@@ -27,7 +27,7 @@ import { VerifyPasswordResetInput } from './dto/verfiry-password-reset.input';
 
 @Injectable()
 export class AuthService {
-  private refreshLifetime: string;
+  private refreshLifetime: number;
   private resetPasswordOTPLifetime: number;
   private resetPasswordTokenLifetime: number;
 
@@ -46,8 +46,8 @@ export class AuthService {
     private readonly mailingService: MailingService,
     private readonly otpService: OTPService,
   ) {
-    this.refreshLifetime = this.configService.getOrThrow<string>(
-      'REFRESH_TOKEN_LIFETIME',
+    this.refreshLifetime = ms(
+      this.configService.getOrThrow<string>('REFRESH_TOKEN_LIFETIME'),
     );
     this.resetPasswordOTPLifetime = ms(
       this.configService.getOrThrow<string>('RESET_PASSWORD_OTP_LIFETIME'),
@@ -83,8 +83,8 @@ export class AuthService {
     await this.redis.set(
       `refresh:${user.id}:${token}`,
       token,
-      'EX',
-      ms(this.refreshLifetime) / 1000,
+      'PX',
+      this.refreshLifetime,
     );
 
     return token;
