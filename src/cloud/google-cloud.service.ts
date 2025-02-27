@@ -33,10 +33,13 @@ export class GoogleCloudService {
     ]);
   }
 
-  createFileUrls: (path: string) => Promise<{
+  createFileUrls = async (
+    path: string,
+    type?: string,
+  ): Promise<{
     uploadUrl: string;
     publicUrl: string;
-  }> = async (path: string) => {
+  }> => {
     const file = this.bucket.file(path);
 
     return {
@@ -45,7 +48,8 @@ export class GoogleCloudService {
           version: 'v4',
           expires: Date.now() + ms('1d'),
           action: 'write',
-          contentType: 'application/octet-stream',
+          contentType: type || 'application/octet-stream',
+          responseDisposition: 'inline',
         })
       )[0],
       publicUrl: file.publicUrl().replace(/%2F/gi, '/'),
@@ -70,9 +74,20 @@ export class GoogleCloudService {
     inputStream: Readable,
     filePath: string,
     isPublic = true,
+    type?: string,
   ): Promise<string> => {
     const file = this.bucket.file(filePath);
-    await pipeline(inputStream, file.createWriteStream({ public: isPublic }));
+    await pipeline(
+      inputStream,
+      file.createWriteStream({
+        public: isPublic,
+        resumable: false,
+        metadata: {
+          contentType: type || 'application/octet-stream',
+          contentDisposition: 'inline',
+        },
+      }),
+    );
     return file.publicUrl().replace(/%2F/gi, '/');
   };
 
