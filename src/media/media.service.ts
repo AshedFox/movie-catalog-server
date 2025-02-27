@@ -21,6 +21,19 @@ export class MediaService extends BaseService<
     super(mediaRepository);
   }
 
+  createEmpty = async (
+    input: Partial<MediaEntity>,
+    path: string,
+    type?: string,
+  ) => {
+    const media = await this.mediaRepository.save({ ...input, url: '' });
+    const { publicUrl } = await this.cloudService.createFileUrls(
+      `${path}/${media.id}`,
+      type,
+    );
+    return this.mediaRepository.save({ ...media, url: publicUrl });
+  };
+
   uploadFile = async (stream: Readable): Promise<MediaEntity> => {
     const media = await this.create({
       type: MediaTypeEnum.RAW,
