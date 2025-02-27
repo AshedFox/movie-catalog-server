@@ -22,6 +22,7 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { MailingService } from '../mailing/services/mailing.service';
 import { OTPService } from '../otp/otp.service';
+import { ResetPasswordInput } from './dto/reset-password.input';
 import { VerifyPasswordResetInput } from './dto/verfiry-password-reset.input';
 
 @Injectable()
@@ -206,5 +207,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid one-time password');
     }
     return this.generateResetPasswordToken(user.id);
+  };
+
+  resetPassword = async ({ token, newPassword }: ResetPasswordInput) => {
+    const payload = this.refreshJwtService.verify<{ sub: string }>(token);
+    const storedToken = await this.redis.getdel(
+      `reset-password:${payload.sub}`,
+    );
+
+    if (!storedToken || storedToken !== token) {
+      throw new UnauthorizedException('Invalid reset token!');
+    }
+
+    return this.userService.updatePassword(
+      payload.sub,
+      await argon2.hash(newPassword),
+    );
   };
 }
