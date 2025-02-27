@@ -5,9 +5,11 @@ import { UserModule } from '../user/user.module';
 import { AuthResolver } from './auth.resolver';
 import { StripeModule } from '../stripe/stripe.module';
 import { ConfigService } from '@nestjs/config';
+import { OTPModule } from '../otp/otp.module';
+import { MailingModule } from '../mailing/mailing.module';
 
 @Module({
-  imports: [UserModule, StripeModule],
+  imports: [UserModule, StripeModule, OTPModule, MailingModule],
   providers: [
     AuthService,
     AuthResolver,
