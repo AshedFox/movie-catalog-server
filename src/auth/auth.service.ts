@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -19,10 +20,13 @@ import { LoginInput } from './dto/login.input';
 import { AlreadyExistsError } from '@utils/errors';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { MailingService } from '../mailing/services/mailing.service';
+import { OTPService } from '../otp/otp.service';
 
 @Injectable()
 export class AuthService {
   private refreshLifetime: string;
+  private resetPasswordOTPLifetime: number;
 
   constructor(
     private readonly configService: ConfigService,
@@ -34,9 +38,14 @@ export class AuthService {
     private readonly redis: Redis,
     private readonly userService: UserService,
     private readonly stripeService: StripeService,
+    private readonly mailingService: MailingService,
+    private readonly otpService: OTPService,
   ) {
     this.refreshLifetime = this.configService.getOrThrow<string>(
       'REFRESH_TOKEN_LIFETIME',
+    this.resetPasswordOTPLifetime = ms(
+      this.configService.getOrThrow<string>('RESET_PASSWORD_OTP_LIFETIME'),
+    );
     );
   }
 
@@ -130,5 +139,24 @@ export class AuthService {
 
   logout = async (userId: string, refreshToken: string): Promise<boolean> => {
     return (await this.redis.del(`refresh:${userId}:${refreshToken}`)) > 0;
+  };
+
+  forgotPassword = async (email: string) => {
+    const user = await this.userService.readOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const otp = await this.otpService.generateOTP();
+
+    await this.redis.set(
+      `reset-password-otp:${user.id}`,
+      otp,
+      'PX',
+      this.resetPasswordOTPLifetime,
+    );
+
+    await this.mailingService.sendPasswordReset(user.email, otp);
+    return true;
   };
 }

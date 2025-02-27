@@ -35,4 +35,9 @@ export class AuthResolver {
   ) {
     return this.authService.logout(user.id, refreshToken);
   }
+
+  @Mutation(() => Boolean)
+  forgotPassword(@Args('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
 }
