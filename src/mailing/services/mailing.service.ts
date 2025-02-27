@@ -10,6 +10,19 @@ export class MailingService {
     private readonly mailerService: MailerService,
   ) {}
 
+  sendPasswordReset = async (email: string, otp: string) => {
+    await this.mailerService.sendMail({
+      encoding: 'utf8',
+      to: email,
+      from: this.configService.get<string>('MAIL_USER'),
+      subject: 'Password reset',
+      template: 'password-reset',
+      context: {
+        otp,
+      },
+    });
+  };
+
   sendConfirmation = async (user: UserEntity, confirmationToken: string) => {
     await this.mailerService.sendMail({
       encoding: 'utf8',
