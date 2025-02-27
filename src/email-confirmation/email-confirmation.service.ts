@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { MailingService } from '../mailing/services/mailing.service';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { NotFoundError } from '@utils/errors';
 export class EmailConfirmationService {
   constructor(
     private readonly configService: ConfigService,
+    @Inject('EMAIL_CONFIRMATION_JWT_SERVICE')
     private readonly jwtService: JwtService,
     private readonly mailingService: MailingService,
     private readonly userService: UserService,
@@ -25,19 +26,10 @@ export class EmailConfirmationService {
       throw new BadRequestException('Email already confirmed!');
     }
 
-    const confirmationToken = this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-      },
-      {
-        algorithm: 'HS512',
-        secret: this.configService.get<string>('CONFIRMATION_TOKEN_SECRET'),
-        expiresIn: this.configService.get<string>(
-          'CONFIRMATION_TOKEN_LIFETIME',
-        ),
-      },
-    );
+    const confirmationToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+    });
 
     await this.mailingService.sendConfirmation(user, confirmationToken);
     return true;
@@ -48,10 +40,7 @@ export class EmailConfirmationService {
       const { sub, email } = this.jwtService.verify<{
         sub: string;
         email: string;
-      }>(token, {
-        algorithms: ['HS512'],
-        secret: this.configService.get<string>('CONFIRMATION_TOKEN_SECRET'),
-      });
+      }>(token);
 
       await this.checkIfEmailChanged(sub, email);
 
@@ -66,7 +55,7 @@ export class EmailConfirmationService {
     const user = await this.userService.readOneById(userId);
 
     if (user.email !== email) {
-      throw new Error(
+      throw new BadRequestException(
         'Confirmation email is not equals to current user email!',
       );
     }
