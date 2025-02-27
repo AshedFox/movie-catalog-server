@@ -27,6 +27,8 @@ import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { SubscriptionEntity } from '../subscription/entities/subscription.entity';
 import { PurchaseEntity } from '../purchase/entities/purchase.entity';
 import sharp from 'sharp';
+import { GoogleCloudService } from '../cloud/google-cloud.service';
+import { MediaTypeEnum } from '../utils';
 
 @Resolver(UserEntity)
 export class UserResolver {
@@ -34,6 +36,7 @@ export class UserResolver {
     private readonly mediaService: MediaService,
     private readonly userService: UserService,
     private readonly caslAbilityFactory: CaslAbilityFactory,
+    private readonly cloudService: GoogleCloudService,
   ) {}
 
   @Query(() => UserEntity)
@@ -83,11 +86,28 @@ export class UserResolver {
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
     @CurrentUser() currentUser: CurrentUserDto,
   ) {
-    const media = await this.mediaService.uploadImage(
-      file.createReadStream().pipe(sharp().resize(640, 640).webp()),
+    const user = await this.userService.readOneById(currentUser.id);
+    const path = `images/users/${user.id}`;
+
+    const media = await this.mediaService.createEmpty(
+      { type: MediaTypeEnum.IMAGE },
+      path,
+      file.mimetype,
     );
 
-    return this.userService.update(currentUser.id, {
+    await this.cloudService.uploadStream(
+      file.createReadStream().pipe(sharp().resize(640, 640).webp()),
+      `${path}/${media.id}`,
+      true,
+      file.mimetype,
+    );
+
+    if (user.avatarId) {
+      await this.mediaService.delete(user.avatarId);
+      await this.cloudService.delete(`${path}/${user.avatarId}`);
+    }
+
+    return this.userService.update(user.id, {
       avatarId: media.id,
     });
   }

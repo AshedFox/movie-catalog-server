@@ -6,6 +6,7 @@ import { UserEntity } from './entities/user.entity';
 import { CaslModule } from '../casl/casl.module';
 import { MediaModule } from '../media/media.module';
 import { StripeModule } from '../stripe/stripe.module';
+import { CloudModule } from '../cloud/cloud.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { StripeModule } from '../stripe/stripe.module';
     CaslModule,
     MediaModule,
     StripeModule,
+    CloudModule,
   ],
   providers: [UserResolver, UserService],
   exports: [UserService],
