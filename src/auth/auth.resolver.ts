@@ -9,6 +9,7 @@ import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { ResetPasswordInput } from './dto/reset-password.input';
 import { VerifyPasswordResetInput } from './dto/verfiry-password-reset.input';
+import { Throttle } from '@nestjs/throttler';
 
 @Resolver()
 export class AuthResolver {
@@ -38,11 +39,13 @@ export class AuthResolver {
     return this.authService.logout(user.id, refreshToken);
   }
 
+  @Throttle(1, 60)
   @Mutation(() => Boolean)
   forgotPassword(@Args('email') email: string) {
     return this.authService.forgotPassword(email);
   }
 
+  @Throttle(5, 60)
   @Mutation(() => String)
   verifyPasswordReset(@Args('input') input: VerifyPasswordResetInput) {
     return this.authService.verifyPasswordReset(input);
