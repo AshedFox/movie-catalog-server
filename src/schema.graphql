@@ -3609,7 +3609,6 @@ type Mutation {
   updateVideoVariant(id: Int!, input: UpdateVideoVariantInput!): VideoVariant!
   uploadFile(file: Upload!): Media!
   uploadImage(file: Upload!): Media!
-  verifyPasswordReset(input: VerifyPasswordResetInput!): String!
 }
 
 input NumberFilter {
@@ -4546,11 +4545,6 @@ input UserSort {
   name: SortOptions
   role: SortOptions
   updatedAt: SortOptions
-}
-
-input VerifyPasswordResetInput {
-  email: String!
-  otp: String!
 }
 
 type Video {

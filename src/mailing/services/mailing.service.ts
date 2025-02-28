@@ -5,12 +5,16 @@ import { UserEntity } from '../../user/entities/user.entity';
 
 @Injectable()
 export class MailingService {
+  private addressBase: string;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
-  ) {}
+  ) {
+    this.addressBase = this.configService.getOrThrow<string>('CLIENT_URL');
+  }
 
-  sendPasswordReset = async (email: string, otp: string) => {
+  sendPasswordReset = async (email: string, token: string) => {
     await this.mailerService.sendMail({
       encoding: 'utf8',
       to: email,
@@ -18,7 +22,8 @@ export class MailingService {
       subject: 'Password reset',
       template: 'password-reset',
       context: {
-        otp,
+        token,
+        addressBase: this.addressBase,
       },
     });
   };
@@ -33,7 +38,7 @@ export class MailingService {
       context: {
         user,
         confirmationToken,
-        addressBase: this.configService.get<string>('CLIENT_URL'),
+        addressBase: this.addressBase,
       },
     });
   };
