@@ -213,7 +213,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const storedOtp = await this.redis.getdel(`reset-password:${user.id}`);
+    const storedOtp = await this.redis.getdel(`reset-password-otp:${user.id}`);
 
     if (!storedOtp) {
       throw new UnauthorizedException(
