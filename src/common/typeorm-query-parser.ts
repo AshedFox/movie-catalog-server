@@ -88,6 +88,15 @@ const applyFieldFilter = <T>(
           [`${name}${filterName}Start`]: transformedValue.startValue,
           [`${name}${filterName}End`]: transformedValue.endValue,
         });
+      } else if (filterName === 'nin' || filterName === 'in') {
+        const paramName = `${name}${filterName}Value`;
+        const withValue = filterOperator.withValue.replace(
+          ':...value',
+          `:...${paramName}`,
+        );
+        where[operatorProp](`${snakeName} ${withValue}`, {
+          [paramName]: transformedValue,
+        });
       } else {
         const paramName = `${name}${filterName}Value`;
         const withValue = filterOperator.withValue.replace(
