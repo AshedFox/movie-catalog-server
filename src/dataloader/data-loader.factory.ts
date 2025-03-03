@@ -10,6 +10,12 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { PaginationArgsType } from '@common/pagination';
 import { plainToInstance } from 'class-transformer';
 
+type LoaderKey<K, T> = {
+  id: K;
+  args?: ArgsType<T>;
+  pagination?: PaginationArgsType;
+};
+
 @Injectable()
 export class DataLoaderFactory {
   constructor(
@@ -29,10 +35,10 @@ export class DataLoaderFactory {
     childKeyName: string,
     ParentClass: Type<Parent>,
     parentKeyName: string,
-    args: ArgsType<any>,
-    pagination: PaginationArgsType,
+    args?: ArgsType<any>,
+    pagination?: PaginationArgsType,
     relationFieldName?: string,
-  ) => {
+  ): SelectQueryBuilder<Parent> => {
     const childQb = this.entityManager
       .createQueryBuilder()
       .select('"c".*')
@@ -41,7 +47,9 @@ export class DataLoaderFactory {
 
     if (relationFieldName) {
       childQb.innerJoinAndSelect(`c.${relationFieldName}`, 'r');
-      typeormQueryParser.applyArgs(childQb, args ?? {}, pagination, 'r');
+      if (args || pagination) {
+        typeormQueryParser.applyArgs(childQb, args ?? {}, pagination, 'r');
+      }
     } else {
       typeormQueryParser.applyArgs(childQb, args ?? {}, pagination, 'c');
     }
@@ -76,18 +84,14 @@ export class DataLoaderFactory {
     parentKeyName: ParentKey,
     relationFieldName: RelationKey,
     RelationClass: Type<Relation>,
-  ): BatchLoadFn<
-    {
-      id: ParentKey;
-      args?: ArgsType<Relation>;
-      pagination?: PaginationArgsType;
-    },
-    Relation[]
-  > {
+  ): BatchLoadFn<LoaderKey<ParentKey, Relation>, Relation[]> {
+    const entityKey = String(childKeyName);
+    const relationKey = String(relationFieldName);
+    const parentKey = String(parentKeyName);
+
     return async (keys) => {
-      const map: { [key: IndexType]: Relation[] } = {};
-      const args = keys[0].args;
-      const pagination = keys[0].pagination;
+      const map: Record<IndexType, Relation[]> = {};
+      const { args, pagination } = keys[0];
       const ids = keys.map((key) => key.id);
 
       let data: Child[];
@@ -96,30 +100,26 @@ export class DataLoaderFactory {
         data = await this.makeParentQueryBuilder(
           ids,
           ChildClass,
-          snakeCase(String(childKeyName)),
+          snakeCase(entityKey),
           ParentClass,
-          snakeCase(String(parentKeyName)),
+          snakeCase(parentKey),
           args,
           pagination,
-          String(relationFieldName),
+          relationKey,
         ).getRawMany();
       } else {
-        const qb = this.entityManager.createQueryBuilder();
-
-        qb.select('"c".*')
+        data = await this.entityManager
+          .createQueryBuilder()
+          .select('"c".*')
           .from(ChildClass, 'c')
-          .innerJoinAndSelect(`c.${String(relationFieldName)}`, 'r')
-          .where(`"c".${snakeCase(String(childKeyName))} IN (:...ids)`, {
+          .innerJoinAndSelect(`c.${relationKey}`, 'r')
+          .where(`"c".${snakeCase(entityKey)} IN (:...ids)`, {
             ids,
-          });
-
-        data = await qb.getRawMany();
+          })
+          .getRawMany();
       }
 
-      const entityKey = String(childKeyName);
-      const relationKey = String(relationFieldName);
-
-      data.forEach((v) => {
+      for (const v of data) {
         const result = plainToInstance(ChildClass, {});
         result[relationKey] = plainToInstance(RelationClass, {});
 
@@ -131,12 +131,12 @@ export class DataLoaderFactory {
           }
         }
 
-        if (map[result[entityKey]]) {
-          map[result[entityKey]].push(result[relationKey]);
-        } else {
-          map[result[entityKey]] = [result[relationKey]];
+        const id = result[entityKey];
+        if (!map[id]) {
+          map[result[entityKey]] = [];
         }
-      });
+        map[id].push(result[relationKey]);
+      }
 
       return ids.map((id) => map[id] ?? []);
     };
@@ -152,14 +152,13 @@ export class DataLoaderFactory {
     childKeyName: ChildKey,
     ParentClass: Type<Parent>,
     parentKeyName: ParentKey,
-  ): BatchLoadFn<
-    { id: ParentKey; args?: ArgsType<Child>; pagination?: PaginationArgsType },
-    Child[]
-  > {
+  ): BatchLoadFn<LoaderKey<ParentKey, Child>, Child[]> {
+    const entityKey = String(childKeyName);
+    const parentKey = String(parentKeyName);
+
     return async (keys) => {
-      const map: { [key: IndexType]: Child[] } = {};
-      const args = keys[0].args;
-      const pagination = keys[0].pagination;
+      const map: Record<IndexType, Child[]> = {};
+      const { args, pagination } = keys[0];
       const ids = keys.map((key) => key.id);
 
       let data: Child[];
@@ -168,37 +167,36 @@ export class DataLoaderFactory {
         data = await this.makeParentQueryBuilder(
           ids,
           ChildClass,
-          snakeCase(String(childKeyName)),
+          snakeCase(entityKey),
           ParentClass,
-          snakeCase(String(parentKeyName)),
+          snakeCase(parentKey),
           args,
           pagination,
         ).getRawMany();
       } else {
-        const qb = this.entityManager.createQueryBuilder();
-        qb.select(`"c".*`)
+        data = await this.entityManager
+          .createQueryBuilder()
+          .select(`"c".*`)
           .from(ChildClass, 'c')
-          .where(`"c".${snakeCase(String(childKeyName))} IN (:...ids)`, {
+          .where(`"c".${snakeCase(entityKey)} IN (:...ids)`, {
             ids,
-          });
-        data = await qb.getRawMany<Child>();
+          })
+          .getRawMany<Child>();
       }
 
-      const entityKey = String(childKeyName);
-
-      data.forEach((v) => {
+      for (const v of data) {
         const result = plainToInstance(ChildClass, {});
 
         for (const [key, value] of Object.entries(v)) {
           result[camelCase(key)] = value;
         }
 
-        if (map[result[entityKey]]) {
-          map[result[entityKey]].push(result);
-        } else {
-          map[result[entityKey]] = [result];
+        const id = result[entityKey];
+        if (!map[id]) {
+          map[result[entityKey]] = [];
         }
-      });
+        map[result[entityKey]].push(result);
+      }
 
       return ids.map((id) => map[id] ?? []);
     };
@@ -208,22 +206,30 @@ export class DataLoaderFactory {
     EntityClass: Type<Entity>,
     keyName: Key,
   ): BatchLoadFn<Key, Entity> {
+    const key = String(keyName);
+
     return async (ids) => {
-      const map: { [key: IndexType]: Entity } = {};
+      const map: Record<IndexType, Entity> = {};
 
       const data = await this.entityManager
         .createQueryBuilder(EntityClass, 't')
         .whereInIds(ids)
         .getMany();
 
-      const key = String(keyName);
-
-      data.forEach((v) => {
+      for (const v of data) {
         map[v[key]] = v;
-      });
+      }
 
       return ids.map((id) => map[id] ?? null);
     };
+  }
+
+  private hashKey(key: any): string {
+    return crypto
+      .createHash('sha256')
+      .update(JSON.stringify(key))
+      .digest('hex')
+      .toString();
   }
 
   createOrGetLoader<Entity extends object, Key extends keyof Entity>(
@@ -240,15 +246,7 @@ export class DataLoaderFactory {
     childKeyName: ChildKey,
     ParentClass: Type<Parent>,
     parentKeyName: ParentKey,
-  ): DataLoader<
-    {
-      id: Parent[ParentKey];
-      args?: ArgsType<Child>;
-      pagination?: PaginationArgsType;
-    },
-    Child[],
-    string
-  >;
+  ): DataLoader<LoaderKey<Parent[ParentKey], Child>, Child[], string>;
   createOrGetLoader<
     Child extends object,
     ChildKey extends keyof Child,
@@ -263,15 +261,7 @@ export class DataLoaderFactory {
     parentKeyName: ParentKey,
     relationFieldName: RelationKey,
     RelationClass: Type<Relation>,
-  ): DataLoader<
-    {
-      id: Parent[ParentKey];
-      args?: ArgsType<Relation>;
-      pagination?: PaginationArgsType;
-    },
-    Relation[],
-    string
-  >;
+  ): DataLoader<LoaderKey<Parent[ParentKey], Relation>, Relation[], string>;
   createOrGetLoader<
     ChildOrEntity extends object,
     ChildOrEntityKey extends keyof ChildOrEntity,
@@ -286,8 +276,8 @@ export class DataLoaderFactory {
     parentKeyName?: ParentKey,
     relationFieldName?: RelationKey,
     RelationClass?: Type<Relation>,
-  ) {
-    let loaderName = '';
+  ): DataLoader<unknown, unknown> {
+    let loaderName: string;
 
     if (parentKeyName && ParentClass && relationFieldName && RelationClass) {
       loaderName =
@@ -308,14 +298,7 @@ export class DataLoaderFactory {
             relationFieldName,
             RelationClass,
           ),
-          {
-            cacheKeyFn: (key) =>
-              crypto
-                .createHash('sha256')
-                .update(JSON.stringify(key))
-                .digest('hex')
-                .toString(),
-          },
+          { cacheKeyFn: this.hashKey },
         );
       }
     } else if (parentKeyName && ParentClass) {
@@ -333,14 +316,7 @@ export class DataLoaderFactory {
             ParentClass,
             parentKeyName,
           ),
-          {
-            cacheKeyFn: (key) =>
-              crypto
-                .createHash('sha256')
-                .update(JSON.stringify(key))
-                .digest('hex')
-                .toString(),
-          },
+          { cacheKeyFn: this.hashKey },
         );
       }
     } else {
@@ -381,16 +357,16 @@ export class DataLoaderFactory {
             .select(
               `${snakeGroupKeyName}, count(${snakeGroupKeyName}) as count`,
             )
-            .groupBy(`${snakeGroupKeyName}`)
+            .groupBy(snakeGroupKeyName)
             .where(`${snakeGroupKeyName} IN (:...keys)`, { keys });
 
           extra && extra(qb);
 
           const data = await qb.getRawMany();
 
-          data.forEach((v) => {
-            map[v[snakeGroupKeyName]] = v.count;
-          });
+          for (const row of data) {
+            map[row[snakeGroupKeyName]] = row.count;
+          }
 
           return keys.map((key) => map[key as string] ?? 0);
         },
