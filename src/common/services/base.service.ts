@@ -14,7 +14,7 @@ export abstract class BaseService<
   protected constructor(private readonly repository: Repository<T>) {}
 
   exists = async (where: FindOptionsWhere<T>) => {
-    return this.repository.exist({
+    return this.repository.exists({
       where,
     });
   };
