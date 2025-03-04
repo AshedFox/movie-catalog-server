@@ -6,7 +6,7 @@ import {
 } from 'typeorm';
 import { FilterComparisonType, FilterType } from './filter';
 import { PaginationArgsType } from './pagination';
-import { SortOptionsType, SortType } from './sort';
+import { SortDirectionEnum, SortOptionsType, SortType } from './sort';
 import { snakeCase } from 'typeorm/util/StringUtils';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ArgsType } from '@common/args';
@@ -224,6 +224,10 @@ export const applySort = <T>(
   Object.keys(sort).forEach((key) => {
     applyFieldSort(qb, key, sort[key], alias);
   });
+
+  if (!('id' in sort)) {
+    applyFieldSort(qb, 'id', { direction: SortDirectionEnum.ASC }, alias);
+  }
 };
 
 const applyJoins = <T>(
@@ -275,6 +279,36 @@ const getRelations = <T>(
     : [];
 };
 
+export function getCount<T>(repo: Repository<T>, filter?: FilterType<T>) {
+  const relations = getRelations(repo.metadata.relations, filter);
+
+  const qb = repo.createQueryBuilder(repo.metadata.name);
+
+  applyJoins(qb, relations);
+
+  if (filter) {
+    applyFilter(qb, filter);
+  }
+
+  return qb.getCount();
+}
+
+function applyDistinctOn<T>(
+  qb: SelectQueryBuilder<T>,
+  sort: SortType<T> = {},
+  alias?: string,
+) {
+  const distinctOn = Object.keys(sort).map(
+    (key) => `"${alias}"."${snakeCase(key)}"`,
+  );
+
+  if (!('id' in sort)) {
+    distinctOn.push(`"${alias}"."id"`);
+  }
+
+  qb.distinctOn(distinctOn);
+}
+
 export function parseArgsToQuery<T>(
   repo: Repository<T>,
   pagination?: PaginationArgsType,
@@ -282,19 +316,26 @@ export function parseArgsToQuery<T>(
   filter?: FilterType<T>,
 ) {
   const relations = getRelations(repo.metadata.relations, filter, sort);
-
-  const qb = repo.createQueryBuilder();
+  const qb = repo.createQueryBuilder(repo.metadata.name);
 
   applyJoins(qb, relations);
 
+  if (relations.length > 0) {
+    applyDistinctOn(qb, sort, qb.alias);
+  }
+
   if (sort) {
-    applySort(qb, sort);
+    applySort(qb, sort, qb.alias);
+  } else {
+    applyFieldSort(qb, 'id', { direction: SortDirectionEnum.ASC }, qb.alias);
   }
-  if (pagination) {
-    applyPagination(qb, pagination);
-  }
+
   if (filter) {
-    applyFilter(qb, filter);
+    applyFilter(qb, filter, qb.alias);
+  }
+
+  if (pagination) {
+    applyPagination(qb, pagination, qb.alias);
   }
 
   return qb;

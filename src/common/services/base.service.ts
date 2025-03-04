@@ -3,7 +3,7 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 import { PaginationArgsType } from '@common/pagination';
 import { SortType } from '@common/sort';
 import { FilterType } from '@common/filter';
-import { parseArgsToQuery } from '@common/typeorm-query-parser';
+import { getCount, parseArgsToQuery } from '@common/typeorm-query-parser';
 
 export abstract class BaseService<
   T extends { id: string | number },
@@ -20,12 +20,7 @@ export abstract class BaseService<
   };
 
   count = async (filter?: FilterType<T>): Promise<number> => {
-    return parseArgsToQuery(
-      this.repository,
-      undefined,
-      undefined,
-      filter,
-    ).getCount();
+    return getCount(this.repository, filter);
   };
 
   create = async (input: C): Promise<T> => {
