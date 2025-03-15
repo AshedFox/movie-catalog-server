@@ -1,7 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { VideoProfileEnum, AudioProfileEnum } from '@utils/enums';
 import Ffmpeg from 'fluent-ffmpeg';
-import { AUDIO_PROFILES, CODECS_LIBS, VIDEO_PROFILES } from './constants';
+import {
+  AUDIO_PROFILES,
+  CODECS_LIBS,
+  KEYFRAME_STEP,
+  SEGMENT_DURATION,
+  TARGET_FRAMES,
+  VIDEO_PROFILES,
+} from './constants';
 
 @Injectable()
 export class FfmpegService {
@@ -47,7 +54,7 @@ export class FfmpegService {
           .outputFormat('dash')
           .addOutputOption('-use_timeline 1')
           .addOutputOption('-use_template 1')
-          .addOutputOption('-seg_duration 4')
+          .addOutputOption(`-seg_duration ${SEGMENT_DURATION}`)
           .addOutputOption('-hls_playlist 1')
           .addOutputOption(
             `-adaptation_sets`,
@@ -138,14 +145,14 @@ export class FfmpegService {
         .videoCodec(CODECS_LIBS[videoCodec])
         .size(`${width}x${height}`)
         .noAudio()
-        .fpsOutput(30)
+        .fpsOutput(TARGET_FRAMES)
         .addOutputOptions([
-          `-g 120`,
+          `-g ${KEYFRAME_STEP}`,
           '-pix_fmt yuv420p',
           '-color_primaries bt709',
           '-color_trc bt709',
           '-colorspace bt709',
-          `-keyint_min 120`,
+          `-keyint_min ${KEYFRAME_STEP}`,
           `-maxrate ${maxBitRate}`,
           `-crf ${crf}`,
         ]);

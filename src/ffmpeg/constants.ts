@@ -1,6 +1,10 @@
 import { AudioProfileOptions, CodecName, VideoProfileOptions } from './types';
 import { VideoProfileEnum, AudioProfileEnum } from '@utils/enums';
 
+export const TARGET_FRAMES = 30;
+export const SEGMENT_DURATION = 2;
+export const KEYFRAME_STEP = TARGET_FRAMES * SEGMENT_DURATION;
+
 export const VIDEO_PROFILES: Record<VideoProfileEnum, VideoProfileOptions> = {
   PROFILE_4k: {
     videoCodec: 'av1',
