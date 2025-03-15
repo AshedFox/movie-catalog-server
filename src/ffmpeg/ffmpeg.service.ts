@@ -84,25 +84,25 @@ export class FfmpegService {
     audioProfile: AudioProfileEnum,
     language?: string,
   ) => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const { audioCodec, audioFrequency, channels, bitRate } =
-          AUDIO_PROFILES[audioProfile];
+    try {
+      const { audioCodec, audioFrequency, channels, bitRate } =
+        AUDIO_PROFILES[audioProfile];
 
-        const command = Ffmpeg(inputPath);
+      const command = Ffmpeg(inputPath);
 
-        command
-          .format('mp4')
-          .audioFrequency(audioFrequency)
-          .audioBitrate(bitRate)
-          .addOption(`-bufsize ${bitRate}`)
-          .audioChannels(channels)
-          .audioCodec(CODECS_LIBS[audioCodec])
-          .noVideo();
+      command
+        .format('mp4')
+        .audioFrequency(audioFrequency)
+        .audioBitrate(bitRate)
+        .addOption(`-bufsize ${bitRate}`)
+        .audioChannels(channels)
+        .audioCodec(CODECS_LIBS[audioCodec])
+        .noVideo();
 
-        language &&
-          command.addOutputOption('-metadata:s:a:0', `language=${language}`);
+      language &&
+        command.addOutputOption('-metadata:s:a:0', `language=${language}`);
 
+      return new Promise<void>((resolve, reject) => {
         command
           .on('start', (commandLine) => {
             Logger.log('Spawned FFmpeg with command: ' + commandLine);
@@ -116,11 +116,11 @@ export class FfmpegService {
             resolve();
           })
           .saveToFile(outputPath);
-      } catch (err) {
-        Logger.error(`Error in makeAudio: ${err.message}`);
-        reject(err);
-      }
-    });
+      });
+    } catch (err) {
+      Logger.error(`Error in makeAudio: ${err.message}`);
+      throw err;
+    }
   };
 
   makeVideo = (
@@ -129,48 +129,48 @@ export class FfmpegService {
     profile: VideoProfileEnum,
     language?: string,
   ) => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const currentProfile = VIDEO_PROFILES[profile];
+    try {
+      const currentProfile = VIDEO_PROFILES[profile];
 
-        const { maxBitRate, crf, videoCodec, width, height } = currentProfile;
+      const { maxBitRate, crf, videoCodec, width, height } = currentProfile;
 
-        const command = Ffmpeg(inputPath);
-        command
-          .format('mp4')
-          .videoCodec(CODECS_LIBS[videoCodec])
-          .size(`${width}x${height}`)
-          .noAudio()
-          .fpsOutput(30)
-          .addOutputOptions([
-            `-g 120`,
-            '-pix_fmt yuv420p',
-            '-color_primaries bt709',
-            '-color_trc bt709',
-            '-colorspace bt709',
-            `-keyint_min 120`,
-            `-maxrate ${maxBitRate}`,
-            `-crf ${crf}`,
-          ]);
+      const command = Ffmpeg(inputPath);
+      command
+        .format('mp4')
+        .videoCodec(CODECS_LIBS[videoCodec])
+        .size(`${width}x${height}`)
+        .noAudio()
+        .fpsOutput(30)
+        .addOutputOptions([
+          `-g 120`,
+          '-pix_fmt yuv420p',
+          '-color_primaries bt709',
+          '-color_trc bt709',
+          '-colorspace bt709',
+          `-keyint_min 120`,
+          `-maxrate ${maxBitRate}`,
+          `-crf ${crf}`,
+        ]);
 
-        if (videoCodec === 'av1') {
-          command.addOutputOption(
-            '-svtav1-params',
-            'tune=0:film-grain=10:preset=4:lp=0',
-          );
-        } else if (videoCodec === 'h265' || videoCodec === 'h264') {
-          command.addOutputOptions([
-            `-preset high`,
-            `-tune zerolatency`,
-            `-profile high`,
-            `-level 4.0`,
-            `-movflags +faststart`,
-          ]);
-        }
+      if (videoCodec === 'av1') {
+        command.addOutputOption(
+          '-svtav1-params',
+          'tune=0:film-grain=10:preset=4:lp=0',
+        );
+      } else if (videoCodec === 'h265' || videoCodec === 'h264') {
+        command.addOutputOptions([
+          `-preset high`,
+          `-tune zerolatency`,
+          `-profile high`,
+          `-level 4.0`,
+          `-movflags +faststart`,
+        ]);
+      }
 
-        language &&
-          command.addOutputOption('-metadata:s:v:0', `language=${language}`);
+      language &&
+        command.addOutputOption('-metadata:s:v:0', `language=${language}`);
 
+      return new Promise<void>((resolve, reject) => {
         command
           .on('start', (commandLine) => {
             Logger.log('Spawned FFmpeg with command: ' + commandLine);
@@ -184,10 +184,10 @@ export class FfmpegService {
             resolve();
           })
           .saveToFile(outputPath);
-      } catch (err) {
-        Logger.error(`Error in makeVideo: ${err.message}`);
-        reject(err);
-      }
-    });
+      });
+    } catch (err) {
+      Logger.error(`Error in makeVideo: ${err.message}`);
+      throw err;
+    }
   };
 }
