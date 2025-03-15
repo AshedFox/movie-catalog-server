@@ -18,69 +18,73 @@ export class FfmpegService {
     subtitlesPaths: Record<string, string>,
     outputPath: string,
   ) => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const command = Ffmpeg();
+    try {
+      const command = Ffmpeg();
 
-        const mapOpt: string[] = [];
-        const adaptationSets: number[][] = [];
+      const mapOpt: string[] = [];
+      const adaptationSets: number[][] = [];
 
-        for (const videoPathsKey in videoPaths) {
-          adaptationSets.push([]);
-          for (const videoPath of videoPaths[videoPathsKey]) {
-            command.addInput(videoPath);
-            adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
-            mapOpt.push(`-map ${mapOpt.length}:v:0`);
-          }
+      for (const videoPathsKey in videoPaths) {
+        adaptationSets.push([]);
+        for (const videoPath of videoPaths[videoPathsKey]) {
+          command.addInput(videoPath);
+          adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
+          mapOpt.push(`-map ${mapOpt.length}:v:0`);
         }
+      }
 
-        for (const audioPathsKey in audioPaths) {
-          adaptationSets.push([]);
-          for (const audioPath of audioPaths[audioPathsKey]) {
-            command.addInput(audioPath);
-            adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
-            mapOpt.push(`-map ${mapOpt.length}:a:0`);
-          }
+      for (const audioPathsKey in audioPaths) {
+        adaptationSets.push([]);
+        for (const audioPath of audioPaths[audioPathsKey]) {
+          command.addInput(audioPath);
+          adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
+          mapOpt.push(`-map ${mapOpt.length}:a:0`);
         }
+      }
 
-        for (const subtitlesPathsKey in subtitlesPaths) {
-          adaptationSets.push([mapOpt.length]);
-          command.addInput(subtitlesPaths[subtitlesPathsKey]);
-          mapOpt.push(`-map ${mapOpt.length}:s:0`);
-        }
+      for (const subtitlesPathsKey in subtitlesPaths) {
+        adaptationSets.push([mapOpt.length]);
+        command.addInput(subtitlesPaths[subtitlesPathsKey]);
+        mapOpt.push(`-map ${mapOpt.length}:s:0`);
+      }
 
-        command
-          .outputOptions([...mapOpt, '-c copy'])
-          .outputFormat('dash')
-          .addOutputOption('-use_timeline 1')
-          .addOutputOption('-use_template 1')
-          .addOutputOption(`-seg_duration ${SEGMENT_DURATION}`)
-          .addOutputOption('-hls_playlist 1')
-          .addOutputOption(
-            `-adaptation_sets`,
-            adaptationSets
-              .map((value, index) => {
-                return `id=${index},streams=${value.join(',')}`;
-              })
-              .join(' '),
-          );
+      command
+        .outputOptions([...mapOpt, '-c copy'])
+        .outputFormat('dash')
+        .addOutputOption('-use_timeline 1')
+        .addOutputOption('-use_template 1')
+        .addOutputOption(`-seg_duration ${SEGMENT_DURATION}`)
+        .addOutputOption('-hls_playlist 1')
+        .addOutputOption(
+          `-adaptation_sets`,
+          adaptationSets
+            .map((value, index) => {
+              return `id=${index},streams=${value.join(',')}`;
+            })
+            .join(' '),
+        );
 
-        command.addOutputOption(`-dash_segment_type mp4`);
+      command.addOutputOption(`-dash_segment_type mp4`);
 
+      return new Promise<void>((resolve, reject) => {
         command
           .on('start', (commandLine) => {
             Logger.log('Spawned Ffmpeg with command: ' + commandLine);
           })
-          .on('error', (err) => reject(err))
+          .on('error', (err) => {
+            Logger.error(`FFmpeg error: ${err.message}`);
+            reject(err);
+          })
           .on('end', () => {
+            Logger.log(`Dash manifest created at ${outputPath}`);
             resolve();
           })
           .saveToFile(outputPath);
-      } catch (err) {
-        Logger.log(err);
-        reject(err);
-      }
-    });
+      });
+    } catch (err) {
+      Logger.error(`Error in makeDashManifest: ${err.message}`);
+      throw err;
+    }
   };
 
   makeAudio = (
