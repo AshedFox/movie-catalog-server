@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { VideoProfileEnum, AudioProfileEnum, FormatEnum } from '@utils/enums';
+import { VideoProfileEnum, AudioProfileEnum } from '@utils/enums';
 import Ffmpeg from 'fluent-ffmpeg';
 import { AUDIO_PROFILES, CODECS_LIBS, VIDEO_PROFILES } from './constants';
 
@@ -10,7 +10,6 @@ export class FfmpegService {
     audioPaths: Record<string, string[]>,
     subtitlesPaths: Record<string, string>,
     outputPath: string,
-    format?: FormatEnum,
   ) => {
     return new Promise<void>((resolve, reject) => {
       try {
@@ -59,8 +58,7 @@ export class FfmpegService {
               .join(' '),
           );
 
-        format &&
-          command.addOutputOption(`-dash_segment_type ${format.toLowerCase()}`);
+        command.addOutputOption(`-dash_segment_type mp4`);
 
         command
           .on('start', (commandLine) => {
