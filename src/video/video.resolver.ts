@@ -24,7 +24,7 @@ import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { PubSub } from 'graphql-subscriptions';
 import { MediaEntity } from '../media/entities/media.entity';
 import { VideoAudioEntity } from '../video-audio/entities/video-audio.entity';
-import { join } from 'path';
+import { StreamingGenerationProgressDto } from './dto/streaming-generation-progress.dto';
 import { CreateVideoInput } from './dto/create-video.input';
 
 @Resolver(() => VideoEntity)
@@ -38,65 +38,10 @@ export class VideoResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
   @Mutation(() => Boolean)
-  generateStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
-    this.videoService
-      .prepareStreamingData(id)
-      .then(async (data) => {
-        const streamingOutDir = join(
-          process.cwd(),
-          'assets',
-          `video_${id}`,
-          'streaming',
-        );
-
-        try {
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Starting streaming files creation for video ${id}`,
-          );
-
-          await this.videoService.createStreaming(
-            id,
-            join(process.cwd(), 'assets', `video_${id}`, 'streaming'),
-            data.videoVariants,
-            data.audioVariants,
-            data.subtitles,
-          );
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Successfully created streaming files for video ${id}`,
-          );
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Clearing old streaming files if exists for video ${id}`,
-          );
-
-          await this.videoService.clearStreamingFiles(id);
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Starting uploading streaming files for video ${id}`,
-          );
-
-          await this.videoService.clearStreamingFiles(id);
-          await this.videoService.uploadStreamingFiles(id, streamingOutDir);
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Successfully uploaded streaming files for video ${id}`,
-          );
-        } catch (err) {
-          await this.pubSub.publish(`streamingGenerationProgress_${id}`, err);
-        } finally {
-          fs.rmSync(streamingOutDir, { recursive: true });
-        }
-      })
-      .catch((err) =>
-        this.pubSub.publish(`streamingGenerationProgress_${id}`, err),
-      );
-
+  createStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
+    this.videoService.createStreaming(id, (data) =>
+      this.pubSub.publish(`streamingGenerationProgress_${id}`, data),
+    );
     return true;
   }
 
@@ -138,11 +83,14 @@ export class VideoResolver {
     return this.videoService.delete(id);
   }
 
-  @Subscription(() => String, {
-    resolve: (value) => value,
+  @Subscription(() => StreamingGenerationProgressDto, {
+    resolve: (value: StreamingGenerationProgressDto, { id }) => ({
+      ...value,
+      message: `video-${id}: ${value.message}`,
+    }),
   })
   streamingGenerationProgress(@Args('id', { type: () => Int }) id: number) {
-    return this.pubSub.asyncIterator<string>(
+    return this.pubSub.asyncIterator<StreamingGenerationProgressDto>(
       `streamingGenerationProgress_${id}`,
     );
   }
