@@ -8,14 +8,11 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { VideoAudioService } from './video-audio.service';
-import { Inject, Logger, UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { RoleEnum } from '@utils/enums';
-import { join } from 'path';
-import fs from 'fs';
-import { AudioProfileEnum } from '@utils/enums/audio-profile.enum';
 import { GenerateVideoAudiosInput } from './dto/generate-video-audios.input';
 import { PubSub } from 'graphql-subscriptions';
 import { VideoEntity } from '../video/entities/video.entity';
@@ -24,6 +21,7 @@ import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { MediaEntity } from '../media/entities/media.entity';
 import { LanguageEntity } from '../language/entities/language.entity';
 import { VideoAudioEntity } from './entities/video-audio.entity';
+import { AudioVariantsProgressDto } from './dto/audio-variants-progress.dto';
 
 @Resolver(() => VideoAudioEntity)
 export class VideoAudioResolver {
@@ -36,69 +34,12 @@ export class VideoAudioResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin, RoleEnum.Moderator])
   @Mutation(() => Boolean)
-  generateVideoAudios(
+  async generateVideoAudios(
     @Args('input')
-    {
-      videoId,
-      profiles,
-      originalMediaUrl,
-      languageId,
-      format,
-    }: GenerateVideoAudiosInput,
+    input: GenerateVideoAudiosInput,
   ) {
-    const outDir = join(process.cwd(), 'assets', `video_${videoId}`);
-
-    fs.mkdirSync(outDir, { recursive: true });
-
-    new Promise<{
-      successful: AudioProfileEnum[];
-      failed: AudioProfileEnum[];
-    }>(async (resolve) => {
-      const successful: AudioProfileEnum[] = [];
-      const failed: AudioProfileEnum[] = [];
-
-      for (const audioProfile of profiles) {
-        try {
-          await this.videoAudioService.makeForProfile(
-            videoId,
-            audioProfile,
-            languageId,
-            originalMediaUrl,
-            outDir,
-            `${audioProfile}_audio_${languageId}`,
-            format,
-          );
-
-          successful.push(audioProfile);
-
-          await this.pubSub.publish(
-            `audioVariantsProgress_${videoId}`,
-            `Successfully generated audio file for audio ${videoId} and profile ${audioProfile}`,
-          );
-        } catch (err) {
-          failed.push(audioProfile);
-
-          Logger.error(err);
-
-          await this.pubSub.publish(
-            `audioVariantsProgress_${videoId}`,
-            `Failed to generate audio file for audio ${videoId} and profile ${audioProfile}`,
-          );
-        }
-      }
-
-      resolve({ successful, failed });
-    }).then(({ successful, failed }) =>
-      this.pubSub.publish(
-        `audioVariantsProgress_${videoId}`,
-        `Audio files generation completed for video ${videoId}. ` +
-          `Failed to generate audio files for profiles [${failed.join(
-            ', ',
-          )}]. ` +
-          `Successfully generated audio files for profiles [${successful.join(
-            ', ',
-          )}].`,
-      ),
+    this.videoAudioService.generateVideoAudios(input, (data) =>
+      this.pubSub.publish(`audioVariantsProgress_${input.videoId}`, data),
     );
 
     return true;
@@ -134,10 +75,15 @@ export class VideoAudioResolver {
       .load(videoAudio.languageId);
   }
 
-  @Subscription(() => String, {
-    resolve: (value) => value,
+  @Subscription(() => AudioVariantsProgressDto, {
+    resolve: (value, { id }) => ({
+      ...value,
+      message: `video-${id}:audio: ${value.message}`,
+    }),
   })
   audioVariantsProgress(@Args('id', { type: () => Int }) id: number) {
-    return this.pubSub.asyncIterator<string>(`audioVariantsProgress_${id}`);
+    return this.pubSub.asyncIterator<AudioVariantsProgressDto>(
+      `audioVariantsProgress_${id}`,
+    );
   }
 }
