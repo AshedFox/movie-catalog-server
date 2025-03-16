@@ -4,7 +4,6 @@ export * from './access-mode.enum';
 export * from './action.enum';
 export * from './age-restriction.enum';
 export * from './audio-profile.enum';
-export * from './format.enum';
 export * from './media-type.enum';
 export * from './plan-interval.enum';
 export * from './subscription-status.enum';
