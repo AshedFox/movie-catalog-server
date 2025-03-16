@@ -11,19 +11,14 @@ import { MediaEntity } from '../../media/entities/media.entity';
 import { VideoProfileEnum } from '@utils/enums/video-profile.enum';
 import { VideoEntity } from '../../video/entities/video.entity';
 import { FilterableField } from '@common/filter';
-import { FormatEnum } from '@utils/enums/format.enum';
 
 @ObjectType('VideoVariant')
 @Entity('videos_variants')
-@Unique(['videoId', 'format', 'profile'])
+@Unique(['videoId', 'profile'])
 export class VideoVariantEntity {
   @FilterableField()
   @PrimaryGeneratedColumn({ type: 'int8' })
   id: number;
-
-  @Field(() => FormatEnum)
-  @Column({ type: 'enum', enum: FormatEnum, enumName: 'format_enum' })
-  format: FormatEnum;
 
   @FilterableField(() => Int)
   @Column({ type: 'int4' })

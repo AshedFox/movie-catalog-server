@@ -23,9 +23,7 @@ import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorat
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { PubSub } from 'graphql-subscriptions';
 import { GenerateVideoVariantsInput } from './dto/generate-video-variants.input';
-import { VideoProfileEnum } from '@utils/enums/video-profile.enum';
-import { join } from 'path';
-import fs from 'fs';
+import { VideoVariantsProgressDto } from './dto/video-variants-progress.dto';
 
 @Resolver(() => VideoVariantEntity)
 export class VideoVariantResolver {
@@ -47,57 +45,10 @@ export class VideoVariantResolver {
   @Mutation(() => Boolean)
   generateVideoVariants(
     @Args('input')
-    { videoId, profiles, originalMediaUrl, format }: GenerateVideoVariantsInput,
+    input: GenerateVideoVariantsInput,
   ) {
-    const outDir = join(process.cwd(), 'assets', `video_${videoId}`);
-
-    fs.mkdirSync(outDir, { recursive: true });
-
-    new Promise<{
-      successful: VideoProfileEnum[];
-      failed: VideoProfileEnum[];
-    }>(async (resolve) => {
-      const successful: VideoProfileEnum[] = [];
-      const failed: VideoProfileEnum[] = [];
-
-      for (const videoProfile of profiles) {
-        try {
-          await this.videoVariantService.makeForProfile(
-            videoId,
-            videoProfile,
-            originalMediaUrl,
-            outDir,
-            `${videoProfile}_video`,
-            format,
-          );
-          successful.push(videoProfile);
-
-          await this.pubSub.publish(
-            `videoVariantsProgress_${videoId}`,
-            `Successfully generated video file for video ${videoId} and profile ${videoProfile}`,
-          );
-        } catch (err) {
-          failed.push(videoProfile);
-
-          await this.pubSub.publish(
-            `videoVariantsProgress_${videoId}`,
-            `Failed to generate video file for video ${videoId} and profile ${videoProfile}`,
-          );
-        }
-      }
-
-      resolve({ successful, failed });
-    }).then(({ successful, failed }) =>
-      this.pubSub.publish(
-        `videoVariantsProgress_${videoId}`,
-        `Video files generation completed for video ${videoId}. ` +
-          `Failed to generate video files for profiles [${failed.join(
-            ', ',
-          )}]. ` +
-          `Successfully generated video files for profiles [${successful.join(
-            ', ',
-          )}].`,
-      ),
+    this.videoVariantService.generateVideoVariants(input, (data) =>
+      this.pubSub.publish(`videoVariantsProgress_${input.videoId}`, data),
     );
 
     return true;
@@ -150,10 +101,15 @@ export class VideoVariantResolver {
       .load(videoVariant.mediaId);
   }
 
-  @Subscription(() => String, {
-    resolve: (value) => value,
+  @Subscription(() => VideoVariantsProgressDto, {
+    resolve: (value, { id }) => ({
+      ...value,
+      message: `video-${id}:video: ${value.message}`,
+    }),
   })
   videoVariantsProgress(@Args('id', { type: () => Int }) id: number) {
-    return this.pubSub.asyncIterator<string>(`videoVariantsProgress_${id}`);
+    return this.pubSub.asyncIterator<VideoVariantsProgressDto>(
+      `videoVariantsProgress_${id}`,
+    );
   }
 }
