@@ -12,6 +12,7 @@ import { GoogleCloudService } from '../cloud/google-cloud.service';
 import { MediaService } from '../media/media.service';
 import { mkdir, readdir, rm } from 'fs/promises';
 import { StreamingGenerationProgressDto } from './dto/streaming-generation-progress.dto';
+import { CreateStreamingDirectlyInput } from './dto/create-streaming-directly.input';
 
 @Injectable()
 export class VideoService extends BaseService<
@@ -30,6 +31,79 @@ export class VideoService extends BaseService<
   ) {
     super(videoRepository);
   }
+
+  createStreamingDirectly = async (
+    { id, url, videoProfiles, audioProfiles }: CreateStreamingDirectlyInput,
+    onEvent: (data: StreamingGenerationProgressDto) => Promise<void>,
+  ) => {
+    const outDir = join(process.cwd(), 'assets', `video_${id}`, 'streaming');
+
+    const video = await this.videoRepository.findOneBy({ id });
+
+    if (!video) {
+      return onEvent({
+        type: 'error',
+        message: `Video not exists`,
+      });
+    }
+
+    try {
+      onEvent({
+        type: 'info',
+        message: `Starting creation`,
+      });
+      await mkdir(outDir, { recursive: true });
+
+      await this.ffmpegService.makeMPEGDashDirectly(
+        url,
+        outDir,
+        videoProfiles,
+        audioProfiles,
+      );
+
+      await onEvent({
+        type: 'info',
+        message: `Successfully generated streaming`,
+      });
+
+      await onEvent({
+        type: 'info',
+        message: `Clearing previous streaming files and media`,
+      });
+
+      await this.clearStreamingFiles(id);
+
+      await onEvent({
+        type: 'info',
+        message: `Successfully cleared previous streaming files and media`,
+      });
+
+      await onEvent({
+        type: 'info',
+        message: `Uploading streaming files to the cloud`,
+      });
+
+      await this.uploadStreamingFiles(id, outDir);
+
+      await onEvent({
+        type: 'info',
+        message: `Successully uploaded streaming files to the cloud`,
+      });
+
+      await onEvent({
+        type: 'info',
+        message: `Successfully finished streaming creation`,
+      });
+    } catch (err) {
+      onEvent({
+        type: 'error',
+        message: err.message,
+      });
+    } finally {
+      rm(outDir, { recursive: true });
+    }
+  };
+
   createStreaming = async (
     id: number,
     onEvent: (data: StreamingGenerationProgressDto) => Promise<void>,

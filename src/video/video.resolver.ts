@@ -26,6 +26,7 @@ import { MediaEntity } from '../media/entities/media.entity';
 import { VideoAudioEntity } from '../video-audio/entities/video-audio.entity';
 import { StreamingGenerationProgressDto } from './dto/streaming-generation-progress.dto';
 import { CreateVideoInput } from './dto/create-video.input';
+import { CreateStreamingDirectlyInput } from './dto/create-streaming-directly.input';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -34,6 +35,18 @@ export class VideoResolver {
     @Inject('PUB_SUB')
     private readonly pubSub: PubSub,
   ) {}
+
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin])
+  @Mutation(() => Boolean)
+  createStreamingForVideoDirectly(
+    @Args('input') input: CreateStreamingDirectlyInput,
+  ) {
+    this.videoService.createStreamingDirectly(input, (data) =>
+      this.pubSub.publish(`streamingGenerationProgress_${input.id}`, data),
+    );
+    return true;
+  }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
