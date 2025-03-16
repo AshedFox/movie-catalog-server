@@ -1,5 +1,6 @@
 import {
   Args,
+  Int,
   Mutation,
   Parent,
   Query,
@@ -135,5 +136,15 @@ export class SeasonResolver {
     return loadersFactory
       .createOrGetLoader(EpisodeEntity, 'seasonId', SeasonEntity, 'id')
       .load({ id: season.id });
+  }
+
+  @ResolveField(() => Int)
+  episodesCount(
+    @Parent() season: SeasonEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetCountLoader(EpisodeEntity, 'seasonId', 'id')
+      .load(season.id);
   }
 }
