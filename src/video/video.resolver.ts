@@ -25,7 +25,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { MediaEntity } from '../media/entities/media.entity';
 import { VideoAudioEntity } from '../video-audio/entities/video-audio.entity';
 import { join } from 'path';
-import fs from 'fs';
+import { CreateVideoInput } from './dto/create-video.input';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -103,8 +103,8 @@ export class VideoResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
   @Mutation(() => VideoEntity)
-  async createVideo() {
-    return this.videoService.create({});
+  async createVideo({ originalMediaId }: CreateVideoInput) {
+    return this.videoService.create({ originalMediaId });
   }
 
   @Query(() => PaginatedVideos)
@@ -145,6 +145,18 @@ export class VideoResolver {
     return this.pubSub.asyncIterator<string>(
       `streamingGenerationProgress_${id}`,
     );
+  }
+
+  @ResolveField(() => MediaEntity, { nullable: true })
+  originalMedia(
+    @Parent() video: VideoEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return video.originalMediaId
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(video.originalMediaId)
+      : undefined;
   }
 
   @ResolveField(() => MediaEntity, { nullable: true })
