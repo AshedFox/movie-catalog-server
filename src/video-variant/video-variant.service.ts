@@ -11,8 +11,10 @@ import { join } from 'path';
 import { MediaEntity } from '../media/entities/media.entity';
 import { MediaTypeEnum } from '@utils/enums/media-type.enum';
 import { GoogleCloudService } from '../cloud/google-cloud.service';
-import fs from 'fs';
-import { FormatEnum } from '@utils/enums/format.enum';
+import { mkdir, rm } from 'fs/promises';
+import { GenerateVideoVariantsInput } from './dto/generate-video-variants.input';
+import { VideoVariantsProgressDto } from './dto/video-variants-progress.dto';
+import { VideoEntity } from 'src/video/entities/video.entity';
 
 @Injectable()
 export class VideoVariantService extends BaseService<
@@ -22,7 +24,7 @@ export class VideoVariantService extends BaseService<
 > {
   constructor(
     @InjectRepository(VideoVariantEntity)
-    private readonly videoVariantRepository: Repository<VideoVariantEntity>,
+    videoVariantRepository: Repository<VideoVariantEntity>,
     private readonly ffmpegService: FfmpegService,
     private readonly cloudService: GoogleCloudService,
     @InjectDataSource()
@@ -31,21 +33,89 @@ export class VideoVariantService extends BaseService<
     super(videoVariantRepository);
   }
 
+  generateVideoVariants = async (
+    { videoId, profiles }: GenerateVideoVariantsInput,
+    onEvent: (data: VideoVariantsProgressDto) => Promise<void>,
+  ) => {
+    const outDir = join(process.cwd(), 'assets', `video_${videoId}`);
+    await mkdir(outDir, { recursive: true });
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    const video = await queryRunner.manager.findOne(VideoEntity, {
+      where: { id: videoId },
+      relations: {
+        originalMedia: true,
+      },
+    });
+
+    if (!video) {
+      return onEvent({
+        type: 'error',
+        message: 'Video not exists',
+      });
+    }
+
+    if (!video.originalMedia) {
+      return onEvent({
+        type: 'error',
+        message: 'No video source for this video',
+      });
+    }
+
+    const successful: VideoProfileEnum[] = [];
+    const failed: VideoProfileEnum[] = [];
+
+    for (const videoProfile of profiles) {
+      try {
+        await this.makeForProfile(
+          videoId,
+          videoProfile,
+          video.originalMedia.url,
+          outDir,
+          `${videoProfile}_video`,
+        );
+
+        successful.push(videoProfile);
+
+        onEvent({
+          type: 'info',
+          message: `Successfully generated video profile ${videoProfile}`,
+        });
+      } catch (err) {
+        failed.push(videoProfile);
+
+        onEvent({
+          type: 'error',
+          message: `Failed to generate video profile ${videoProfile}`,
+        });
+      }
+    }
+
+    onEvent({
+      type: 'info',
+      message: `Video variants generation finished
+        Successful: ${successful}
+        Failed: ${failed}`,
+    });
+
+    rm(outDir, { recursive: true });
+  };
+
   makeForProfile = async (
     videoId: number,
     profile: VideoProfileEnum,
     inputPath: string,
     outputDir: string,
     name: string,
-    format: FormatEnum,
   ): Promise<void> => {
-    const outputPath = join(outputDir, `${name}.${format.toLowerCase()}`);
+    const outputPath = join(outputDir, `${name}.mp4`);
 
-    await this.ffmpegService.makeVideo(inputPath, outputPath, profile, format);
+    await this.ffmpegService.makeVideo(inputPath, outputPath, profile);
 
     const uploadUrl = await this.cloudService.upload(
       outputPath,
-      `videos/video_${videoId}/${name}.${format.toLowerCase()}`,
+      `videos/video_${videoId}/${name}.mp4`,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -62,14 +132,12 @@ export class VideoVariantService extends BaseService<
       const existing = await queryRunner.manager.findOneBy(VideoVariantEntity, {
         videoId,
         profile,
-        format,
       });
 
       if (!existing) {
         await queryRunner.manager.save(VideoVariantEntity, {
           videoId,
           profile,
-          format,
           mediaId: media.id,
         });
       } else {
@@ -85,7 +153,7 @@ export class VideoVariantService extends BaseService<
       throw new Error(err);
     } finally {
       await queryRunner.release();
-      fs.rmSync(outputPath);
+      rm(outputPath);
     }
   };
 }
