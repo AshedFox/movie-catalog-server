@@ -6,18 +6,44 @@ import {
 } from 'typeorm';
 import { FilterComparisonType, FilterType } from './filter';
 import { PaginationArgsType } from './pagination';
-import {
-  SortDirectionEnum,
-  SortNullsEnum,
-  SortOptionsType,
-  SortType,
-} from './sort';
+import { SortDirectionEnum, SortOptionsType, SortType } from './sort';
 import { snakeCase } from 'typeorm/util/StringUtils';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ArgsType } from '@common/args';
 import { OffsetPaginationArgsType } from './pagination/offset';
 import { RelayPaginationArgsType } from './pagination/relay';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+
+type Operators = {
+  [key: string]: {
+    withNull?: string;
+    withValue?: string;
+    valueTransform?: (value: any) => any;
+  };
+};
+
+const FILTER_OPERATORS: Operators = {
+  eq: { withNull: 'IS NULL', withValue: '= :value' },
+  neq: { withNull: 'IS NOT NULL', withValue: '!= :value' },
+  gt: { withValue: '> :value' },
+  gte: { withValue: '>= :value' },
+  lt: { withValue: '< :value' },
+  lte: { withValue: '<= :value' },
+  like: { withValue: 'LIKE :value', valueTransform: (v) => `%${v}%` },
+  nlike: { withValue: 'NOT LIKE :value', valueTransform: (v) => `%${v}%` },
+  ilike: { withValue: 'ILIKE :value', valueTransform: (v) => `%${v}%` },
+  nilike: { withValue: 'NOT ILIKE :value', valueTransform: (v) => `%${v}%` },
+  in: { withValue: 'IN (:...value)' },
+  nin: { withValue: 'NOT IN (:...value)' },
+  btwn: {
+    withValue: 'BETWEEN :startValue AND :endValue',
+    valueTransform: (v) => ({ startValue: v.start, endValue: v.end }),
+  },
+  nbtwn: {
+    withValue: 'NOT BETWEEN :startValue AND :endValue',
+    valueTransform: (v) => ({ startValue: v.start, endValue: v.end }),
+  },
+};
 
 const applyFieldFilter = <T>(
   where: WhereExpressionBuilder,
@@ -32,132 +58,54 @@ const applyFieldFilter = <T>(
     ? `"${alias}"."${snakeCase(fieldName)}"`
     : `"${snakeCase(fieldName)}"`;
 
-  Object.entries(filter).forEach((filterProp) => {
-    const [filterName, value] = filterProp;
+  Object.entries(filter).forEach(([filterName, value]) => {
+    const filterOperator = FILTER_OPERATORS[filterName];
+
+    if (!filterOperator) {
+      return applyFieldFilter(
+        where,
+        filterName,
+        filter[filterName],
+        operator,
+        fieldName,
+      );
+    }
 
     if (value === null) {
-      switch (filterName) {
-        case 'eq': {
-          where[operatorProp](`${snakeName} IS NULL`);
-          break;
-        }
-        case 'neq': {
-          where[operatorProp](`${snakeName} IS NOT NULL`);
-          break;
-        }
-        default: {
-          applyFieldFilter(
-            where,
-            filterName,
-            filter[filterName],
-            operator,
-            fieldName,
-          );
-        }
+      if (filterOperator.withNull) {
+        where[operatorProp](`${snakeName} ${filterOperator.withNull}`);
       }
-    } else {
-      switch (filterName) {
-        case 'eq': {
-          where[operatorProp](`${snakeName} = :${name}EqValue`, {
-            [`${name}EqValue`]: value,
-          });
-          break;
-        }
-        case 'neq': {
-          where[operatorProp](`${snakeName} != :${name}NEqValue`, {
-            [`${name}NEqValue`]: value,
-          });
-          break;
-        }
-        case 'gt': {
-          where[operatorProp](`${snakeName} > :${name}GtValue`, {
-            [`${name}GtValue`]: value,
-          });
-          break;
-        }
-        case 'gte': {
-          where[operatorProp](`${snakeName} >= :${name}GteValue`, {
-            [`${name}GteValue`]: value,
-          });
-          break;
-        }
-        case 'lt': {
-          where[operatorProp](`${snakeName} < :${name}LtValue`, {
-            [`${name}LtValue`]: value,
-          });
-          break;
-        }
-        case 'lte': {
-          where[operatorProp](`${snakeName} <= :${name}LteValue`, {
-            [`${name}LteValue`]: value,
-          });
-          break;
-        }
-        case 'like': {
-          where[operatorProp](`${snakeName} LIKE :${name}LikeValue`, {
-            [`${name}LikeValue`]: `%${value}%`,
-          });
-          break;
-        }
-        case 'nlike': {
-          where[operatorProp](`${snakeName} NOT LIKE :${name}NLikeValue`, {
-            [`${name}NLikeValue`]: `%${value}%`,
-          });
-          break;
-        }
-        case 'ilike': {
-          where[operatorProp](`${snakeName} ILIKE :${name}ILikeValue`, {
-            [`${name}ILikeValue`]: `%${value}%`,
-          });
-          break;
-        }
-        case 'nilike': {
-          where[operatorProp](`${snakeName} NOT ILIKE :${name}NILikeValue`, {
-            [`${name}NILikeValue`]: `%${value}%`,
-          });
-          break;
-        }
-        case 'in': {
-          where[operatorProp](`${snakeName} IN (:...${name}InValue)`, {
-            [`${name}InValue`]: value,
-          });
-          break;
-        }
-        case 'nin': {
-          where[operatorProp](`${snakeName} NOT IN (:...${name}NInValue)`, {
-            [`${name}NInValue`]: value,
-          });
-          break;
-        }
-        case 'btwn': {
-          where[operatorProp](
-            `${snakeName} BETWEEN :${name}BtwnStart AND :${name}BtwnEnd`,
-            {
-              [`${name}BtwnStart`]: value.start,
-              [`${name}BtwnEnd`]: value.end,
-            },
-          );
-          break;
-        }
-        case 'nbtwn': {
-          where[operatorProp](
-            `${snakeName} NOT BETWEEN :${name}NBtwnStart AND :${name}NBtwnEnd`,
-            {
-              [`${name}NBtwnStart`]: value.start,
-              [`${name}NBtwnEnd`]: value.end,
-            },
-          );
-          break;
-        }
-        default: {
-          applyFieldFilter(
-            where,
-            filterName,
-            filter[filterName],
-            operator,
-            fieldName,
-          );
-        }
+      return;
+    }
+
+    if (filterOperator.withValue) {
+      const transformedValue = filterOperator.valueTransform
+        ? filterOperator.valueTransform(value)
+        : value;
+
+      if (filterName === 'btwn' || filterName === 'nbtwn') {
+        where[operatorProp](`${snakeName} ${filterOperator.withValue}`, {
+          [`${name}${filterName}Start`]: transformedValue.startValue,
+          [`${name}${filterName}End`]: transformedValue.endValue,
+        });
+      } else if (filterName === 'nin' || filterName === 'in') {
+        const paramName = `${name}${filterName}Value`;
+        const withValue = filterOperator.withValue.replace(
+          ':...value',
+          `:...${paramName}`,
+        );
+        where[operatorProp](`${snakeName} ${withValue}`, {
+          [paramName]: transformedValue,
+        });
+      } else {
+        const paramName = `${name}${filterName}Value`;
+        const withValue = filterOperator.withValue.replace(
+          ':value',
+          `:${paramName}`,
+        );
+        where[operatorProp](`${snakeName} ${withValue}`, {
+          [paramName]: transformedValue,
+        });
       }
     }
   });
@@ -204,8 +152,7 @@ export const applyOffsetPagination = <T>(
   qb: SelectQueryBuilder<T>,
   pagination: OffsetPaginationArgsType,
 ) => {
-  qb.limit(pagination.limit);
-  qb.offset(pagination.offset);
+  qb.limit(pagination.limit).offset(pagination.offset);
 };
 
 export const applyRelayPagination = <T>(
@@ -220,14 +167,12 @@ export const applyRelayPagination = <T>(
     if (after) {
       qb.andWhere(`${idFieldName} > :after`, { after });
     }
-    qb.addOrderBy(idFieldName, 'ASC');
-    qb.limit(first + 1);
+    qb.addOrderBy(idFieldName, 'ASC').limit(first + 1);
   } else if (last) {
     if (before) {
       qb.andWhere(`${idFieldName} < :before`, { before });
     }
-    qb.addOrderBy(idFieldName, 'DESC');
-    qb.limit(last + 1);
+    qb.addOrderBy(idFieldName, 'DESC').limit(last + 1);
   }
 };
 
@@ -236,7 +181,7 @@ export const applyPagination = <T>(
   pagination: PaginationArgsType,
   alias?: string,
 ) => {
-  if (isOffsetPagination(pagination)) {
+  if ('offset' in pagination) {
     applyOffsetPagination(qb, pagination);
   } else {
     applyRelayPagination(qb, pagination, alias);
@@ -259,23 +204,14 @@ const applyFieldSort = (
     });
   }
 
-  const direction =
-    options.direction === SortDirectionEnum.ASC ||
-    options.direction === SortDirectionEnum.asc
-      ? 'ASC'
-      : options.direction === SortDirectionEnum.DESC ||
-        options.direction === SortDirectionEnum.desc
-      ? 'DESC'
-      : undefined;
+  const direction = options.direction?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
   const nulls =
-    options.nulls === SortNullsEnum.FIRST ||
-    options.nulls === SortNullsEnum.first
+    options.nulls?.toUpperCase() === 'FIRST'
       ? 'NULLS FIRST'
-      : options.nulls === SortNullsEnum.LAST ||
-        options.nulls === SortNullsEnum.last
-      ? 'NULLS LAST'
-      : undefined;
+      : options.nulls?.toUpperCase() === 'LAST'
+        ? 'NULLS LAST'
+        : undefined;
 
   qb.addOrderBy(snakeName, direction, nulls);
 };
@@ -288,6 +224,10 @@ export const applySort = <T>(
   Object.keys(sort).forEach((key) => {
     applyFieldSort(qb, key, sort[key], alias);
   });
+
+  if (!('id' in sort)) {
+    applyFieldSort(qb, 'id', { direction: SortDirectionEnum.ASC }, alias);
+  }
 };
 
 const applyJoins = <T>(
@@ -339,6 +279,36 @@ const getRelations = <T>(
     : [];
 };
 
+export function getCount<T>(repo: Repository<T>, filter?: FilterType<T>) {
+  const relations = getRelations(repo.metadata.relations, filter);
+
+  const qb = repo.createQueryBuilder(repo.metadata.name);
+
+  applyJoins(qb, relations);
+
+  if (filter) {
+    applyFilter(qb, filter);
+  }
+
+  return qb.getCount();
+}
+
+function applyDistinctOn<T>(
+  qb: SelectQueryBuilder<T>,
+  sort: SortType<T> = {},
+  alias?: string,
+) {
+  const distinctOn = Object.keys(sort).map(
+    (key) => `"${alias}"."${snakeCase(key)}"`,
+  );
+
+  if (!('id' in sort)) {
+    distinctOn.push(`"${alias}"."id"`);
+  }
+
+  qb.distinctOn(distinctOn);
+}
+
 export function parseArgsToQuery<T>(
   repo: Repository<T>,
   pagination?: PaginationArgsType,
@@ -346,28 +316,29 @@ export function parseArgsToQuery<T>(
   filter?: FilterType<T>,
 ) {
   const relations = getRelations(repo.metadata.relations, filter, sort);
-
-  const qb = repo.createQueryBuilder();
+  const qb = repo.createQueryBuilder(repo.metadata.name);
 
   applyJoins(qb, relations);
 
+  if (relations.length > 0) {
+    applyDistinctOn(qb, sort, qb.alias);
+  }
+
   if (sort) {
-    applySort(qb, sort);
+    applySort(qb, sort, qb.alias);
+  } else {
+    applyFieldSort(qb, 'id', { direction: SortDirectionEnum.ASC }, qb.alias);
   }
-  if (pagination) {
-    applyPagination(qb, pagination);
-  }
+
   if (filter) {
-    applyFilter(qb, filter);
+    applyFilter(qb, filter, qb.alias);
+  }
+
+  if (pagination) {
+    applyPagination(qb, pagination, qb.alias);
   }
 
   return qb;
-}
-
-function isOffsetPagination(
-  pagination: PaginationArgsType,
-): pagination is OffsetPaginationArgsType {
-  return (pagination as OffsetPaginationArgsType).offset !== undefined;
 }
 
 export function applyArgs<T>(

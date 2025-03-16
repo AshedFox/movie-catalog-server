@@ -1,5 +1,11 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
 import { PriceEntity } from '../../price/entities/price.entity';

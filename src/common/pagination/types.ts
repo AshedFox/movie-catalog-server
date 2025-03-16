@@ -5,8 +5,8 @@ export type InferPaginationType<P extends PaginationVariant> =
   P extends 'take-skip'
     ? OffsetPaginationArgs
     : P extends 'relay'
-    ? RelayPaginationArgs
-    : never;
+      ? RelayPaginationArgs
+      : never;
 
 export type PaginationVariant = 'take-skip' | 'relay';
 

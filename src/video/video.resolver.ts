@@ -24,8 +24,9 @@ import { DataLoaderFactory } from '../dataloader/data-loader.factory';
 import { PubSub } from 'graphql-subscriptions';
 import { MediaEntity } from '../media/entities/media.entity';
 import { VideoAudioEntity } from '../video-audio/entities/video-audio.entity';
-import { join } from 'path';
-import fs from 'fs';
+import { StreamingGenerationProgressDto } from './dto/streaming-generation-progress.dto';
+import { CreateVideoInput } from './dto/create-video.input';
+import { CreateStreamingDirectlyInput } from './dto/create-streaming-directly.input';
 
 @Resolver(() => VideoEntity)
 export class VideoResolver {
@@ -38,73 +39,30 @@ export class VideoResolver {
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
   @Mutation(() => Boolean)
-  generateStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
-    this.videoService
-      .prepareStreamingData(id)
-      .then(async (data) => {
-        const streamingOutDir = join(
-          process.cwd(),
-          'assets',
-          `video_${id}`,
-          'streaming',
-        );
+  createStreamingForVideoDirectly(
+    @Args('input') input: CreateStreamingDirectlyInput,
+  ) {
+    this.videoService.createStreamingDirectly(input, (data) =>
+      this.pubSub.publish(`streamingGenerationProgress_${input.id}`, data),
+    );
+    return true;
+  }
 
-        try {
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Starting streaming files creation for video ${id}`,
-          );
-
-          await this.videoService.createStreaming(
-            id,
-            join(process.cwd(), 'assets', `video_${id}`, 'streaming'),
-            data.videoVariants,
-            data.audioVariants,
-            data.subtitles,
-          );
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Successfully created streaming files for video ${id}`,
-          );
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Clearing old streaming files if exists for video ${id}`,
-          );
-
-          await this.videoService.clearStreamingFiles(id);
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Starting uploading streaming files for video ${id}`,
-          );
-
-          await this.videoService.clearStreamingFiles(id);
-          await this.videoService.uploadStreamingFiles(id, streamingOutDir);
-
-          await this.pubSub.publish(
-            `streamingGenerationProgress_${id}`,
-            `Successfully uploaded streaming files for video ${id}`,
-          );
-        } catch (err) {
-          await this.pubSub.publish(`streamingGenerationProgress_${id}`, err);
-        } finally {
-          fs.rmSync(streamingOutDir, { recursive: true });
-        }
-      })
-      .catch((err) =>
-        this.pubSub.publish(`streamingGenerationProgress_${id}`, err),
-      );
-
+  @UseGuards(GqlJwtAuthGuard, RolesGuard)
+  @Role([RoleEnum.Admin])
+  @Mutation(() => Boolean)
+  createStreamingForVideo(@Args('id', { type: () => Int }) id: number) {
+    this.videoService.createStreaming(id, (data) =>
+      this.pubSub.publish(`streamingGenerationProgress_${id}`, data),
+    );
     return true;
   }
 
   @UseGuards(GqlJwtAuthGuard, RolesGuard)
   @Role([RoleEnum.Admin])
   @Mutation(() => VideoEntity)
-  async createVideo() {
-    return this.videoService.create({});
+  async createVideo({ originalMediaId }: CreateVideoInput) {
+    return this.videoService.create({ originalMediaId });
   }
 
   @Query(() => PaginatedVideos)
@@ -138,13 +96,28 @@ export class VideoResolver {
     return this.videoService.delete(id);
   }
 
-  @Subscription(() => String, {
-    resolve: (value) => value,
+  @Subscription(() => StreamingGenerationProgressDto, {
+    resolve: (value: StreamingGenerationProgressDto, { id }) => ({
+      ...value,
+      message: `video-${id}: ${value.message}`,
+    }),
   })
   streamingGenerationProgress(@Args('id', { type: () => Int }) id: number) {
-    return this.pubSub.asyncIterator<string>(
+    return this.pubSub.asyncIterator<StreamingGenerationProgressDto>(
       `streamingGenerationProgress_${id}`,
     );
+  }
+
+  @ResolveField(() => MediaEntity, { nullable: true })
+  originalMedia(
+    @Parent() video: VideoEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return video.originalMediaId
+      ? loadersFactory
+          .createOrGetLoader(MediaEntity, 'id')
+          .load(video.originalMediaId)
+      : undefined;
   }
 
   @ResolveField(() => MediaEntity, { nullable: true })
@@ -156,18 +129,6 @@ export class VideoResolver {
       ? loadersFactory
           .createOrGetLoader(MediaEntity, 'id')
           .load(video.dashManifestMediaId)
-      : undefined;
-  }
-
-  @ResolveField(() => MediaEntity, { nullable: true })
-  hlsManifestMedia(
-    @Parent() video: VideoEntity,
-    @LoadersFactory() loadersFactory: DataLoaderFactory,
-  ) {
-    return video.hlsManifestMedia
-      ? loadersFactory
-          .createOrGetLoader(MediaEntity, 'id')
-          .load(video.hlsManifestMediaId)
       : undefined;
   }
 

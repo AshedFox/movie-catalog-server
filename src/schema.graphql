@@ -33,14 +33,15 @@ input AgeRestrictionEnumFilter {
 }
 
 enum AudioProfileEnum {
-  PROFILE_2k
-  PROFILE_4k
-  PROFILE_144p
-  PROFILE_240p
-  PROFILE_360p
-  PROFILE_480p
-  PROFILE_720p
-  PROFILE_1080p
+  HIGH
+  LOW
+  MEDIUM
+  ULTRA
+}
+
+type AudioVariantsProgressDto {
+  message: String!
+  type: String!
 }
 
 type AuthResult {
@@ -780,6 +781,13 @@ input CreateSeriesInput {
   title: String!
 }
 
+input CreateStreamingDirectlyInput {
+  audioProfiles: [AudioProfileEnum!]!
+  id: Int!
+  url: String!
+  videoProfiles: [VideoProfileEnum!]!
+}
+
 input CreateStudioInput {
   countriesIds: [String!]
   name: String!
@@ -1120,22 +1128,13 @@ input FilmSort {
   videoId: SortOptions
 }
 
-enum FormatEnum {
-  MP4
-  WEBM
-}
-
 input GenerateVideoAudiosInput {
-  format: FormatEnum!
   languageId: String!
-  originalMediaUrl: String!
-  profiles: [VideoProfileEnum!]!
+  profiles: [AudioProfileEnum!]!
   videoId: Int!
 }
 
 input GenerateVideoVariantsInput {
-  format: FormatEnum!
-  originalMediaUrl: String!
   profiles: [VideoProfileEnum!]!
   videoId: Int!
 }
@@ -3517,6 +3516,8 @@ type Mutation {
   createRoomParticipant(roomId: String!, userId: String!): RoomParticipant!
   createSeason(input: CreateSeasonInput!): Season!
   createSeries(input: CreateSeriesInput!): Series!
+  createStreamingForVideo(id: Int!): Boolean!
+  createStreamingForVideoDirectly(input: CreateStreamingDirectlyInput!): Boolean!
   createStudio(input: CreateStudioInput!): Studio!
   createStudioCountry(countryId: String!, studioId: Int!): StudioCountry!
   createSubscriptionsManageLink: String!
@@ -3561,7 +3562,6 @@ type Mutation {
   endRoomPlayback(id: String!): Boolean!
   forgotPassword(email: String!): Boolean!
   generateRoomInvite(id: String!): String!
-  generateStreamingForVideo(id: Int!): Boolean!
   generateVideoAudios(input: GenerateVideoAudiosInput!): Boolean!
   generateVideoVariants(input: GenerateVideoVariantsInput!): Boolean!
   increaseMovieVisits(movieId: String!): Boolean!
@@ -4102,16 +4102,20 @@ type Series implements Movie {
   description: String
   endReleaseDate: DateTime
   episodes: [Episode!]!
+  episodesCount: Int!
   genres: [Genre!]!
   genresConnection: [MovieGenre!]!
   id: ID!
   movieImages: [MovieImage!]!
   moviePersons: [MoviePerson!]!
+  paginatedEpisodes(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedEpisodes!
+  paginatedSeasons(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedSeasons!
   product: Product
   productId: String
   rating: Float!
   reviews: [MovieReview!]!
   seasons: [Season!]!
+  seasonsCount: Int!
   startReleaseDate: DateTime
   studios: [Studio!]!
   studiosConnection: [MovieStudio!]!
@@ -4240,6 +4244,11 @@ input SortOptions {
   nulls: SortNullsEnum
 }
 
+type StreamingGenerationProgressDto {
+  message: String!
+  type: String!
+}
+
 input StringFilter {
   eq: String
   ilike: String
@@ -4278,12 +4287,12 @@ input StudioSort {
 }
 
 type Subscription {
-  audioVariantsProgress(id: Int!): String!
+  audioVariantsProgress(id: Int!): AudioVariantsProgressDto!
   roomDeleted(id: String!): Room!
   roomPlaybackEnded(id: String!): RoomMovie!
   roomPlaybackStarted(id: String!): RoomMovie!
-  streamingGenerationProgress(id: Int!): String!
-  videoVariantsProgress(id: Int!): String!
+  streamingGenerationProgress(id: Int!): StreamingGenerationProgressDto!
+  videoVariantsProgress(id: Int!): VideoVariantsProgressDto!
 }
 
 enum SubscriptionStatusEnum {
@@ -4551,15 +4560,14 @@ type Video {
   audios: [VideoAudio!]!
   dashManifestMedia: Media
   dashManifestMediaId: String
-  hlsManifestMedia: Media
-  hlsManifestMediaId: String
   id: ID!
+  originalMedia: Media
+  originalMediaId: String
   subtitles: [Subtitles!]!
   variants: [VideoVariant!]!
 }
 
 type VideoAudio {
-  format: FormatEnum!
   id: Float!
   language: Language!
   languageId: String!
@@ -4592,11 +4600,15 @@ input VideoSort {
 }
 
 type VideoVariant {
-  format: FormatEnum!
   id: Float!
   media: Media!
   mediaId: String!
   profile: VideoProfileEnum!
   video: Video!
   videoId: Int!
+}
+
+type VideoVariantsProgressDto {
+  message: String!
+  type: String!
 }
