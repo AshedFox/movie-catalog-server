@@ -4102,16 +4102,20 @@ type Series implements Movie {
   description: String
   endReleaseDate: DateTime
   episodes: [Episode!]!
+  episodesCount: Int!
   genres: [Genre!]!
   genresConnection: [MovieGenre!]!
   id: ID!
   movieImages: [MovieImage!]!
   moviePersons: [MoviePerson!]!
+  paginatedEpisodes(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedEpisodes!
+  paginatedSeasons(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedSeasons!
   product: Product
   productId: String
   rating: Float!
   reviews: [MovieReview!]!
   seasons: [Season!]!
+  seasonsCount: Int!
   startReleaseDate: DateTime
   studios: [Studio!]!
   studiosConnection: [MovieStudio!]!
