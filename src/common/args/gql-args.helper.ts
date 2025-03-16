@@ -1,6 +1,12 @@
 import { Type } from '@nestjs/common';
 import { ArgsType, Field, Int } from '@nestjs/graphql';
-import { IsOptional, IsPositive, Min, ValidateNested } from 'class-validator';
+import {
+  IsOptional,
+  IsPositive,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Type as TypeDecorator } from 'class-transformer';
 import { Filterable, FilterType } from '../filter';
 import { Sortable, SortType } from '../sort';
@@ -38,6 +44,7 @@ export function GqlArgs<
       offset: number;
       @Field(() => Int, { defaultValue: 20 })
       @Min(1)
+      @Max(1000)
       limit: number;
     }
 
