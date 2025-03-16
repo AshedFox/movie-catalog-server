@@ -9,77 +9,69 @@ import {
   TARGET_FRAMES,
   VIDEO_PROFILES,
 } from './constants';
+import { join } from 'path';
+import { mkdir } from 'fs/promises';
 
 @Injectable()
 export class FfmpegService {
-  makeDashManifest = (
+  makeMPEGDash = async (
     videoPaths: Record<string, string[]>,
     audioPaths: Record<string, string[]>,
-    subtitlesPaths: Record<string, string>,
     outputPath: string,
   ) => {
     try {
-      const command = Ffmpeg();
+      const command = Ffmpeg({ cwd: outputPath });
 
       const mapOpt: string[] = [];
-      const adaptationSets: number[][] = [];
+      let streamIndex = 0;
 
-      for (const videoPathsKey in videoPaths) {
-        adaptationSets.push([]);
-        for (const videoPath of videoPaths[videoPathsKey]) {
+      for (const languageKey in videoPaths) {
+        for (const videoPath of videoPaths[languageKey]) {
           command.addInput(videoPath);
-          adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
-          mapOpt.push(`-map ${mapOpt.length}:v:0`);
+          mapOpt.push(`-map ${streamIndex}:v:0`);
+          streamIndex++;
         }
       }
 
-      for (const audioPathsKey in audioPaths) {
-        adaptationSets.push([]);
-        for (const audioPath of audioPaths[audioPathsKey]) {
+      for (const languageKey in audioPaths) {
+        for (const audioPath of audioPaths[languageKey]) {
           command.addInput(audioPath);
-          adaptationSets[adaptationSets.length - 1].push(mapOpt.length);
-          mapOpt.push(`-map ${mapOpt.length}:a:0`);
+          mapOpt.push(`-map ${streamIndex}:a:0`);
+          streamIndex++;
         }
-      }
-
-      for (const subtitlesPathsKey in subtitlesPaths) {
-        adaptationSets.push([mapOpt.length]);
-        command.addInput(subtitlesPaths[subtitlesPathsKey]);
-        mapOpt.push(`-map ${mapOpt.length}:s:0`);
       }
 
       command
         .outputOptions([...mapOpt, '-c copy'])
         .outputFormat('dash')
-        .addOutputOption('-use_timeline 1')
-        .addOutputOption('-use_template 1')
+        .addOutputOption('-use_timeline 0')
         .addOutputOption(`-seg_duration ${SEGMENT_DURATION}`)
-        .addOutputOption('-hls_playlist 1')
+        .addOutputOption(`-frag_duration ${SEGMENT_DURATION}`)
+        .addOutputOption('-adaptation_sets "id=0,streams=v id=1,streams=a"')
+        .addOutputOption('-init_seg_name', '$RepresentationID$/init.$ext$')
         .addOutputOption(
-          `-adaptation_sets`,
-          adaptationSets
-            .map((value, index) => {
-              return `id=${index},streams=${value.join(',')}`;
-            })
-            .join(' '),
+          '-media_seg_name',
+          '$RepresentationID$/seg-$Number$.$ext$',
         );
 
-      command.addOutputOption(`-dash_segment_type mp4`);
+      for (let i = 0; i < streamIndex; i++) {
+        await mkdir(join(outputPath, String(i)), { recursive: true });
+      }
 
       return new Promise<void>((resolve, reject) => {
         command
           .on('start', (commandLine) => {
             Logger.log('Spawned Ffmpeg with command: ' + commandLine);
           })
-          .on('error', (err) => {
-            Logger.error(`FFmpeg error: ${err.message}`);
+          .on('error', (err, stdout, stderr) => {
+            Logger.error(`FFmpeg error: ${err.message}\n${stdout}\n${stderr}`);
             reject(err);
           })
           .on('end', () => {
-            Logger.log(`Dash manifest created at ${outputPath}`);
+            Logger.log(`DASH manifest created at ${outputPath}`);
             resolve();
           })
-          .saveToFile(outputPath);
+          .saveToFile('master.mpd');
       });
     } catch (err) {
       Logger.error(`Error in makeDashManifest: ${err.message}`);
