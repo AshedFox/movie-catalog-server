@@ -159,18 +159,6 @@ export class VideoResolver {
       : undefined;
   }
 
-  @ResolveField(() => MediaEntity, { nullable: true })
-  hlsManifestMedia(
-    @Parent() video: VideoEntity,
-    @LoadersFactory() loadersFactory: DataLoaderFactory,
-  ) {
-    return video.hlsManifestMedia
-      ? loadersFactory
-          .createOrGetLoader(MediaEntity, 'id')
-          .load(video.hlsManifestMediaId)
-      : undefined;
-  }
-
   @ResolveField(() => [VideoVariantEntity])
   variants(
     @Parent() video: VideoEntity,

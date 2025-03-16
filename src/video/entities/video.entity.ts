@@ -32,18 +32,6 @@ export class VideoEntity {
   })
   dashManifestMedia?: Relation<MediaEntity>;
 
-  @Field({ nullable: true })
-  @Column({ type: 'uuid', nullable: true })
-  hlsManifestMediaId?: string;
-
-  @Field(() => MediaEntity, { nullable: true })
-  @ManyToOne(() => MediaEntity, {
-    nullable: true,
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE',
-  })
-  hlsManifestMedia?: Relation<MediaEntity>;
-
   @Field(() => [VideoVariantEntity])
   @OneToMany(() => VideoVariantEntity, (videoVariant) => videoVariant.videoId)
   variants: Relation<VideoVariantEntity[]>;
