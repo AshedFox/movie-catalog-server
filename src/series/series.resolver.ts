@@ -1,5 +1,6 @@
 import {
   Args,
+  Int,
   Mutation,
   Parent,
   Query,
@@ -23,6 +24,9 @@ import { AccessModeEnum } from '@utils/enums/access-mode.enum';
 import { MovieInterfaceResolver } from '../movie/movie-interface.resolver';
 import { LoadersFactory } from '../dataloader/decorators/loaders-factory.decorator';
 import { DataLoaderFactory } from '../dataloader/data-loader.factory';
+import { GetSeasonsArgs } from 'src/season/dto/get-seasons.args';
+import { PaginatedSeasons } from 'src/season/dto/paginated-seasons';
+import { PaginatedEpisodes } from 'src/episode/dto/paginated-episodes';
 
 @Resolver(SeriesEntity)
 export class SeriesResolver extends MovieInterfaceResolver {
@@ -124,5 +128,71 @@ export class SeriesResolver extends MovieInterfaceResolver {
     return loadersFactory
       .createOrGetLoader(EpisodeEntity, 'seriesId', SeriesEntity, 'id')
       .load({ id: series.id });
+  }
+
+  @ResolveField(() => Int)
+  seasonsCount(
+    @Parent() series: SeriesEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetCountLoader(SeasonEntity, 'seriesId', 'id')
+      .load(series.id);
+  }
+
+  @ResolveField(() => Int)
+  episodesCount(
+    @Parent() series: SeriesEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+  ) {
+    return loadersFactory
+      .createOrGetCountLoader(EpisodeEntity, 'seriesId', 'id')
+      .load(series.id);
+  }
+
+  @ResolveField(() => PaginatedSeasons)
+  async paginatedSeasons(
+    @Parent() series: SeriesEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+    @Args() { filter, sort, ...pagination }: GetSeasonsArgs,
+  ): Promise<PaginatedSeasons> {
+    const count = await loadersFactory
+      .createOrGetCountLoader(SeasonEntity, 'seriesId', 'id')
+      .load(series.id);
+    const { limit, offset } = pagination;
+
+    return {
+      nodes: await loadersFactory
+        .createOrGetLoader(SeasonEntity, 'seriesId', SeriesEntity, 'id')
+        .load({ id: series.id, args: { filter, sort }, pagination }),
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
+      },
+    };
+  }
+
+  @ResolveField(() => PaginatedEpisodes)
+  async paginatedEpisodes(
+    @Parent() series: SeriesEntity,
+    @LoadersFactory() loadersFactory: DataLoaderFactory,
+    @Args() { filter, sort, ...pagination }: GetSeasonsArgs,
+  ): Promise<PaginatedEpisodes> {
+    const count = await loadersFactory
+      .createOrGetCountLoader(EpisodeEntity, 'seriesId', 'id')
+      .load(series.id);
+    const { limit, offset } = pagination;
+
+    return {
+      nodes: await loadersFactory
+        .createOrGetLoader(EpisodeEntity, 'seriesId', SeriesEntity, 'id')
+        .load({ id: series.id, args: { filter, sort }, pagination }),
+      pageInfo: {
+        totalCount: count,
+        hasNextPage: count > limit + offset,
+        hasPreviousPage: offset > 0,
+      },
+    };
   }
 }
