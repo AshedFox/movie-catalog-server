@@ -360,7 +360,7 @@ export class DataLoaderFactory {
             .groupBy(snakeGroupKeyName)
             .where(`${snakeGroupKeyName} IN (:...keys)`, { keys });
 
-          extra && extra(qb);
+          extra?.(qb);
 
           const data = await qb.getRawMany();
 
