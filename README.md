@@ -1,4 +1,4 @@
-# Movie Catalog
+# Lunari Movies
 
 ## Description
 
