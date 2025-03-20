@@ -1072,16 +1072,20 @@ type Film implements Movie {
   genresConnection: [MovieGenre!]!
   id: ID!
   movieImages: [MovieImage!]!
+  movieImagesCount: Int!
   moviePersons: [MoviePerson!]!
+  moviePersonsCount: Int!
   product: Product
   productId: String
   rating: Float!
   releaseDate: DateTime
   reviews: [MovieReview!]!
+  reviewsCount: Int!
   studios: [Studio!]!
   studiosConnection: [MovieStudio!]!
   title: String!
   trailers: [Trailer!]!
+  trailersCount: Int!
   type: MovieTypeEnum!
   updatedAt: DateTime!
   video: Video
@@ -1620,15 +1624,19 @@ interface Movie {
   genresConnection: [MovieGenre!]!
   id: ID!
   movieImages: [MovieImage!]!
+  movieImagesCount: Int!
   moviePersons: [MoviePerson!]!
+  moviePersonsCount: Int!
   product: Product
   productId: String
   rating: Float!
   reviews: [MovieReview!]!
+  reviewsCount: Int!
   studios: [Studio!]!
   studiosConnection: [MovieStudio!]!
   title: String!
   trailers: [Trailer!]!
+  trailersCount: Int!
   type: MovieTypeEnum!
   updatedAt: DateTime!
 }
@@ -4107,13 +4115,16 @@ type Series implements Movie {
   genresConnection: [MovieGenre!]!
   id: ID!
   movieImages: [MovieImage!]!
+  movieImagesCount: Int!
   moviePersons: [MoviePerson!]!
+  moviePersonsCount: Int!
   paginatedEpisodes(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedEpisodes!
   paginatedSeasons(filter: SeasonFilter, limit: Int! = 20, offset: Int! = 0, sort: SeasonSort): PaginatedSeasons!
   product: Product
   productId: String
   rating: Float!
   reviews: [MovieReview!]!
+  reviewsCount: Int!
   seasons: [Season!]!
   seasonsCount: Int!
   startReleaseDate: DateTime
@@ -4121,6 +4132,7 @@ type Series implements Movie {
   studiosConnection: [MovieStudio!]!
   title: String!
   trailers: [Trailer!]!
+  trailersCount: Int!
   type: MovieTypeEnum!
   updatedAt: DateTime!
 }
